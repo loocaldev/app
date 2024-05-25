@@ -1,0 +1,157 @@
+@import "./variables.css";
+
+.Cart {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  padding: 1rem;
+  gap: 8px;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: flex-end;
+  width: auto;
+  transition: width 3s ease;
+}
+
+.Cart.open {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.Cart.closed {
+  right: 0;
+  width: auto;
+}
+
+.cart-container {
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  transition: width 2s ease, opacity 1s ease;
+}
+
+.cart-container.show {
+  width: 100%;
+  opacity: 1;
+}
+
+.cart-container.hide {
+  width: auto;
+}
+
+.cart-box {
+  background-color: #fff;
+  padding: 6px;
+  box-shadow: 0px 4px 12px 0px rgba(0, 0, 0, 0.3);
+  border-radius: 99px;
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  width: auto;
+}
+
+.cart-box.detailed {
+  flex-direction: row;
+}
+
+.cart-first-column {
+  display: flex;
+}
+
+.cart-icon-box {
+  border-radius: 99px;
+  background-color: var(--primary-purple-color);
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.cart-icon {
+  display: flex;
+  align-items: center;
+}
+
+.cart-icon svg {
+  color: #fff;
+  width: 20px;
+  height: 20px;
+}
+
+.cart-content-box {
+  display: flex;
+  flex-direction: column;
+  padding: 0px 12px;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+  max-height: 0;
+  opacity: 0;
+}
+
+.cart-content-box.show {
+  max-height: 36px; /* Ajusta esto según sea necesario */
+  opacity: 1;
+}
+
+.cart-content-box.hide {
+  opacity: 0;
+  max-width: 0px;
+  padding: 0px;
+}
+
+.cart-action-box {
+  display: flex;
+  flex-direction: row;
+  justify-content: right;
+  align-items: center;
+  margin-left: 24px;
+  color: var(--primary-purple-color);
+  gap: 6px;
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+  max-height: 0;
+  opacity: 0;
+}
+
+.cart-action-box.show {
+  max-height: 50px; /* Ajusta esto según sea necesario */
+  opacity: 1;
+}
+
+.cart-action-box.hide {
+  opacity: 0;
+  max-width: 0px;
+  padding: 0px;
+  margin: 0px;
+}
+
+.cart-box-detailed {
+  background-color: white;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0px 4px 12px 0px rgba(0, 0, 0, 0.2);
+  text-align: left;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+  opacity: 0;
+}
+
+.cart-box-detailed.show {
+  max-height: 700px; /* Ajusta esto según sea necesario */
+  opacity: 1;
+}
+
+.cart-box-detailed.hide {
+  max-height: 0;
+  opacity: 0;
+}
+
+.cart-detailed-top {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}

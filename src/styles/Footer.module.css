@@ -1,0 +1,79 @@
+@import "./variables.css";
+
+.Footer {
+  padding: 0.8rem;
+  gap: 20px;
+}
+
+.FooterContent {
+  background-color: var(--primary-purple-color);
+  border-radius: 16px;
+  padding: 24px 24px;
+  text-align: left;
+}
+
+.FooterContent img {
+  max-width: 40%;
+}
+
+.footer-logos {
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-social {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+}
+
+.footer-logos img {
+    margin-bottom: 12px;
+}
+
+.footer-social-circle {
+  background-color: #fff;
+  border-radius: 99px;
+  padding: 6px;
+  display: flex;
+}
+
+.footer-social-circle svg {
+    color: var(--primary-purple-color)
+}
+
+.footer-social-circle svg {
+    width: 18px;
+    height: 18px;
+}
+
+.footer-menu {
+    display: flex;
+    color: white;
+    margin-top: 24px;
+    gap: 20px;
+}
+
+.footer-menu ul {
+    padding: 0;
+    margin: 6px 0px;
+    list-style: none;
+}
+
+.footer-menu li {
+    margin: 6px 0px;
+}
+
+.footer-menu-column {
+    font-size: 12px;
+    list-style: none;
+    list-style-type: none;
+}
+
+.footer-extra-info {
+    color: rgba(255,255,255,0.6);
+}
+
+.footer-divider hr {
+    border: 1px solid rgba(255,255,255,0.6);
+}

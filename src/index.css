@@ -1,0 +1,163 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
+
+:root {
+  font-family: "Poppins", sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color: #1e1e1e;
+  background-color: #fafafa;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: #f27c40;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #a84d1e;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 56px;
+  line-height: 72px;
+}
+
+h2 {
+  font-size: 32px;
+  line-height: 48px;
+}
+
+h3 {
+  font-size: 24px;
+  line-height: 36px;
+}
+
+h4 {
+  font-size: 16px;
+  line-height: 20px;
+}
+
+p {
+  font-size: 20px;
+  line-height: 32px;
+}
+
+span {
+  font-size: 16px;
+  line-height: 20px;
+}
+
+button {
+  border-radius: 24px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 16px;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: var(--primary-purple-color);
+  cursor: pointer;
+  transition: border-color 0.25s;
+  color: #fff;
+}
+button:hover {
+  border-color: none;
+}
+button:focus,
+button:focus-visible {
+  outline: none;
+}
+
+svg {
+  width: 24px;
+  height: 24px;
+}
+
+input {
+  font-family: inherit;
+}
+
+.slick-slide:not(:last-child) div {
+  margin-right: 16px !important;
+}
+
+.slick-slide:last-child {
+  margin-right: 0px;
+}
+
+/* .slick-slide {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.slick-slide div {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+}
+
+.slick-list {
+  overflow: hidden;
+} */
+
+@media screen and (max-width: 768px) {
+  h1 {
+    font-size: 32px;
+    line-height: 44px;
+  }
+  h2 {
+    font-size: 24px;
+    line-height: 32px;
+  }
+  h3 {
+    font-size: 20px;
+    line-height: 28px;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  :root {
+    background-color: #fff;
+  }
+  
+  h1 {
+    font-size: 24px;
+    line-height: 36px;
+  }
+  h2 {
+    font-size: 20px;
+    line-height: 24px;
+  }
+  h3 {
+    font-size: 16px;
+    line-height: 24px;
+  }
+  h4 {
+    font-size: 12px;
+    line-height: 16px;
+  }
+  p {
+    font-size: 16px;
+    line-height: 24px;
+  }
+  span {
+    font-size: 12px;
+    line-height: 16px;
+  }
+  button {
+    font-size: 14px;
+  }
+}

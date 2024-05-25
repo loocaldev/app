@@ -1,0 +1,18 @@
+@import "./variables.css";
+
+.faqs-card {
+    display: flex;
+    flex-direction: column;
+    border-radius: 16px;
+    box-shadow: 0px 4px 4px 0px #ede8ef;
+    background-color: #fff;
+    padding: 12px;
+    margin: 6px 0px;
+}
+
+.faq-title {
+    display: flex;
+    gap: 6px;
+    justify-content: space-between;
+    align-items: center;
+}

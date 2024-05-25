@@ -1,0 +1,86 @@
+@import "./variables.css";
+
+.Header {
+  padding: 0.8rem;
+  gap: 20px;
+  position: fixed;
+  z-index: 100;
+  top: 0;
+}
+
+.content {
+  display: grid;
+  grid-template-columns: 1fr 8fr 2.2fr;
+  grid-template-rows: 1fr;
+  grid-column-gap: 20px;
+  grid-row-gap: 20px;
+  border-radius: 16px;
+  box-shadow: 0px 4px 12px 0px #ede8ef;
+  background-color: #fff;
+  padding: 12px 24px;
+  gap: 20px;
+}
+
+.content div {
+  display: flex;
+  vertical-align: middle;
+  align-items: center;
+  align-content: center;
+  gap: 20px;
+}
+
+.firstContent {
+  justify-content: left;
+}
+
+.secondContent, .SearchBarWrapper {
+  width: 100%;
+}
+
+.thirdContent {
+  justify-content: right;
+  font-size: 14px;
+}
+
+.content svg {
+  color: var(--primary-purple-color);
+  cursor: pointer;
+}
+
+.content img {
+  cursor: pointer;
+}
+
+.thirdContent button:first-child {
+  background-color: transparent;
+  color: var(--primary-purple-color);
+  padding: 0px;
+  border: none;
+}
+
+.thirdContent button:first-child:hover {
+  border: none;
+}
+
+.thirdContent button:focus {
+  outline: none;
+}
+
+@media screen and (max-width: 768px) {
+  .thirdContent button {
+    display: none !important;
+  }
+
+  .SearchBarWrapper {
+    display: none !important;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .thirdContent button {
+    display: none !important;
+  }
+  .SearchBarWrapper  {
+    display: none !important;
+  }
+}

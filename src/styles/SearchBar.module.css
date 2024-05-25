@@ -1,0 +1,51 @@
+@import "./variables.css";
+
+.SearchBar {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.SearchBar input {
+  width: 100%;
+  border: 1px solid #fafafa;
+  border-radius: 24px;
+  padding: 12px 24px;
+  background-color: #fafafa;
+  box-sizing: border-box;
+}
+
+.SearchBar input:focus {
+    outline: none;
+    border-color: var(--purple-alpha-color);
+}
+
+.searchButton {
+  position: absolute;
+  right: 6px;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  background: var(--purple-alpha-color);
+  border: none;
+  cursor: pointer;
+  padding: 4px 6px 2px;
+}
+.searchButton:hover {
+    background-color: var(--primary-purple-color);
+    color: #fff;
+}
+
+.searchButton:focus{
+    outline: none;
+}
+
+.searchButton svg {
+    color: var(--primary-purple-color);
+    width: 20px;
+    height: 20px;
+}
+
+.searchButton:hover svg {
+    color:#fff;
+}
+
