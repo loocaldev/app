@@ -55,6 +55,10 @@ function Cart() {
 
   const navigate = useNavigate()
 
+  if (cart.length === 0){
+    return null;
+  }
+
   return (
     <>
       {isCartDetailedOpen && (
