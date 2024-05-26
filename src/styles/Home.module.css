@@ -3,13 +3,13 @@
 .section-banner {
   box-sizing: border-box;
   width: 100%;
-  padding: 0px 16px 24px;
+  padding: 0px 6px 24px;
 }
 
 .MainBanner {
   background-color: #fff;
   border-radius: 24px;
-  padding: 24px;
+  padding: 24px 24px;
   width: 100%;
   box-sizing: border-box;
 }
@@ -31,7 +31,7 @@
 }
 
 .Products {
-  padding: 0px 16px;
+  padding: 0px 8px;
 }
 
 .Products button {
@@ -39,7 +39,7 @@
 }
 
 .Faqs {
-  padding: 12px 16px;
+  padding: 12px 8px;
 }
 
 .Faqs h3 {
@@ -55,7 +55,7 @@
 @media screen and (max-width: 576px) {
   .MainBanner {
     background-color: transparent;
-    padding: 0px 16px;
+    padding: 0px 6px;
   }
   
   .MainBanner h1 {

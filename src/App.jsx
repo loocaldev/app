@@ -3,6 +3,7 @@ import { Routes, Route, useNavigate, Outlet } from "react-router-dom";
 import "./App.css";
 
 import Layout from "./containers/Layout";
+import ViewportMeta from "./components/ViewportMeta";
 
 function App() {
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ function App() {
 
   return (
     <div className="App">
+      <ViewportMeta/>
       <Layout>
         <Outlet />
       </Layout>

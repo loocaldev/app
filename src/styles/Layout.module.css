@@ -13,6 +13,10 @@
   text-align: left;
 }
 
+.CanvasPage {
+  margin: 24px auto 20px ;
+}
+
 @media screen and (max-width: 576px) {
   .Layout {
     padding: 0.1rem 1rem;

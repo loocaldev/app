@@ -71,7 +71,7 @@ function ProductCard({ product }) {
               }`}
             >
               {isProductInCart ? (
-                <FiCheck onClick={() => removeFromCart(product)} />
+                <FiCheck />
               ) : (
                 <FiShoppingCart onClick={() => addToCart(product)} />
               )}
@@ -91,10 +91,15 @@ function ProductCard({ product }) {
             )}
           </div>
           <div className={styles["product-action-price"]}>
-            <p>{formatPriceToCOP(product.price)}</p>
+            {isProductInCart ? (
+                <p>{formatPriceToCOP(productQuantity * product.price)}</p>
+            ) : (
+              <p>{formatPriceToCOP(product.price)}</p>
+            )}
+            
           </div>
           <div className={styles["product-action-pum"]}>
-            <span>Kg a $1.200</span>
+            <span>Kg a {formatPriceToCOP(product.price)}</span>
           </div>
         </div>
       </div>

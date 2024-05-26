@@ -8,15 +8,15 @@ import Footer from '../components/Footer';
 
 const Layout = ({ children }) => {
     const location = useLocation();
-    const isCanvasPage = location.pathname === "/login";
+    const isCanvasPage = location.pathname === "/login" || location.pathname === "/order"; 
   
     return (
       <>
         {!isCanvasPage && <Header />}
-        <div className={styles.Layout}>{children}
-        {/* <Cart /> */}
+        <div className={`${styles.Layout} ${isCanvasPage && styles.CanvasPage}`}>
+          {children}
         </div>
-        <Cart />
+        {!isCanvasPage && <Cart />}
         {!isCanvasPage && <Footer />}
       </>
     );

@@ -12,7 +12,6 @@ const reducer = (state, action) => {
   const { type: actionType, payload: actionPayload } = action;
   switch (actionType) {
     case "ADD_TO_CART": {
-      console.log("New state cart: ", actionPayload);
       const { id } = actionPayload;
       const productInCartIndex = state.findIndex((item) => item.id === id);
 
@@ -20,7 +19,6 @@ const reducer = (state, action) => {
         const newState = structuredClone(state);
         newState[productInCartIndex].quantity += 1;
         updateLocalStorage(newState);
-        console.log("ADD_TO_CART:", newState); // Verificación
         return newState;
       }
       const newState = [
@@ -31,7 +29,6 @@ const reducer = (state, action) => {
         },
       ];
       updateLocalStorage(newState);
-      console.log("ADD_TO_CART:", newState);
       return newState;
     }
 
