@@ -1,4 +1,66 @@
-.header {
+@import "./variables.css";
+
+.order-header {
+  display: flex;
+  flex-direction: column;
+  padding: 0px 24px;
+  position: fixed;
+  width: 100%;
+  box-sizing: border-box;
+  left: 0;
+  background-color: white;
+}
+
+.header-content {
     display: flex;
     gap: 12px;
+}
+
+.divider-header {
+  margin-top: 24px;
+  width: 100%;
+  border: 0.5px solid var(--gray-7);
+}
+
+.order-content {
+    margin-top: 60px;
+  padding: 24px 0px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.order-subtotal {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  padding: 12px 24px;
+  background-color: #fff;
+  border-radius: 99px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.order-subtotal-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.order-subtotal-content p {
+    font-weight: 800;
+}
+
+.order-subtotal-button {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    color: var(--primay-purple-color);
+}
+
+.order-subtotal-button p {
+    font-weight: 500;
 }

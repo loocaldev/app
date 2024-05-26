@@ -77,8 +77,7 @@
   flex-direction: column;
   gap: 20px;
   overflow-y: auto;
-  overflow: visible;
-  max-height: 24em;
+  max-height: 580px;
 }
 
 .cart-first-column {
@@ -118,7 +117,7 @@
 }
 
 .cart-content-box.show {
-  max-height: 36px; /* Ajusta esto según sea necesario */
+  max-height: 36px;
   opacity: 1;
 }
 
@@ -164,7 +163,6 @@
   overflow: hidden;
   transition: max-height 0.3s ease, opacity 0.3s ease;
   opacity: 0;
-  min-height: 78vh;
   /* backdrop-filter: blur(16px); */
 }
 
