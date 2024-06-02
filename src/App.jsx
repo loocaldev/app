@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Routes, Route, useNavigate, Outlet } from "react-router-dom";
 import "./App.css";
+import { Helmet } from 'react-helmet';
 
 import Layout from "./containers/Layout";
 import ViewportMeta from "./components/ViewportMeta";
@@ -13,10 +14,12 @@ function App() {
     document.title = title;
   }, [title]);
 
-
   return (
     <div className="App">
-      <ViewportMeta/>
+      <Helmet>
+        <script src="https://checkout.bold.co/library/boldPaymentButton.js" />
+      </Helmet>
+      <ViewportMeta />
       <Layout>
         <Outlet />
       </Layout>

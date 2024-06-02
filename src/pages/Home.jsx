@@ -29,8 +29,12 @@ function Home() {
       </div>
 
       <div className={styles.Faqs}>
-        <hr/>
-        <h3>¿Tienes dudas?<br/>Déjanos ayudarte</h3>
+        <hr />
+        <h3>
+          ¿Tienes dudas?
+          <br />
+          Déjanos ayudarte
+        </h3>
         <Faqs />
       </div>
     </>
