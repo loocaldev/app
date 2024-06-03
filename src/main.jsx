@@ -12,6 +12,8 @@ import "./index.css";
 import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
 import Order from "./pages/Order.jsx";
+import Checkout from "./pages/Checkout.jsx";
+import OrderStatus from "./pages/orderStatus.jsx";
 
 const router = createBrowserRouter([
   {
@@ -21,6 +23,8 @@ const router = createBrowserRouter([
       { path: "/", element: <Home /> },
       { path: "/login", element: <Login /> },
       { path: "/order", element: <Order /> },
+      { path: "/checkout", element: <Checkout /> },
+      { path: "/order-status", element: <OrderStatus /> },
     ],
   },
 ]);

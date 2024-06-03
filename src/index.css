@@ -6,7 +6,7 @@
   font-weight: 400;
 
   color: #1e1e1e;
-  background-color: #fafafa;
+  background-color: #fff;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -93,12 +93,17 @@ input {
 }
 
 .slick-slide:not(:last-child) div {
-  margin-right: 16px !important;
+  margin-right: 12px !important;
 }
 
 .slick-slide:last-child {
   margin-right: 0px;
 }
+
+.slick-slider {
+  max-width: 100%;
+}
+
 
 /* .slick-slide {
   display: flex;

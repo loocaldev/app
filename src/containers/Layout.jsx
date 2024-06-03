@@ -8,7 +8,7 @@ import Footer from '../components/Footer';
 
 const Layout = ({ children }) => {
     const location = useLocation();
-    const isCanvasPage = location.pathname === "/login" || location.pathname === "/order"; 
+    const isCanvasPage = location.pathname === "/login" || location.pathname === "/order" || location.pathname === "/checkout"; 
   
     return (
       <>
