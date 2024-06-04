@@ -202,7 +202,7 @@ function Checkout() {
   
     console.log("Datos a enviar en la solicitud POST:", postData); // Imprimir el JSON antes de enviarlo
   
-    fetch("http://localhost:8000/orders/api/v1/orders/", {
+    fetch("https://server-production-1ddc.up.railway.app/orders/api/v1/orders/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
