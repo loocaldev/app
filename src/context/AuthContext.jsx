@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (username, password) => {
     try {
       // Realizar la solicitud de inicio de sesión al backend
-      const response = await fetch("http://localhost:8000/login", {
+      const response = await fetch("https://server-production-1ddc.up.railway.app/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -64,7 +64,7 @@ export const AuthProvider = ({ children }) => {
 
   const getUserDetails = async (authToken) => {
     try {
-      const response = await fetch("http://localhost:8000/profile", {
+      const response = await fetch("https://server-production-1ddc.up.railway.app/profile", {
         method: "GET",
         headers: {
           Authorization: `Token ${authToken}`,
@@ -90,7 +90,7 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       // Realizar la solicitud de logout al backend
-      const response = await fetch("http://localhost:8000/logout", {
+      const response = await fetch("https://server-production-1ddc.up.railway.app/logout", {
         method: "POST",
         headers: {
           Authorization: `Token ${token}`,
