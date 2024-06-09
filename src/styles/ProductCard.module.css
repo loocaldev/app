@@ -2,7 +2,7 @@
 
 .card {
   background-color: #fff;
-  padding: 0px 12px;
+  padding: 6px 12px;
   border-radius: 16px;
   width: 100%;
   box-sizing: border-box;
@@ -20,6 +20,7 @@
   grid-template-columns: 1fr 1fr 1fr;
   grid-column-gap: 6px;
   align-items: center;
+  gap: 12px;
 }
 
 .product-content-name {
@@ -32,6 +33,11 @@
 
 .product-action-price p {
   line-height: 8px;
+}
+
+.product-img {
+  display: flex;
+  align-items: center;
 }
 
 .product-content, .product-img {
@@ -57,7 +63,7 @@
   text-align: right;
   display: flex;
   flex-direction: column;
-  gap: 0px;
+  gap: 8px;
 }
 
 

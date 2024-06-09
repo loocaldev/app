@@ -53,7 +53,7 @@ function ProductCard({ product }) {
           <img src={product.image}></img>
         </div>
         <div className={styles["product-content"]}>
-          <h3 className={styles["product-content-name"]}>{product.name}</h3>
+          <p className={styles["product-content-name"]}>{product.name}</p>
           <div className={styles["product-variations"]}>
             <span>Convencional</span>
             <span>Maduro</span>

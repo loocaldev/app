@@ -9,16 +9,40 @@
   background-color: var(--primary-purple-color);
   border-radius: 16px;
   padding: 24px 24px;
-  text-align: left;
 }
 
 .FooterContent img {
-  max-width: 40%;
+  max-width: 70%;
+}
+
+.footer-firstrow {
+  display: flex;
+  max-width: 1140px;
+  padding: 24px 0px;
+  margin: 0px auto;
+  justify-content: center;
+  align-items: center;
+}
+
+.footer-secondrow {
+  display: flex;
+  max-width: 1140px;
+  padding: 24px 0px;
+  margin: 0px auto;
+  justify-content: center;
+  text-align: left;
+}
+
+.footer-lastrow {
+  text-align: center;
+  justify-content: center;
+  width: 100%;
 }
 
 .footer-logos {
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 
 .footer-social {
@@ -28,7 +52,7 @@
 }
 
 .footer-logos img {
-    margin-bottom: 12px;
+  margin-bottom: 12px;
 }
 
 .footer-social-circle {
@@ -39,41 +63,89 @@
 }
 
 .footer-social-circle svg {
-    color: var(--primary-purple-color)
+  color: var(--primary-purple-color);
 }
 
 .footer-social-circle svg {
-    width: 18px;
-    height: 18px;
+  width: 18px;
+  height: 18px;
 }
 
 .footer-menu {
-    display: flex;
-    color: white;
-    margin-top: 24px;
-    gap: 20px;
+  display: flex;
+  color: white;
+  gap: 40px;
 }
 
 .footer-menu ul {
-    padding: 0;
-    margin: 6px 0px;
-    list-style: none;
+  padding: 0;
+  margin: 6px 0px;
+  list-style: none;
 }
 
 .footer-menu li {
-    margin: 6px 0px;
+  margin: 8px 0px;
 }
 
 .footer-menu-column {
-    font-size: 12px;
-    list-style: none;
-    list-style-type: none;
+  font-size: 14px;
+  list-style: none;
+  list-style-type: none;
+  font-weight: 400;
 }
 
-.footer-extra-info {
-    color: rgba(255,255,255,0.6);
+.footer-menu-column a {
+  color: white;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer-menu-column a svg {
+  width: 16px;
+}
+
+.footer-menu-column a:hover {
+  color: white;
+  font-weight: 400;
+}
+
+.footer-extra-info span{
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 300;
+}
+
+.footer-extra-info a {
+  color: rgba(255,255,255,0.6);
+  font-weight: 300;
+}
+
+.footer-extra-info a:hover {
+  color: rgba(255,255,255,0.8);
+  font-weight: 300;
 }
 
 .footer-divider hr {
-    border: 1px solid rgba(255,255,255,0.6);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+@media screen and (max-width: 576px) {
+  .footer-firstrow {
+    align-items: initial;
+    justify-content: initial;
+  }
+  .footer-logos {
+    justify-content: initial;
+    align-items: initial;
+  }
+  .footer-menu {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .footer-lastrow {
+    text-align: left;
+  }
 }

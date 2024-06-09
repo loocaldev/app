@@ -6,7 +6,7 @@
   font-weight: 400;
 
   color: #1e1e1e;
-  background-color: #fff;
+  background-color: #f6f6f6;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -102,6 +102,32 @@ input {
 
 .slick-slider {
   max-width: 100%;
+}
+
+/* Anchura de la barra de desplazamiento */
+::-webkit-scrollbar {
+  width: 8px; /* Anchura de la barra de desplazamiento */
+}
+
+/* Fondo de la barra de desplazamiento */
+::-webkit-scrollbar-track {
+  background-color: var(--purple-alpha-color); /* Color de fondo */
+  border-radius: 16px;
+}
+
+/* Color del riel de la barra de desplazamiento */
+::-webkit-scrollbar-thumb {
+  background-color: var(--primary-purple-color); /* Color del riel */
+}
+
+/* Añadir bordes a la barra de desplazamiento */
+::-webkit-scrollbar-thumb {
+  border-radius: 6px; /* Radio de borde */
+}
+
+/* Cambiar el color de la barra de desplazamiento cuando se desplaza */
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--primary-purple-color); /* Color del riel al pasar el ratón */
 }
 
 

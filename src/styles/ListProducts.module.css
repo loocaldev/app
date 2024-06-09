@@ -1,10 +1,28 @@
 .bannerProducts {
   margin: 20px 0px;
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(1, 1fr);
   grid-template-rows: 1fr;
   grid-column-gap: 20px;
   grid-row-gap: 20px;
+}
+
+.product-not-found {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.product-not-found span {
+  margin-bottom: 12px;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.product-not-found img {
+  max-width: 180px;
 }
 
 @media screen and (max-width: 576px) {

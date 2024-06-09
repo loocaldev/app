@@ -4,22 +4,52 @@
   box-sizing: border-box;
   width: 100%;
   padding: 0px 6px 24px;
+  display: none;
+}
+
+.Banner {
+  background-color:transparent;
+  grid-template-columns: 2fr 1fr;
+  padding: 8px 24px 24px 0px;
+  border-radius: 16px;
+  box-sizing: border-box;
+  display: flex;
+  width: 100%;
 }
 
 .MainBanner {
-  background-color: #fff;
+  background-color: transparent;
   border-radius: 24px;
-  padding: 24px 24px;
-  width: 100%;
+  width: 60%;
   box-sizing: border-box;
+  padding: 24px 24px 24px 0px;
 }
 
-.MainBanner input {
-  margin: 12px 0px !important;
+.MainBanner img {
+  width: 30%;
+}
+
+.MainBanner ul {
+  list-style: none;
+  padding: 12px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px ;
+}
+
+.MainBanner li {
+  display: flex; /* Usa flexbox para alinear el icono y el texto */
+  align-items: center; /* Centra verticalmente los elementos dentro del ítem */
+  margin-bottom: 5px;
+}
+
+.MainBanner li svg {
+  margin-right: 5px;
+  width: 20px;
 }
 
 .MainBanner h1 {
-  width: 70%;
+  width: 100%;
   margin: 0px;
   font-weight: 600;
   margin-bottom: 12px;
@@ -31,10 +61,28 @@
 }
 
 .Products {
-  padding: 0px 8px;
+  background-color: #fff;
+  border-radius: 16px;
+  width: 40%;
+  max-height: 640px;
+  overflow-y: auto;
+  display: block;
 }
 
-.Products button {
+.searchbar-products {
+  position: sticky;
+  background-color: #fff;
+  padding: 12px;
+  width: 100%;
+  box-sizing: border-box;
+  top:0
+}
+
+.content-products{
+  padding: 0px 24px 12px;
+}
+
+.products button {
   padding: 48px;
 }
 
@@ -52,14 +100,58 @@
   border: 0.1em solid var(--gray-7);
 }
 
+.cta-mobile {
+  display: none;
+}
+
 @media screen and (max-width: 576px) {
+  .Banner {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 8px 4px;
+  }
   .MainBanner {
     background-color: transparent;
-    padding: 0px 6px;
+    padding: 0px 6px 12px;
+    width: 100%;
   }
-  
+
+  .MainBanner ul {
+    display: none;
+  }
+
+  .MainBanner img {
+    display: none;
+  }
+
   .MainBanner h1 {
     width: 100%;
     font-weight: 800;
+  }
+
+  .Products {
+    width: 100%;
+    padding: 0px 6px;
+    background-color: transparent;
+    min-height: fit-content;
+    overflow-y: hidden;
+    max-height: 700px;
+  }
+
+  .content-products {
+    padding: 12px 4px;
+  }
+
+  .highlights {
+    display: none;
+  }
+
+  .section-banner {
+    display: block;
+  }
+
+  .cta-desktop {
+    display: none;
   }
 }

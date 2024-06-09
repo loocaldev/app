@@ -3,6 +3,7 @@ import { getAllProducts } from "../api/products.api";
 import ProductCard from "./ProductCard";
 import styles from "../styles/ListProducts.module.css";
 import { useCart } from "../hooks/useCart";
+import character_loocal from "../assets/character_loocal.svg"
 
 function ListProducts({ searchQuery }) {
   const [products, setProducts] = useState([]);
@@ -44,7 +45,10 @@ function ListProducts({ searchQuery }) {
           .slice(0, numOfProducts)
           .map((product) => <ProductCard key={product.id} product={product} />)
       ) : (
-        <p>No se encontraron productos</p>
+        <div className={styles["product-not-found"]}>
+          <span>Patroncit@<br/>Aún no tenemos este producto</span>
+          <img src={character_loocal}/>
+        </div>
       )}
     </div>
   );
