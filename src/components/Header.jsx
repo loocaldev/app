@@ -32,7 +32,11 @@ function Header() {
           <div className={styles.thirdContent}>
             {isAuthenticated ? (
               <div>
-                <p onClick={handleLogout}>Hola {userData.username}</p>
+                {userData ? (
+                  <p onClick={handleLogout}>Hola {userData.username}</p>
+                ) : (
+                  <p>Cargando...</p>
+                )}
                 <button onClick={handleLogout}>Logout</button>
               </div>
             ) : (

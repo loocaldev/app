@@ -79,7 +79,7 @@ function Login() {
                 >
                   {showPassword ? <FaRegEyeSlash /> : <FaRegEye />}
                 </span>
-              </div>
+              </div> 
               <div className={styles["forget-password"]}>
                 <span>¿Olvidaste tu contraseña?</span>
               </div>

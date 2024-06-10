@@ -35,7 +35,21 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  const login = async (email, password) => {
+  const register = async(username, password) => {
+    try {
+      const response = await fetch("https://server-production-1ddc.up.railway.app/register", {
+       method: "POST",
+       headers: {
+        "Content-Type": "application/json",
+       },
+       body: JSON.stringify({username, password}),
+      });
+    } catch(error) {
+      console.log(error)
+    }
+  };
+
+  const login = async (username, password) => {
     try {
       // Realizar la solicitud de inicio de sesión al backend
       const response = await fetch("https://server-production-1ddc.up.railway.app/login", {
@@ -44,7 +58,7 @@ export const AuthProvider = ({ children }) => {
           "Content-Type": "application/json",
           "X-CSRFToken": getCSRFToken(), // Incluir el token CSRF en el encabezado
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ username, password }),
       });
 
       if (response.ok) {
@@ -133,7 +147,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, token, userData, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, token, userData, login, logout, register }}>
       {children}
     </AuthContext.Provider>
   );

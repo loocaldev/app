@@ -59,7 +59,7 @@
 }
 
 .element-form:first-child {
-    margin-bottom: 16px;
+  margin-bottom: 16px;
 }
 
 .element-form input {
@@ -85,15 +85,15 @@
 }
 
 .forget-password {
-    display: flex;
-    justify-content: end;
-    padding: 12px;
+  display: flex;
+  justify-content: end;
+  padding: 12px;
 }
 
 .forget-password span {
-    font-size: 12px;
-    color: var(--gray-3);
-    cursor: pointer;
+  font-size: 12px;
+  color: var(--gray-3);
+  cursor: pointer;
 }
 
 .content-form button {
@@ -101,13 +101,13 @@
 }
 
 .go-signup {
-    display: flex;
-    justify-content: center;
-    text-align: center;
+  display: flex;
+  justify-content: center;
+  text-align: center;
 }
 
 .go-signup span {
-    font-size: 14px;
+  font-size: 14px;
 }
 
 @media screen and (max-width: 576px) {
