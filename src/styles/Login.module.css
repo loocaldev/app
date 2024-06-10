@@ -1,0 +1,118 @@
+@import "./variables.css";
+
+.Container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+}
+
+.box-form {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  background-color: #fff;
+  border-radius: 16px;
+  padding: 32px 16px;
+  align-items: center;
+  align-content: center;
+}
+
+.info-column {
+  padding: 24px;
+  height: 100%;
+}
+
+.info-content {
+  padding: 48px;
+  background-color: var(--purple-alpha-color);
+  border-radius: 16px;
+  color: var(--primary-purple-color);
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.form-column {
+  padding: 24px;
+  height: 100%;
+  align-content: center;
+}
+
+.title-form {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.title-form p {
+  font-size: 16px;
+  line-height: 20px;
+}
+
+.content-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.element-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.element-form:first-child {
+    margin-bottom: 16px;
+}
+
+.element-form input {
+  background-color: var(--gray-7);
+  border-radius: 16px;
+  padding: 12px;
+  border: none;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.password-toggle svg {
+  width: 16px;
+  height: 16px;
+}
+
+.forget-password {
+    display: flex;
+    justify-content: end;
+    padding: 12px;
+}
+
+.forget-password span {
+    font-size: 12px;
+    color: var(--gray-3);
+    cursor: pointer;
+}
+
+.content-form button {
+  width: 100%;
+}
+
+.go-signup {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+}
+
+.go-signup span {
+    font-size: 14px;
+}
+
+@media screen and (max-width: 576px) {
+  .box-form {
+    display: flex;
+    flex-direction: column-reverse;
+  }
+}

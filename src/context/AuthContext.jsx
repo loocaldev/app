@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  const login = async (username, password) => {
+  const login = async (email, password) => {
     try {
       // Realizar la solicitud de inicio de sesión al backend
       const response = await fetch("https://server-production-1ddc.up.railway.app/login", {
@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }) => {
           "Content-Type": "application/json",
           "X-CSRFToken": getCSRFToken(), // Incluir el token CSRF en el encabezado
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ email, password }),
       });
 
       if (response.ok) {

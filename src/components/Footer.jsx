@@ -62,7 +62,7 @@ function Footer() {
                 <span>Loocal ©2024. Todos los derechos reservados</span>
                 <br />
                 <span>
-                  <a href="#">Términos y condiciones</a> • <a href="#">Política de privacidad</a> • <a href="#">Política de cookies</a>
+                  <Link to="/">Términos y condiciones</Link> • <Link to="/">Política de privacidad</Link> • <Link to="/">Política de cookies</Link>
                 </span>
               </div>
             </div>
