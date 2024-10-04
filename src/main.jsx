@@ -8,7 +8,7 @@ import {
 import App from "./App.jsx";
 import { CartProvider } from "./context/CartContext.jsx";
 import { Auth0Provider } from "@auth0/auth0-react";
-import {AuthProvider} from "./context/AuthContext.jsx"
+import { AuthProvider } from "./context/AuthContext.jsx";
 import "./index.css";
 
 import Home from "./pages/Home.jsx";
@@ -17,6 +17,9 @@ import Order from "./pages/Order.jsx";
 import Checkout from "./pages/Checkout.jsx";
 import OrderStatus from "./pages/orderStatus.jsx";
 import CreateAccount from "./pages/CreateAccount.jsx";
+import CreateAccountDetail from "./pages/CreateAccountDetail.jsx";
+import AuthenticatedRoute from "./context/AuthenticatedRoute.jsx";
+import CreateAccountDetailAddress from "./pages/CreateAccountDetailAddress.jsx";
 
 const router = createBrowserRouter([
   {
@@ -30,6 +33,9 @@ const router = createBrowserRouter([
       { path: "/order-status", element: <OrderStatus /> },
       { path: "/login", element: <Login /> },
       { path: "/crear-cuenta", element: <CreateAccount /> },
+      { path: "/crear-cuenta/detalles",element: <AuthenticatedRoute component={CreateAccountDetail} />},
+      { path: "/crear-cuenta/detalles/direccion",element: <AuthenticatedRoute component={CreateAccountDetailAddress} />},
+
     ],
   },
 ]);

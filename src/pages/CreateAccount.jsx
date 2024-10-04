@@ -45,7 +45,7 @@ function CreateAccount() {
         );
       } else {
         await register(email, password);
-        navigate("/");
+        navigate("/crear-cuenta/detalles");
         // Lógica adicional después de iniciar sesión, como redireccionar a otra página
       }
     } catch (error) {
@@ -118,13 +118,12 @@ function CreateAccount() {
       <div className={styles["box"]}>
         <div className={styles["box-content"]}>
           <img src={Logo} />
-          <hr />
-          <h3>Comienza tu registro</h3>
-          <p>Ingresa tu correo electrónico y contraseña</p>
+          <h2>Comienza tu registro</h2>
+          <p>Ingresa tu correo electrónico y crea una contraseña</p>
           <div className={styles["box-form"]}>
             <form>
               <div className={styles["element-form"]}>
-                <label htmlFor="email">Correo electrónico*</label>
+                <label htmlFor="email">Correo electrónico</label>
                 <input
                   type="email"
                   name="email"

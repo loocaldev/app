@@ -41,35 +41,33 @@ function Login() {
   return (
     <div className={styles.Container}>
       <div className={styles["box-form"]}>
-        <div className={styles["info-column"]}>
+        {/* <div className={styles["info-column"]}>
           <div className={styles["info-content"]}>
             <h2>Más de 100 mil colombianos hoy compran con Loocal</h2>
           </div>
-        </div>
+        </div> */}
         <div className={styles["form-column"]}>
           <div className={styles["title-form"]}>
             <Link to="/"><img src={Logo}/></Link>
-            <h2>Te damos la bienvenida</h2>
+            <h2>Ingresar</h2>
             <p>Ingresa a tu cuenta de Loocal</p>
           </div>
           <div className={styles["content-form"]}>
             <form>
               <div className={styles["element-form"]}>
-                {/* <label htmlFor="email">Correo electrónico:</label> */}
+                <label htmlFor="email">Correo electrónico:</label>
                 <input
                   type="email"
                   id="email"
-                  placeholder="Correo electrónico"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
               <div className={styles["element-form"]} style={{ position: "relative" }}>
-                {/* <label htmlFor="password">Password:</label> */}
+                <label htmlFor="password">Contraseña:</label>
                 <input
                   type={showPassword ? "text" : "password"}
                   id="password"
-                  placeholder="Contraseña"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />

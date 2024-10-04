@@ -1,0 +1,144 @@
+@import "./variables.css";
+
+.box {
+  background-color: white;
+  padding: 32px 24px;
+  border-radius: 16px;
+  min-width: 480px;
+  max-width: 480px;
+}
+
+.box-content {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  gap: 12px;
+}
+
+.box-content img {
+    max-width: 35%;
+    margin-bottom: 16px;
+}
+
+.box-content p {
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--gray-3);
+}
+
+.box-form {
+  margin: 0px 0px;
+  display: block;
+  min-width: 100%;
+}
+
+.title-element-form {
+    display: flex;
+    flex-direction: row;
+}
+
+.title-element-form span {
+    font-size: 14px;
+    width: 100%;
+}
+
+.title-element-form hr {
+    width: 100%;
+    border-width: 0px 0px 2px 0px;
+    border-color: var(--gray-5);
+}
+
+.element-form {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  text-align: left;
+  width: 100%;
+  margin-top: 12px;
+  margin-bottom: 12px;
+  box-sizing: border-box;
+}
+
+.element-form-part {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.element-form label {
+  font-size: 16px;
+  color: var(--primary-purple-color);
+}
+
+.element-form input {
+  border-radius: 99px;
+  padding: 16px;
+  background-color: var(--gray-7);
+  border: 1px solid var(--primary-purple-color);
+}
+
+.element-form-password {
+  position: relative;
+  display: flex;
+}
+
+.element-form-password input {
+  width: 100%;
+}
+
+.form-button {
+    background-color: var(--primary-purple-color);
+    margin-top: 24px;
+    width: 100%;
+  }
+  
+  .form-button.disabled {
+    background-color: var(--gray-3);
+    cursor: not-allowed;
+  }
+
+  .input-form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .two-columns-form {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: 1fr;
+    grid-column-gap: 10px;
+    grid-row-gap: 0px;
+  }
+  
+  .two-columns-form-13 {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    grid-template-rows: 1fr;
+    grid-column-gap: 10px;
+  }
+  
+  .Checkout input,
+  select {
+    border: 1px solid var(--gray-5);
+    border-radius: 8px;
+    padding: 12px 6px;
+    font-family: "Montserrat";
+    max-width: 100%;
+  }
+  
+  .Checkout label {
+    font-size: 12px;
+    margin: 4px 0px;
+  }
+  
+  .title-section-form {
+    padding: 12px 0px;
+  }
+  
+  .department-select {
+    max-width: 40vw;
+  }
+  
+  .city-select {
+    max-width: 50vw;
+  }

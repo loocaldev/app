@@ -1,25 +1,30 @@
-import React from 'react'
+import React from "react";
 import { useLocation } from "react-router-dom";
 import Header from "../components/Header";
-import Cart from '../components/Cart';
+import Cart from "../components/Cart";
 
-import styles from "../styles/Layout.module.css"
-import Footer from '../components/Footer';
+import styles from "../styles/Layout.module.css";
+import Footer from "../components/Footer";
 
 const Layout = ({ children }) => {
-    const location = useLocation();
-    const isCanvasPage = location.pathname === "/login" || location.pathname === "/order" || location.pathname === "/checkout" || location.pathname === '/crear-cuenta'; 
-  
-    return (
-      <>
-        {!isCanvasPage && <Header />}
-        <div className={`${styles.Layout} ${isCanvasPage && styles.CanvasPage}`}>
-          {children}
-        </div>
-        {!isCanvasPage && <Cart />}
-        {!isCanvasPage && <Footer />}
-      </>
-    );
-  }
+  const location = useLocation();
+  const isCanvasPage =
+    location.pathname === "/login" ||
+    location.pathname === "/order" ||
+    location.pathname === "/checkout" || location.pathname === "/checkout/"||
+    location.pathname === "/crear-cuenta" || location.pathname === "/crear-cuenta/" ||
+    location.pathname === "/crear-cuenta/detalles";
 
-export default Layout
+  return (
+    <>
+      {!isCanvasPage && <Header />}
+      <div className={`${styles.Layout} ${isCanvasPage && styles.CanvasPage}`}>
+        {children}
+      </div>
+      {!isCanvasPage && <Cart />}
+      {!isCanvasPage && <Footer />}
+    </>
+  );
+};
+
+export default Layout;

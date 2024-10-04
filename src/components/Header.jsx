@@ -1,11 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "../styles/Header.module.css";
-
 import { FiMenu, FiShoppingCart } from "react-icons/fi";
+import { MdClose } from "react-icons/md";
+import {
+  TbRosetteDiscount,
+  TbApple,
+  TbCarrot,
+  TbBuildingStore,
+  TbUserCircle,TbChevronRight
+} from "react-icons/tb";
 import SearchBar from "./SearchBar";
 import Logo from "../assets/logo.svg";
-import { useNavigate } from "react-router-dom";
-
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 function Header() {
@@ -13,12 +19,27 @@ function Header() {
   const { token, isAuthenticated, logout, userData } = useAuth();
   const navigate = useNavigate();
 
+  const [isNavbarOpen, setIsNavbarOpen] = useState(false);
+
+  useEffect(() => {
+    if (isNavbarOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+  }, [isNavbarOpen]);
+
   const handleSearch = (query) => {
     setSearchQuery(query);
   };
 
   const handleLogout = () => {
     logout();
+    navigate("/");
+  };
+
+  const toggleNavbar = () => {
+    setIsNavbarOpen(!isNavbarOpen);
   };
 
   return (
@@ -26,8 +47,10 @@ function Header() {
       <div className={styles["header-container"]}>
         <div className={styles.content}>
           <div className={styles.firstContent}>
-            <FiMenu />
-            <img src={Logo} />
+            <FiMenu onClick={toggleNavbar} />
+            <Link to="/">
+              <img src={Logo} alt="Logo" />
+            </Link>
           </div>
           <div className={styles.thirdContent}>
             {isAuthenticated ? (
@@ -42,12 +65,110 @@ function Header() {
             ) : (
               <div>
                 <button onClick={() => navigate("/login")}>Ingresar</button>
-                <button onClick={()=> navigate("/crear-cuenta")}>Crear cuenta</button>
+                <button onClick={() => navigate("/crear-cuenta")}>
+                  Crear cuenta
+                </button>
               </div>
             )}
           </div>
         </div>
       </div>
+      {isNavbarOpen && (
+        <div className={styles.overlay} onClick={toggleNavbar}>
+          <div
+            className={`${styles.navbar} ${
+              isNavbarOpen ? styles.open : styles.closed
+            }`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className={styles["navbarContent"]}>
+              <div className={styles["navbarTop"]}>
+                <div className={styles["navbarHead"]}>
+                  <img src={Logo} alt="Logo" />
+                  <MdClose onClick={toggleNavbar} />
+                </div>
+                <div className={styles["navbarMain"]}>
+                  <Link to="/">
+                    <div className={styles["navbar-option"]}>
+                      <TbBuildingStore /> Toda la tienda
+                    </div>
+                  </Link>
+                  <Link to="/">
+                    <div className={styles["navbar-option"]}>
+                      <TbApple /> Frutas
+                    </div>
+                  </Link>
+                  <Link to="/">
+                    <div className={styles["navbar-option"]}>
+                      <TbCarrot /> Verduras
+                    </div>
+                  </Link>
+                  <Link to="/">
+                    <div className={styles["navbar-option"]}>
+                      <TbRosetteDiscount /> Ofertas
+                    </div>
+                  </Link>
+                </div>
+              </div>
+              <div className={styles["navbarBottom"]}>
+                {isAuthenticated ? (
+                  <div className={styles["navbarAccount"]}>
+                    <span>Mi cuenta</span>
+                    <Link to="/">
+                      <div className={styles["navbar-option-bottom"]}>
+                        Datos de mi cuenta
+                      </div>
+                    </Link>
+                    <Link to="/">
+                      <div className={styles["navbar-option-bottom"]}>
+                        Mis direcciones
+                      </div>
+                    </Link>
+                    <Link to="/">
+                      <div className={styles["navbar-option-bottom"]}>
+                        Necesito ayuda
+                      </div>
+                    </Link>
+                  </div>
+                ) : (
+                  <Link to="/login">
+                    <div className={styles["navbarAccountOff"]}>
+                      <div className={styles["navbarAccountOffLeft"]}>
+                      <TbUserCircle />
+                      <p>Ingresar</p>
+                      </div>
+                      <div className={styles["navbarAccountOffRight"]}> <TbChevronRight /></div>
+                    </div>
+                  </Link>
+                )}
+
+                <div className={styles["navbarInfo"]}>
+                  <span>Información</span>
+                  <Link to="/">
+                    <div className={styles["navbar-option-bottom"]}>
+                      Sobre Loocal
+                    </div>
+                  </Link>
+                  <Link to="/">
+                    <div className={styles["navbar-option-bottom"]}>
+                      Soy productor
+                    </div>
+                  </Link>
+                  <Link to="/">
+                    <div className={styles["navbar-option-bottom"]}>Legal</div>
+                  </Link>
+                  <Link to="/">
+                    <div className={styles["navbar-option-bottom"]}>
+                      Trabaja con nosotros
+                    </div>
+                  </Link>
+                  <p>Versión 1.0</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
