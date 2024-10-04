@@ -19,7 +19,7 @@ function OrderStatus() {
       // Realizar solicitud GET al servidor para obtener la orden correspondiente
       axios
         .get(
-          `https://server-production-1ddc.up.railway.app/orders/api/v1/orders/customid/${orderIdParam}`
+          `http://44.220.218.144/api/orders/api/v1/orders/customid/${orderIdParam}`
         )
         .then((response) => {
           const orderData = response.data;
@@ -28,7 +28,7 @@ function OrderStatus() {
           // Actualizar el estado de la orden en la base de datos si la transacción está aprobada
           axios
               .patch(
-                `https://server-production-1ddc.up.railway.app/orders/api/v1/orders/${orderData[0].id}/`,
+                `http://44.220.218.144/api/orders/api/v1/orders/${orderData[0].id}/`,
                 { payment_status: "pending" }
               )
               .then((response) => {

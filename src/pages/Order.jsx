@@ -64,7 +64,7 @@ function Order() {
         currency: currency,
       };
       const response = await axios.post(
-        "https://server-production-1ddc.up.railway.app/payments/generate_integrity_hash/",
+        "http://44.220.218.144/apipayments/generate_integrity_hash/",
         {
           order: order,
         }
