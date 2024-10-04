@@ -26,7 +26,7 @@ function Home() {
       <div className={styles.Banner}>
         <div className={styles.MainBanner}>
           <img src={graphLoocal}></img>
-          <h1>Encuentra productos frescos de alta calidad</h1>
+          <h1>Encuentra productos frescos de alta calidad. SUPER CALIDAD</h1>
           <p>Comprados directamente a productores locales</p>
           <ul className={styles["highlights"]}>
             <li>
