@@ -50,6 +50,7 @@
   .carouselText h3 {
     font-size: 18px;
     font-weight: bold;
+    line-height: 0.6em;
   }
   
   .carouselText p {
@@ -79,8 +80,8 @@
   }
   
   .indicator {
-    width: 12px;
-    height: 12px;
+    width: 8px;
+    height: 8px;
     background-color: #ccc;
     border-radius: 50%;
     cursor: pointer;
@@ -89,6 +90,6 @@
   .indicator.active {
     background-color: #44175B;
     border-radius: 12px;
-    width: 24px;
+    width: 16px;
   }
   
