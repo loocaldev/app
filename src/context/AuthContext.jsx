@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
   const register = async (username, password) => {
     try {
       const response = await fetch(
-        "http://44.220.218.144/apiregister",
+        "http://44.220.218.144/api/register",
         {
           method: "POST",
           headers: {
@@ -66,7 +66,7 @@ export const AuthProvider = ({ children }) => {
     try {
       // Realizar la solicitud de inicio de sesión al backend
       const response = await fetch(
-        "http://44.220.218.144/apilogin",
+        "http://44.220.218.144/api/login",
         {
           method: "POST",
           headers: {
@@ -95,7 +95,7 @@ export const AuthProvider = ({ children }) => {
   const getUserDetails = async (authToken) => {
     try {
       const response = await fetch(
-        "http://44.220.218.144/apiprofile",
+        "http://44.220.218.144/api/profile",
         {
           method: "GET",
           headers: {
@@ -122,7 +122,7 @@ export const AuthProvider = ({ children }) => {
     try {
       // Realizar la solicitud de logout al backend
       const response = await fetch(
-        "http://44.220.218.144/apilogout",
+        "http://44.220.218.144/api/logout",
         {
           method: "POST",
           headers: {
@@ -153,7 +153,7 @@ export const AuthProvider = ({ children }) => {
     try {
       console.log("Sending update request with data:", updatedData);
       const response = await fetch(
-        "http://44.220.218.144/apiupdate_user",
+        "http://44.220.218.144/api/update_user",
         {
           method: "PATCH",
           headers: {

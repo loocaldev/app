@@ -202,7 +202,7 @@ function Checkout() {
   
     console.log("Datos a enviar en la solicitud POST:", postData); // Imprimir el JSON antes de enviarlo
   
-    fetch("http://44.220.218.144/apiorders/api/v1/orders/", {
+    fetch("http://44.220.218.144/api/orders/api/v1/orders/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
