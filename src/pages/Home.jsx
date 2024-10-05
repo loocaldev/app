@@ -9,10 +9,30 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
 import { FiCheckCircle } from "react-icons/fi";
 import graphLoocal from "../assets/graphLoccal2024.png";
+import Carousel from "../components/Carousel.jsx";
 
 function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const { token, isAuthenticated, logout, userData } = useAuth();
+
+  const items = [
+    {
+      title: 'Primer envío gratis',
+      subtitle: 'Recibe en casa sin costo adicional.',
+      buttonText: 'Comprar ahora',
+      image: graphLoocal,
+      background: '#EDE8EF',
+    },
+    {
+      title: 'Martes de promos',
+      subtitle: 'Ofertas a mitad de precio.',
+      buttonText: 'Ver productos',
+      image: 'https://multimedia.wenia.com/790x760/6e9c69b135/adquiere-usdc.png',
+      background: '#FEF2EC',
+    },
+    // Agrega más elementos según sea necesario...
+  ];
+  
 
   const handleSearch = (query) => {
     setSearchQuery(query);
@@ -20,14 +40,19 @@ function Home() {
 
   return (
     <>
-      <div className={styles["section-banner"]}>
+      {/* <div className={styles["section-banner"]}>
         <SliderHome />
-      </div>
+      </div> */}
+      <div className={styles["carousel-container"]}>
+            <Carousel items={items} />
+          </div>
       <div className={styles.Banner}>
         <div className={styles.MainBanner}>
           <img src={graphLoocal}></img>
           <h1>Encuentra productos frescos de alta calidad</h1>
           <p>Comprados directamente a productores locales.</p>
+          
+          
           <ul className={styles["highlights"]}>
             <li>
               <FiCheckCircle /> Recibe tu mercado en la puerta de tu casa

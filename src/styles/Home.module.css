@@ -7,6 +7,10 @@
   display: none;
 }
 
+.carousel-container {
+  display: flex;
+}
+
 .Banner {
   background-color:transparent;
   grid-template-columns: 2fr 1fr;

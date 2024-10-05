@@ -1,0 +1,94 @@
+.carouselContainer {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: transparent;
+  }
+  
+  .carouselContent {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    width: 100%; /* Siempre ocupa el 100% del ancho */
+  }
+  
+  .carouselItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: column;
+    transition: opacity 0.5s ease-in-out;
+    flex: 0 0 100%; /* Ajusta el ancho de la tarjeta dinámicamente */
+    box-sizing: border-box; /* Para que padding y borde no afecten el tamaño */
+  }
+  
+  .carouselBg {
+    background-size: cover;
+    background-position: center;
+    /* padding: 20px; */
+    border-radius: 12px;
+    width: 100%; /* La tarjeta debe ocupar el 100% de su contenedor */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+    color: #333;
+    background-color: #fff;
+    height: 100%;
+  }
+  
+  .carouselText {
+    text-align: left;
+    color: #333;
+    width: 70%;
+    padding: 16px;
+  }
+  
+  .carouselText h3 {
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  .carouselText p {
+    font-size: 14px;
+    margin: 10px 0;
+    color: #555;
+  }
+  
+.carouselImg {
+    width: 30%;
+    padding: 8px;
+}
+
+  img {
+    max-width: 100%;
+    height: auto;
+    margin-top: 10px;
+    object-fit: contain;
+  }
+  
+  /* Indicadores de navegación */
+  .carouselIndicators {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 20px;
+  }
+  
+  .indicator {
+    width: 12px;
+    height: 12px;
+    background-color: #ccc;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  
+  .indicator.active {
+    background-color: #44175B;
+    border-radius: 12px;
+    width: 24px;
+  }
+  

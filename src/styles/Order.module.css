@@ -9,6 +9,7 @@
   box-sizing: border-box;
   left: 0;
   background-color: white;
+  padding-top: 24px;
 }
 
 .header-content {

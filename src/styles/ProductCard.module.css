@@ -90,6 +90,10 @@
   height: 12px;
 }
 
+.product-action-pum span {
+  font-size: 14px;
+}
+
 .product-action-buttons {
   display: flex;
   flex-direction: row;
