@@ -36,16 +36,19 @@ body.no-scroll {
 h1 {
   font-size: 56px;
   line-height: 72px;
+  margin: 0px;
 }
 
 h2 {
   font-size: 32px;
   line-height: 48px;
+  margin: 0px;
 }
 
 h3 {
   font-size: 24px;
   line-height: 36px;
+  margin: 0px;
 }
 
 h4 {
@@ -57,11 +60,13 @@ h4 {
 p {
   font-size: 16px;
   line-height: 24px;
+  margin: 0px;
 }
 
 span {
   font-size: 16px;
   line-height: 20px;
+  margin: 0px;
 }
 
 form label {
