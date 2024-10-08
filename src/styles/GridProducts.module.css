@@ -1,0 +1,53 @@
+@import "./variables.css";
+
+.productsContainer {
+  width: 100%;
+}
+
+.bannerProducts {
+  margin: 20px 0;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr); /* 6 columnas */
+  grid-template-rows: auto; /* Controlar la altura automática de las filas */
+  grid-gap: 12px;
+  scrollbar-width: none;
+}
+
+.bannerProducts::-webkit-scrollbar {
+  display: none; /* Ocultar barra en navegadores basados en Webkit */
+}
+
+.product-not-found {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.product-not-found span {
+  margin-bottom: 12px;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.product-not-found img {
+  max-width: 180px;
+}
+
+@media screen and (max-width: 768px) {
+  .bannerProducts {
+    display: flex;
+    overflow-x: scroll; /* Desplazamiento horizontal */
+    grid-template-columns: none; /* Quitar las columnas de grid */
+    scroll-snap-type: x mandatory; /* Snap para productos */
+    -webkit-overflow-scrolling: touch; /* Para una experiencia táctil fluida */
+    max-width: 100vw;
+  }
+
+  .bannerProducts > * {
+    flex: 0 0 auto; /* Evitar que los elementos se reduzcan */
+    scroll-snap-align: center; /* Snap al centro del producto */
+    min-width: 40%; /* Ajustar el tamaño del producto para móvil */
+  }
+}

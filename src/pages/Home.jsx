@@ -10,10 +10,12 @@ import { useNavigate } from "react-router-dom";
 import { FiCheckCircle } from "react-icons/fi";
 import graphLoocal from "../assets/graphLoccal2024.png";
 import Carousel from "../components/Carousel.jsx";
+import GridProducts from "../components/GridProducts.jsx";
 
 function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const { token, isAuthenticated, logout, userData } = useAuth();
+  const navigate = useNavigate();
 
   const items = [
     {
@@ -66,7 +68,7 @@ function Home() {
             </li>
           </ul>
           <div className={styles["cta-content"]}>
-          <button className={styles["cta-desktop"]}>Ver toda la tienda</button>
+          <button onClick={() => navigate("/tienda")} className={styles["cta-desktop"]}>Ver toda la tienda</button>
           </div>
         </div>
 
@@ -79,7 +81,7 @@ function Home() {
               className={styles["products"]}
               searchQuery={searchQuery}
             />
-            <button className={styles["cta-mobile"]}>Ver toda la tienda</button>
+            <button onClick={() => navigate("/tienda")} className={styles["cta-mobile"]}>Ver toda la tienda</button>
           </div>
         </div>
       </div>
@@ -92,6 +94,10 @@ function Home() {
           Déjanos ayudarte
         </h3>
         <Faqs />
+      </div>
+
+      <div>
+        <GridProducts/>
       </div>
     </>
   );

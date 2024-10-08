@@ -1,0 +1,5 @@
+@import "./variables.css";
+
+.containerStore {
+    max-width: 100%;
+}

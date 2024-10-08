@@ -88,22 +88,22 @@ function Header() {
                   <MdClose onClick={toggleNavbar} />
                 </div>
                 <div className={styles["navbarMain"]}>
-                  <Link to="/">
+                  <Link to="/tienda">
                     <div className={styles["navbar-option"]}>
                       <TbBuildingStore /> Toda la tienda
                     </div>
                   </Link>
-                  <Link to="/">
+                  <Link to="/tienda">
                     <div className={styles["navbar-option"]}>
                       <TbApple /> Frutas
                     </div>
                   </Link>
-                  <Link to="/">
+                  <Link to="/tienda">
                     <div className={styles["navbar-option"]}>
                       <TbCarrot /> Verduras
                     </div>
                   </Link>
-                  <Link to="/">
+                  <Link to="/tienda">
                     <div className={styles["navbar-option"]}>
                       <TbRosetteDiscount /> Ofertas
                     </div>

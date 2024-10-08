@@ -20,6 +20,7 @@ import CreateAccount from "./pages/CreateAccount.jsx";
 import CreateAccountDetail from "./pages/CreateAccountDetail.jsx";
 import AuthenticatedRoute from "./context/AuthenticatedRoute.jsx";
 import CreateAccountDetailAddress from "./pages/CreateAccountDetailAddress.jsx";
+import Store from "./pages/Store.jsx";
 
 const router = createBrowserRouter([
   {
@@ -27,6 +28,7 @@ const router = createBrowserRouter([
     element: <App />,
     children: [
       { path: "/", element: <Home /> },
+      { path: "/tienda", element: <Store /> },
       { path: "/login", element: <Login /> },
       { path: "/order", element: <Order /> },
       { path: "/checkout", element: <Checkout /> },
