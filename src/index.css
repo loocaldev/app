@@ -174,14 +174,17 @@ input {
   h1 {
     font-size: 32px;
     line-height: 44px;
+    margin: 0px;
   }
   h2 {
     font-size: 24px;
     line-height: 32px;
+    margin: 0px;
   }
   h3 {
     font-size: 20px;
     line-height: 28px;
+    margin: 0px;
   }
 }
 
@@ -193,26 +196,32 @@ input {
   h1 {
     font-size: 24px;
     line-height: 36px;
+    margin: 0px;
   }
   h2 {
     font-size: 20px;
     line-height: 24px;
+    margin: 0px;
   }
   h3 {
     font-size: 16px;
     line-height: 24px;
+    margin: 0px;
   }
   h4 {
     font-size: 12px;
     line-height: 16px;
+    margin: 0px;
   }
   p {
     font-size: 16px;
     line-height: 24px;
+    margin: 0px;
   }
   span {
     font-size: 12px;
     line-height: 16px;
+    margin: 0px;
   }
   button {
     font-size: 14px;
