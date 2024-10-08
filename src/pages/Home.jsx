@@ -95,10 +95,6 @@ function Home() {
         </h3>
         <Faqs />
       </div>
-
-      <div>
-        <GridProducts/>
-      </div>
     </>
   );
 }
