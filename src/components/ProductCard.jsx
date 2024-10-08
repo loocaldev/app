@@ -6,7 +6,7 @@ import {
   FiMinus,
   FiShoppingCart,
   FiChevronUp,
-  FiCheck
+  FiCheck,
 } from "react-icons/fi";
 import { BsCartCheck } from "react-icons/bs";
 import { useCart } from "../hooks/useCart";
@@ -73,7 +73,10 @@ function ProductCard({ product }) {
               {isProductInCart ? (
                 <FiCheck />
               ) : (
-                <FiShoppingCart onClick={() => addToCart(product)} />
+                <>
+                  <FiShoppingCart onClick={() => addToCart(product)} />
+                  <span onClick={() => addToCart(product)} className={styles["buy-span"]}>Añadir</span>
+                </>
               )}
             </div>
             {isProductInCart ? (
@@ -92,11 +95,10 @@ function ProductCard({ product }) {
           </div>
           <div className={styles["product-action-price"]}>
             {isProductInCart ? (
-                <p>{formatPriceToCOP(productQuantity * product.price)}</p>
+              <p>{formatPriceToCOP(productQuantity * product.price)}</p>
             ) : (
               <p>{formatPriceToCOP(product.price)}</p>
             )}
-            
           </div>
           <div className={styles["product-action-pum"]}>
             <span>Kg a {formatPriceToCOP(product.price)}</span>

@@ -11,13 +11,13 @@
   border: 1px solid #fafafa;
   border-radius: 24px;
   padding: 12px 24px;
-  background-color: #fafafa;
+  background-color: #fff;
   box-sizing: border-box;
 }
 
 .SearchBar input:focus {
-    outline: none;
-    border-color: var(--purple-alpha-color);
+  outline: none;
+  border-color: var(--purple-alpha-color);
 }
 
 .searchButton {
@@ -31,21 +31,26 @@
   padding: 4px 6px 2px;
 }
 .searchButton:hover {
-    background-color: var(--primary-purple-color);
-    color: #fff;
+  background-color: var(--primary-purple-color);
+  color: #fff;
 }
 
-.searchButton:focus{
-    outline: none;
+.searchButton:focus {
+  outline: none;
 }
 
 .searchButton svg {
-    color: var(--primary-purple-color);
-    width: 20px;
-    height: 20px;
+  color: var(--primary-purple-color);
+  width: 20px;
+  height: 20px;
 }
 
 .searchButton:hover svg {
-    color:#fff;
+  color: #fff;
 }
 
+@media screen and (max-width: 576px) {
+  .SearchBar input {
+    background-color: #fafafa;
+  }
+}

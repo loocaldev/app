@@ -65,7 +65,9 @@ function Home() {
               cultivo
             </li>
           </ul>
+          <div className={styles["cta-content"]}>
           <button className={styles["cta-desktop"]}>Ver toda la tienda</button>
+          </div>
         </div>
 
         <div className={styles.Products}>

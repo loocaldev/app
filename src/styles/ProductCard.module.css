@@ -17,7 +17,7 @@
 
 .main-product {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1.5fr 1fr;
   grid-column-gap: 6px;
   align-items: center;
   gap: 12px;
@@ -25,6 +25,28 @@
 
 .product-content-name {
   font-weight: 500;
+}
+
+.product-button-add {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.product-button-add .buy-span {
+  opacity: 0;
+  display: none;
+  transition: opacity 0.3s ease, visibility 0.3s ease; /* Transición suave */
+  margin-left: 10px; /* Añade espacio entre el ícono y el texto */
+  font-size: 14px;
+  color: #fff;
+  
+}
+
+.product-action:hover .buy-span {
+  opacity: 1;
+  display: block;
 }
 
 .product-action-price {
@@ -78,6 +100,10 @@
   width: 100%;
 }
 
+.product-action-quantity span {
+  font-size: 14px;
+}
+
 .product-action-quantity button {
   padding: 0 !important;
   border-radius: 0 !important;
@@ -115,7 +141,7 @@
   background-color: var(--primary-purple-color);
   border-radius: 99px;
   display: flex;
-  padding: 6px 6px;
+  padding: 6px 8px;
   align-items: center;
   cursor: pointer;
 }
