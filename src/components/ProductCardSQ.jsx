@@ -58,8 +58,18 @@ function ProductCardSQ({ product }) {
             <span>Convencional</span>
             <span>Maduro</span>
           </div>
-        </div> 
+        </div>
         <div className={styles["product-action"]}>
+          <div className={styles["product-action-price"]}>
+            {isProductInCart ? (
+              <p>{formatPriceToCOP(productQuantity * product.price)}</p>
+            ) : (
+              <p>{formatPriceToCOP(product.price)}</p>
+            )}
+          </div>
+          <div className={styles["product-action-pum"]}>
+            <span>Kg a {formatPriceToCOP(product.price)}</span>
+          </div>
           <div
             className={`${styles["product-action-buttons"]} ${
               isProductInCart ? styles["added"] : ""
@@ -75,7 +85,12 @@ function ProductCardSQ({ product }) {
               ) : (
                 <>
                   <FiShoppingCart onClick={() => addToCart(product)} />
-                  <span onClick={() => addToCart(product)} className={styles["buy-span"]}>Añadir</span>
+                  <span
+                    onClick={() => addToCart(product)}
+                    className={styles["buy-span"]}
+                  >
+                    Añadir
+                  </span>
                 </>
               )}
             </div>
@@ -92,16 +107,6 @@ function ProductCardSQ({ product }) {
             ) : (
               ""
             )}
-          </div>
-          <div className={styles["product-action-price"]}>
-            {isProductInCart ? (
-              <p>{formatPriceToCOP(productQuantity * product.price)}</p>
-            ) : (
-              <p>{formatPriceToCOP(product.price)}</p>
-            )}
-          </div>
-          <div className={styles["product-action-pum"]}>
-            <span>Kg a {formatPriceToCOP(product.price)}</span>
           </div>
         </div>
       </div>

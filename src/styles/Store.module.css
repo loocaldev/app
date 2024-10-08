@@ -1,5 +1,9 @@
 @import "./variables.css";
 
+body {
+    background-color: #F9F9F9;
+}
+
 .containerStore {
     max-width: 100%;
 }
