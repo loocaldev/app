@@ -47,7 +47,7 @@
 
   .bannerProducts > * {
     flex: 0 0 auto; /* Evitar que los elementos se reduzcan */
-    scroll-snap-align: center; /* Snap al centro del producto */
+    scroll-snap-align: left; /* Snap al centro del producto */
     min-width: 40%; /* Ajustar el tamaño del producto para móvil */
   }
 }
