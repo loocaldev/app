@@ -50,10 +50,10 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <Auth0Provider
-      domain={process.env.AUTH0_DOMAIN}
-      clientId={process.env.AUTH0_CLIENT_ID}
+      domain="dev-bgodgyzz8ugzloem.us.auth0.com"
+      clientId="cvNYCI1gwg7bIxcZ7d1rgjOPFbO2vV3s"
       redirectUri={window.location.origin}
-      audience={`https://${process.env.AUTH0_DOMAIN}/api/v2/`}
+      audience={`https://dev-bgodgyzz8ugzloem.us.auth0.com/api/v2/`}
       scope="openid profile email"
     >
       <AuthProvider>

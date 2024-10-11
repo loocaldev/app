@@ -56,7 +56,7 @@ function Header() {
             ) : (
               <div>
                 {/* Este botón ahora llama a login() que redirige a Auth0 */}
-                <button onClick={login}>Ingresar</button>  
+                <button onClick={loginWithRedirect}>Ingresar</button>  
                 <button onClick={() => navigate("/crear-cuenta")}>
                   Crear cuenta
                 </button>
