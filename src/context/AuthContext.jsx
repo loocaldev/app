@@ -19,20 +19,18 @@ export const AuthProvider = ({ children }) => {
 
   const getUserDetails = async () => {
     try {
-      // Obtener el token de acceso silenciosamente
-      const token = await getAccessTokenSilently();
+      const token = await getAccessTokenSilently();  // Obtener token JWT
       
-      // Opcionalmente, puedes enviar este token al backend para obtener más detalles del usuario
       const response = await fetch("https://loocal.co/api/profile", {
         headers: {
-          Authorization: `Bearer ${token}`, // Usamos Bearer en lugar de Token
+          Authorization: `Bearer ${token}`,  // Bearer token
           "Content-Type": "application/json",
         },
       });
-
+  
       if (response.ok) {
         const data = await response.json();
-        setUserData(data);  // Guardamos los detalles adicionales del usuario
+        setUserData(data);  // Almacena los detalles del usuario en el estado
       } else {
         throw new Error("Failed to fetch user details");
       }
