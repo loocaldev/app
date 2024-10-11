@@ -15,11 +15,9 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 function Header() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const { token, isAuthenticated, logout, userData } = useAuth();
-  const navigate = useNavigate();
-
   const [isNavbarOpen, setIsNavbarOpen] = useState(false);
+  const { isAuthenticated, userData, login, logout } = useAuth();  // Importa `login` y `logout` del contexto
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (isNavbarOpen) {
@@ -28,15 +26,6 @@ function Header() {
       document.body.style.overflow = "";
     }
   }, [isNavbarOpen]);
-
-  const handleSearch = (query) => {
-    setSearchQuery(query);
-  };
-
-  const handleLogout = () => {
-    logout();
-    navigate("/");
-  };
 
   const toggleNavbar = () => {
     setIsNavbarOpen(!isNavbarOpen);
@@ -53,18 +42,19 @@ function Header() {
             </Link>
           </div>
           <div className={styles.thirdContent}>
-            {isAuthenticated ? (
+          {isAuthenticated ? (
               <div>
                 {userData ? (
-                  <p onClick={handleLogout}>Hola {userData.username}</p>
+                  <p>Hola {userData.name || userData.nickname}</p>  // Saluda al usuario
                 ) : (
                   <p>Cargando...</p>
                 )}
-                <button onClick={handleLogout}>Logout</button>
+                <button onClick={logout}>Logout</button>
               </div>
             ) : (
               <div>
-                <button onClick={() => navigate("/login")}>Ingresar</button>
+                {/* Este botón ahora llama a login() que redirige a Auth0 */}
+                <button onClick={login}>Ingresar</button>  
                 <button onClick={() => navigate("/crear-cuenta")}>
                   Crear cuenta
                 </button>

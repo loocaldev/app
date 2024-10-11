@@ -35,21 +35,33 @@ const router = createBrowserRouter([
       { path: "/order-status", element: <OrderStatus /> },
       { path: "/login", element: <Login /> },
       { path: "/crear-cuenta", element: <CreateAccount /> },
-      { path: "/crear-cuenta/detalles",element: <AuthenticatedRoute component={CreateAccountDetail} />},
-      { path: "/crear-cuenta/detalles/direccion",element: <AuthenticatedRoute component={CreateAccountDetailAddress} />},
-
+      {
+        path: "/crear-cuenta/detalles",
+        element: <AuthenticatedRoute component={CreateAccountDetail} />,
+      },
+      {
+        path: "/crear-cuenta/detalles/direccion",
+        element: <AuthenticatedRoute component={CreateAccountDetailAddress} />,
+      },
     ],
   },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <AuthProvider>
-      <CartProvider>
-        <RouterProvider router={router}>
-          <App />
-        </RouterProvider>
-      </CartProvider>
-    </AuthProvider>
+    <Auth0Provider
+      domain={import.meta.env.VITE_AUTH0_DOMAIN} // Auth0 Domain de las variables de entorno
+      clientId={import.meta.env.VITE_AUTH0_CLIENT_ID} // Auth0 Client ID de las variables de entorno
+      redirectUri={window.location.origin} // La URL a la que redirigir después de login
+      audience={import.meta.env.VITE_AUTH0_AUDIENCE} // El identificador de tu API (opcional)
+    >
+      <AuthProvider>
+        <CartProvider>
+          <RouterProvider router={router}>
+            <App />
+          </RouterProvider>
+        </CartProvider>
+      </AuthProvider>
+    </Auth0Provider>
   </React.StrictMode>
 );
