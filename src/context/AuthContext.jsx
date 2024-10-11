@@ -20,6 +20,7 @@ export const AuthProvider = ({ children }) => {
   const getUserDetails = async () => {
     try {
       const token = await getAccessTokenSilently();  // Obtener token JWT
+      console.log(token)
       
       const response = await fetch("https://loocal.co/api/profile", {
         headers: {
