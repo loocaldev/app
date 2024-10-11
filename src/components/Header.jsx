@@ -13,11 +13,13 @@ import SearchBar from "./SearchBar";
 import Logo from "../assets/logo.svg";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useAuth0 } from "@auth0/auth0-react";
 
 function Header() {
   const [isNavbarOpen, setIsNavbarOpen] = useState(false);
-  const { isAuthenticated, userData, login, logout } = useAuth();  // Importa `login` y `logout` del contexto
+  // const { isAuthenticated, userData, login, logout } = useAuth();
   const navigate = useNavigate();
+  const { loginWithRedirect, logout, isAuthenticated, user } = useAuth0();
 
   useEffect(() => {
     if (isNavbarOpen) {

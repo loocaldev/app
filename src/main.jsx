@@ -50,10 +50,11 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <Auth0Provider
-      domain={import.meta.env.VITE_AUTH0_DOMAIN} // Auth0 Domain de las variables de entorno
-      clientId={import.meta.env.VITE_AUTH0_CLIENT_ID} // Auth0 Client ID de las variables de entorno
-      redirectUri={window.location.origin} // La URL a la que redirigir después de login
-      audience={import.meta.env.VITE_AUTH0_AUDIENCE} // El identificador de tu API (opcional)
+      domain={process.env.AUTH0_DOMAIN}
+      clientId={process.env.AUTH0_CLIENT_ID}
+      redirectUri={window.location.origin}
+      audience={`https://${process.env.AUTH0_DOMAIN}/api/v2/`}
+      scope="openid profile email"
     >
       <AuthProvider>
         <CartProvider>
