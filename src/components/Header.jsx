@@ -7,7 +7,8 @@ import {
   TbApple,
   TbCarrot,
   TbBuildingStore,
-  TbUserCircle,TbChevronRight
+  TbUserCircle,
+  TbChevronRight,
 } from "react-icons/tb";
 import SearchBar from "./SearchBar";
 import Logo from "../assets/logo.svg";
@@ -15,12 +16,39 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useAuth0 } from "@auth0/auth0-react";
 
+
 function Header() {
   const [searchQuery, setSearchQuery] = useState("");
-  const { loginWithRedirect, logout, isAuthenticated, user } = useAuth0();
+  // const { token, isAuthenticated, logout, userData } = useAuth();
   const navigate = useNavigate();
+  const {
+    loginWithRedirect,
+    isAuthenticated,
+    user,
+    logout,
+    getAccessTokenSilently,
+    isLoading,
+  } = useAuth0();
+  const [accessToken, setAccessToken] = useState(null);
 
   const [isNavbarOpen, setIsNavbarOpen] = useState(false);
+  const [isAuthChecked, setIsAuthChecked] = useState(false); 
+
+  // Obtener el accessToken de Auth0 de forma segura cuando el usuario esté autenticado
+  useEffect(() => {
+    const fetchAccessToken = async () => {
+      if (isAuthenticated) {
+        try {
+          const token = await getAccessTokenSilently();
+          setAccessToken(token);
+          console.log("Access Token:", token); // Muestra el token en la consola
+        } catch (error) {
+          console.error("Error obteniendo el token:", error);
+        }
+      }
+    };
+    fetchAccessToken();
+  }, [isAuthenticated, getAccessTokenSilently]);
 
   useEffect(() => {
     if (isNavbarOpen) {
@@ -34,14 +62,26 @@ function Header() {
     setSearchQuery(query);
   };
 
-  const handleLogout = () => {
-    logout();
-    navigate("/");
-  };
+  // const handleLogout = () => {
+  //   logout();
+  //   navigate("/");
+  // };
 
   const toggleNavbar = () => {
     setIsNavbarOpen(!isNavbarOpen);
   };
+
+    // Imprimir el estado de autenticación
+    useEffect(() => {
+      console.log("isAuthenticated:", isAuthenticated);
+      console.log("User data:", user);
+      setIsAuthChecked(true);  // Marca como revisado cuando cambia `isAuthenticated`
+    }, [isAuthenticated, user]);
+
+    if (!isAuthChecked) {
+      return <p>Cargando...</p>;  // Spinner o mensaje de carga
+    }
+
 
   return (
     <div className={styles.Header}>
@@ -56,17 +96,13 @@ function Header() {
           <div className={styles.thirdContent}>
             {isAuthenticated ? (
               <div>
-                {userData ? (
-                  <p onClick={() => logout()}>Hola {userData.username}</p>
-                ) : (
-                  <p>Cargando...</p>
-                )}
+                <p>{user.email}</p>
                 <button onClick={() => logout()}>Logout</button>
               </div>
             ) : (
               <div>
-                <button onClick={()=>loginWithRedirect()}>Ingresar</button>
-                <button onClick={()=>loginWithRedirect()}>
+                <button onClick={() => loginWithRedirect()}>Ingresar</button>
+                <button onClick={() => loginWithRedirect()}>
                   Crear cuenta
                 </button>
               </div>
@@ -135,10 +171,13 @@ function Header() {
                   <Link to="/login">
                     <div className={styles["navbarAccountOff"]}>
                       <div className={styles["navbarAccountOffLeft"]}>
-                      <TbUserCircle />
-                      <p>Ingresar</p>
+                        <TbUserCircle />
+                        <p>Ingresar</p>
                       </div>
-                      <div className={styles["navbarAccountOffRight"]}> <TbChevronRight /></div>
+                      <div className={styles["navbarAccountOffRight"]}>
+                        {" "}
+                        <TbChevronRight />
+                      </div>
                     </div>
                   </Link>
                 )}

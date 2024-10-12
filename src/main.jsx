@@ -47,15 +47,14 @@ const router = createBrowserRouter([
   },
 ]);
 
-const domain = 'dev-bgodgyzz8ugzloem.us.auth0.com';  // Reemplaza con tu dominio de Auth0
-const clientId = 'U2JQDtykft2e7bzJnKMkJokbd4jWxv2i';
-
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <Auth0Provider
-      domain={domain}
-      clientId={clientId}
-      authorizationParams={{ redirect_uri: window.location.origin }} // Define la URL de redirección después del login/logout
+      domain="dev-bgodgyzz8ugzloem.us.auth0.com"
+      clientId="U2JQDtykft2e7bzJnKMkJokbd4jWxv2i"
+      authorizationParams={{
+        redirect_uri: window.location.origin,
+      }}
     >
       <AuthProvider>
         <CartProvider>
