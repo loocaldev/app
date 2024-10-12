@@ -1,15 +1,25 @@
-import React from 'react';
-import { useAuth0 } from '@auth0/auth0-react';
-import { Navigate } from 'react-router-dom';
+import React, { useContext, useState, useEffect } from "react";
+import { Routes, Navigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext.jsx";
+import styles from "../styles/AuthenticatedRoute.module.css"
 
-const AuthenticatedRoute = ({ children }) => {
-  const { isAuthenticated, isLoading } = useAuth0();
+const AuthenticatedRoute = ({ component: Component, ...props }) => {
+  const { isAuthenticated } = useAuth();
+  const [loading, setLoading] = useState(true);
 
-  if (isLoading) {
-    return <div>Cargando...</div>;  // Puedes mostrar un spinner
+  useEffect(() => {
+    const delay = setTimeout(() => {
+      setLoading(false);
+    }, 10); // Cambia el valor a la cantidad de milisegundos que desees de retraso
+
+    return () => clearTimeout(delay);
+  }, []);
+
+  if (loading) {
+    return <div>Cargando...</div>; // O un spinner u otra pantalla de carga
   }
 
-  return isAuthenticated ? children : <Navigate to="/login" />;
+  return isAuthenticated ? <Component {...props} /> : <Navigate to="/login" />;
 };
 
 export default AuthenticatedRoute;

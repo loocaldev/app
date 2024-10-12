@@ -35,35 +35,21 @@ const router = createBrowserRouter([
       { path: "/order-status", element: <OrderStatus /> },
       { path: "/login", element: <Login /> },
       { path: "/crear-cuenta", element: <CreateAccount /> },
-      {
-        path: "/crear-cuenta/detalles",
-        element: <AuthenticatedRoute component={CreateAccountDetail} />,
-      },
-      {
-        path: "/crear-cuenta/detalles/direccion",
-        element: <AuthenticatedRoute component={CreateAccountDetailAddress} />,
-      },
+      { path: "/crear-cuenta/detalles",element: <AuthenticatedRoute component={CreateAccountDetail} />},
+      { path: "/crear-cuenta/detalles/direccion",element: <AuthenticatedRoute component={CreateAccountDetailAddress} />},
+
     ],
   },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <Auth0Provider
-      domain="dev-bgodgyzz8ugzloem.us.auth0.com"
-      clientId="U2JQDtykft2e7bzJnKMkJokbd4jWxv2i"
-      authorizationParams={{
-        redirect_uri: window.location.origin,
-        audience: "https://dev-bgodgyzz8ugzloem.us.auth0.com/api/v2/",
-      }}
-    >
-      <AuthProvider>
-        <CartProvider>
-          <RouterProvider router={router}>
-            <App />
-          </RouterProvider>
-        </CartProvider>
-      </AuthProvider>
-    </Auth0Provider>
+    <AuthProvider>
+      <CartProvider>
+        <RouterProvider router={router}>
+          <App />
+        </RouterProvider>
+      </CartProvider>
+    </AuthProvider>
   </React.StrictMode>
 );
