@@ -54,6 +54,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       clientId="U2JQDtykft2e7bzJnKMkJokbd4jWxv2i"
       authorizationParams={{
         redirect_uri: window.location.origin,
+        audience: "https://dev-bgodgyzz8ugzloem.us.auth0.com/api/v2/",
       }}
     >
       <AuthProvider>
