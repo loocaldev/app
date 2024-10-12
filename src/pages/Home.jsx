@@ -11,6 +11,7 @@ import { FiCheckCircle } from "react-icons/fi";
 import graphLoocal from "../assets/graphLoccal2024.png";
 import Carousel from "../components/Carousel.jsx";
 import GridProducts from "../components/GridProducts.jsx";
+const { fetchProtectedData, isAuthenticated } = useAuth();
 
 function Home() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -39,6 +40,17 @@ function Home() {
   const handleSearch = (query) => {
     setSearchQuery(query);
   };
+
+  // Función que maneja la carga de datos protegidos
+  const loadProtectedData = async () => {
+    try {
+      const data = await fetchProtectedData();  // Llamar a la función del contexto
+      setProtectedData(data);  // Guardar los datos protegidos en el estado
+    } catch (err) {
+      setError("Error al cargar los datos protegidos");
+    }
+  };
+
 
   return (
     <>
@@ -69,6 +81,18 @@ function Home() {
           </ul>
           <div className={styles["cta-content"]}>
           <button onClick={() => navigate("/tienda")} className={styles["cta-desktop"]}>Ver toda la tienda</button>
+          {/* Botón para cargar datos protegidos */}
+          {isAuthenticated && (
+            <div>
+              <button onClick={loadProtectedData} className={styles["cta-desktop"]}>
+                Cargar datos protegidos
+              </button>
+              {protectedData && (
+                <pre>{JSON.stringify(protectedData, null, 2)}</pre>  // Mostrar los datos si se cargan correctamente
+              )}
+              {error && <p>{error}</p>}
+            </div>
+          )}
           </div>
         </div>
 
