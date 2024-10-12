@@ -33,6 +33,7 @@ export const AuthProvider = ({ children }) => {
         },
       });
       setProfileData(response.data);
+      console.log(`TOKEN VALIDATED: ${token}`)
     } catch (error) {
       console.error('Error fetching profile data:', error);
     }
