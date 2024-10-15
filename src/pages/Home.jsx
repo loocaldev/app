@@ -9,32 +9,35 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
 import { FiCheckCircle } from "react-icons/fi";
 import graphLoocal from "../assets/graphLoccal2024.png";
+import personBanner from "../assets/personBanner.png";
 import Carousel from "../components/Carousel.jsx";
 import GridProducts from "../components/GridProducts.jsx";
+import useScreenSize from "../hooks/useScreenSize.js";
 
 function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const { token, isAuthenticated, logout, userData } = useAuth();
+  const isMobile = useScreenSize();
   const navigate = useNavigate();
 
   const items = [
     {
-      title: 'Primer envío gratis',
-      subtitle: 'Recibe en casa sin costo adicional.',
-      buttonText: 'Comprar ahora',
+      title: "Primer envío gratis",
+      subtitle: "Recibe en casa sin costo adicional.",
+      buttonText: "Comprar ahora",
       image: graphLoocal,
-      background: '#EDE8EF',
+      background: "#EDE8EF",
     },
     {
-      title: 'Martes de promos',
-      subtitle: 'Ofertas a mitad de precio.',
-      buttonText: 'Ver productos',
-      image: 'https://multimedia.wenia.com/790x760/6e9c69b135/adquiere-usdc.png',
-      background: '#FEF2EC',
+      title: "Martes de promos",
+      subtitle: "Ofertas a mitad de precio.",
+      buttonText: "Ver productos",
+      image:
+        "https://multimedia.wenia.com/790x760/6e9c69b135/adquiere-usdc.png",
+      background: "#FEF2EC",
     },
     // Agrega más elementos según sea necesario...
   ];
-  
 
   const handleSearch = (query) => {
     setSearchQuery(query);
@@ -46,15 +49,14 @@ function Home() {
         <SliderHome />
       </div> */}
       <div className={styles["carousel-container"]}>
-            <Carousel items={items} />
-          </div>
-      <div className={styles.Banner}>
-        <div className={styles.MainBanner}>
-          {/* <img src={graphLoocal}></img> */}
+        <Carousel items={items} />
+      </div>
+
+      <div className={styles.Banner2}>
+        <div className={styles.FirstBanner}>
           <h1>Encuentra productos frescos de alta calidad</h1>
           <p>Comprados directamente a productores locales.</p>
-          
-          
+
           <ul className={styles["highlights"]}>
             <li>
               <FiCheckCircle /> Recibe tu mercado en la puerta de tu casa
@@ -68,22 +70,51 @@ function Home() {
             </li>
           </ul>
           <div className={styles["cta-content"]}>
-          <button onClick={() => navigate("/tienda")} className={styles["cta-desktop"]}>Ver toda la tienda</button>
+            <button
+              onClick={() => navigate("/tienda")}
+              className={styles["cta-desktop"]}
+            >
+              Ver toda la tienda
+            </button>
           </div>
         </div>
-
-        <div className={styles.Products}>
-          <div className={styles["searchbar-products"]}>
-            <SearchBar onSearch={handleSearch} />
+        {isMobile ? (
+          <div className={styles.SecondBanner}>
+            <div className={styles.SecondProducts}>
+            <div className={styles["searchbar-products"]}>
+                <SearchBar onSearch={handleSearch} />
+              </div>
+              <ListProducts
+                className={styles["products3"]}
+                searchQuery={searchQuery}
+              />
+            </div>
+            <div className={styles.SecondProducer}>
+              <img
+                className={styles.SecondProducerIMG}
+                src={personBanner}
+              ></img>
+            </div>
           </div>
-          <div className={styles["content-products"]}>
-            <ListProducts
-              className={styles["products"]}
-              searchQuery={searchQuery}
-            />
-            <button onClick={() => navigate("/tienda")} className={styles["cta-mobile"]}>Ver toda la tienda</button>
+        ) : (
+          <div className={styles.SecondBanner}>
+            <div className={styles.SecondProducts}>
+              <div className={styles["searchbar-products"]}>
+                <SearchBar onSearch={handleSearch} />
+              </div>
+              <ListProducts
+                className={styles["products3"]}
+                searchQuery={searchQuery}
+              />
+            </div>
+            <div className={styles.SecondProducer}>
+              <img
+                className={styles.SecondProducerIMG}
+                src={personBanner}
+              ></img>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       <div className={styles.Faqs}>

@@ -21,6 +21,7 @@ import CreateAccountDetail from "./pages/CreateAccountDetail.jsx";
 import AuthenticatedRoute from "./context/AuthenticatedRoute.jsx";
 import CreateAccountDetailAddress from "./pages/CreateAccountDetailAddress.jsx";
 import Store from "./pages/Store.jsx";
+import Profile from "./pages/Profile.jsx";
 
 const router = createBrowserRouter([
   {
@@ -37,6 +38,7 @@ const router = createBrowserRouter([
       { path: "/crear-cuenta", element: <CreateAccount /> },
       { path: "/crear-cuenta/detalles",element: <AuthenticatedRoute component={CreateAccountDetail} />},
       { path: "/crear-cuenta/detalles/direccion",element: <AuthenticatedRoute component={CreateAccountDetailAddress} />},
+      { path: "/perfil",element: <AuthenticatedRoute component={Profile} />},
 
     ],
   },

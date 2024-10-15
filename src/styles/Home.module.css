@@ -1,5 +1,9 @@
 @import "./variables.css";
 
+body {
+  background-color: #fff !important;
+}
+
 .section-banner {
   box-sizing: border-box;
   width: 100%;
@@ -11,83 +15,94 @@
   display: none;
 }
 
-.Banner {
-  background-color: #fff;
-  grid-template-columns: 2fr 1fr;
-  padding: 16px 24px;
-  border-radius: 16px;
-  box-sizing: border-box;
+.Banner2 {
   display: flex;
-  width: 100%;
-  justify-content: space-between;
+  flex-direction: row;
+  gap: 20px;
+  min-height: 580px;
+  justify-content: center;
+  padding: 1rem;
 }
 
-.MainBanner {
-  background-color: #fff;
-  border-radius: 24px;
-  width: 50%;
-  box-sizing: border-box;
-  padding: 24px 24px 24px 0px;
+
+
+.FirstBanner {
+  width: 40%;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  gap: 8px;
 }
 
-.MainBanner img {
-  width: 30%;
+.FirstBanner p {
+  font-size: 20px;
+  line-height: 32px;
 }
 
-.MainBanner ul {
+.FirstBanner ul {
   list-style: none;
-  padding: 12px 6px;
+  padding: 0px 6px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 4px;
 }
 
-.MainBanner li {
-  display: flex; /* Usa flexbox para alinear el icono y el texto */
-  align-items: center; /* Centra verticalmente los elementos dentro del ítem */
+.FirstBanner li {
+  display: flex;
+  align-items: center;
   margin-bottom: 5px;
 }
 
-.MainBanner li svg {
+.FirstBanner li svg {
   margin-right: 5px;
   width: 20px;
 }
 
-.MainBanner h1 {
-  width: 100%;
-  margin: 0px;
-  font-weight: 600;
-  margin-bottom: 12px;
+.SecondBanner {
+  width: 60%;
+  display: flex;
+  flex-direction: row;
+  justify-content: right;
 }
 
-.MainBanner input {
-  margin: 24px 0px;
-  padding: 16px 24px;
-}
-
-.Products {
-  background-color: #f6f6f6;
-  border-radius: 16px;
-  width: 40%;
-  max-height: 720px;
+.SecondProducts {
+  width: 70%;
+  height: 70%;
+  display: flex;
+  flex-direction: column;
   overflow-y: auto;
-  display: block;
+  border-radius: 16px;
+  padding: 1em;
+  width: 420px;
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.SecondProductsCard {
+  width: 100%;
+  background-color: #f6f6f6;
+}
+
+.SecondProducer {
+  width: 30%;
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+}
+
+.SecondProducer img {
+  width: 180px;
+  transform: translateX(-16px) translateY(-16px);
 }
 
 .searchbar-products {
   position: sticky;
-  background-color: #f6f6f6;
-  padding: 8px;
+  /* background-color: #f6f6f6; */
+  padding: 0px;
   width: 100%;
   box-sizing: border-box;
   top: 0;
-}
-
-.content-products {
-  padding: 0px 12px 12px;
 }
 
 .products button {
@@ -113,48 +128,43 @@
 }
 
 @media screen and (max-width: 576px) {
-  .Banner {
+  .Banner2 {
     display: flex;
     flex-direction: column;
     width: 100%;
     padding: 8px 2px;
+    justify-content: start;
   }
-  .MainBanner {
-    background-color: transparent;
-    padding: 0px 6px 12px;
+
+  .FirstBanner {
     width: 100%;
   }
 
+  .FirstBanner p {
+    font-size: 16px;
+    line-height: 20px;
+  }
+
+  .FirstBanner ul {
+    display: none;
+  }
+
+  .SecondBanner {
+    width: 100%;
+    padding: 0px;
+  }
+  .SecondProducts {
+    padding: 0px;
+  }
+
+  .SecondProducer {
+    display: none;
+  }
   .carousel-container {
     display: flex;
     margin-top: 12px;
   }
 
-  .MainBanner ul {
-    display: none;
-  }
-
-  .MainBanner img {
-    display: none;
-  }
-
-  .MainBanner h1 {
-    width: 100%;
-    font-weight: 800;
-  }
-
-  .Products {
-    width: 100%;
-    padding: 0px 2px;
-    background-color: transparent;
-    min-height: fit-content;
-    overflow-y: hidden;
-    max-height: 700px;
-  }
-
-  .content-products {
-    padding: 12px 4px;
-  }
 
   .highlights {
     display: none;
@@ -167,6 +177,7 @@
   .cta-desktop {
     display: none;
   }
+
   .searchbar-products {
     background-color: #fff;
   }

@@ -153,7 +153,7 @@ export const AuthProvider = ({ children }) => {
     try {
       console.log("Sending update request with data:", updatedData);
       const response = await fetch(
-        "https://loocal.co/api/update_user",
+        "https://loocal.co/api/update_user/",
         {
           method: "PATCH",
           headers: {
@@ -178,6 +178,39 @@ export const AuthProvider = ({ children }) => {
       console.error("Error updating user:", error);
     }
   };
+
+  // Nueva función para agregar dirección en AuthContext.jsx
+const addAddress = async (addressData) => {
+  try {
+    console.log("Sending address data:", addressData);
+    const response = await fetch(
+      "https://loocal.co/api/add_address/",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Token ${token}`,  // Enviar el token de autenticación
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCSRFToken(),
+        },
+        body: JSON.stringify(addressData),
+      }
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log("Address added successfully:", data);
+      return data;
+    } else {
+      const errorData = await response.json();
+      console.log("Failed to add address:", errorData);
+      throw new Error("Failed to add address");
+    }
+  } catch (error) {
+    console.error("Error adding address:", error);
+    throw error;
+  }
+};
+
   // Función para establecer una cookie
   const setCookie = (name, value) => {
     document.cookie = `${name}=${value}; path=/`;
@@ -198,7 +231,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, token, userData, login, logout, register, updateUser }}
+      value={{ isAuthenticated, token, userData, login, logout, register, updateUser, addAddress }}
     >
       {children}
     </AuthContext.Provider>

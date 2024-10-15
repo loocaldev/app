@@ -1,0 +1,7 @@
+@import "./variables.css";
+
+.container {
+    background-color: #fff;
+    border-radius: 16px;
+    padding: 12px;
+}

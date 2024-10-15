@@ -24,7 +24,7 @@ function ListProducts({ searchQuery }) {
       if (window.innerWidth < 768) {
         setNumOfProducts(4);
       } else {
-        setNumOfProducts(5);
+        setNumOfProducts(3);
       }
     }
     handleResize(); // Check initial width

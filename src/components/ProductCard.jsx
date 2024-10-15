@@ -9,7 +9,7 @@ import {
   FiCheck,
 } from "react-icons/fi";
 import { BsCartCheck } from "react-icons/bs";
-import { useCart } from "../hooks/useCart";
+import { useCart } from "../hooks/useCart"; 
 
 function ProductCard({ product }) {
   const formatPriceToCOP = (price) => {

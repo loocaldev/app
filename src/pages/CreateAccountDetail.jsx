@@ -18,7 +18,7 @@ function CreateAccountDetail() {
     documentNumber: "",
     phone: "",
     email: ""
-  });
+  }); 
   const { updateUser } = useAuth();
   const [incompleteFields, setIncompleteFields] = useState([]);
   const [formSubmitted, setFormSubmitted] = useState(false);

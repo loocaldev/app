@@ -2,14 +2,12 @@
 
 .Layout {
   margin: 90px auto 20px;
-  max-width: 1140px !important;
   display: flex;
   flex-direction: column;
   text-align: center;
   flex-wrap: wrap;
-  padding: 2rem;
+  padding: 1rem;
   min-height: 70vh;
-  max-width: 640px;
   text-align: left;
 }
 
@@ -29,3 +27,11 @@
     padding: 0.1rem 1rem;
   }
 }
+
+@media screen and (min-width: 1920px) {
+  .Layout {
+    padding: 0.1rem 1rem;
+    max-width: 1580px;
+  }
+}
+
