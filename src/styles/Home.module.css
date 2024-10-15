@@ -109,7 +109,6 @@ body {
   padding: 1em;
   width: 420px;
   backdrop-filter: blur(10px);
-  border-radius: 16px;
   overflow: hidden;
 }
 
@@ -189,6 +188,7 @@ body {
   }
   .SecondProducts {
     padding: 0px;
+    border-radius: 0px;
   }
 
   .SecondProducer {
