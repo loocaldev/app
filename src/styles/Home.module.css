@@ -66,6 +66,12 @@ body {
   -webkit-overflow-scrolling: touch;
   max-width: 100vw;
   scrollbar-width: none;
+  -ms-overflow-style: none;
+  overflow: -moz-scrollbars-none;
+}
+
+.button-carousel::-webkit-scrollbar {
+  display: none;
 }
 
 .button-option {
@@ -73,8 +79,8 @@ body {
   background-color: var(--purple-alpha-color);
   color: var(--primary-purple-color);
   padding: 2px 12px;
-  white-space: nowrap; /* Evita que el texto se quiebre */
-  flex-shrink: 0; /* Evita que los botones se encojan */
+  white-space: nowrap;
+  flex-shrink: 0;
   display: inline-block;
 }
 
