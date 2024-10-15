@@ -24,8 +24,6 @@ body {
   padding: 1rem;
 }
 
-
-
 .FirstBanner {
   width: 40%;
   display: flex;
@@ -56,6 +54,42 @@ body {
 .FirstBanner li svg {
   margin-right: 5px;
   width: 20px;
+}
+
+.button-carousel {
+  display: flex;
+  flex-direction: row;
+  overflow-x: scroll;
+  gap: 8px;
+  margin: 12px 0px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100vw;
+  scrollbar-width: none;
+}
+
+.button-option {
+  border-radius: 99px;
+  background-color: var(--purple-alpha-color);
+  color: var(--primary-purple-color);
+  padding: 2px 12px;
+  white-space: nowrap; /* Evita que el texto se quiebre */
+  flex-shrink: 0; /* Evita que los botones se encojan */
+  display: inline-block;
+}
+
+.button-option:hover {
+  background-color: var(--primary-purple-color);
+  color: var(--purple-alpha-color);
+}
+
+.button-option span {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.button-carousel button {
+  padding: 4px 12px !important;
 }
 
 .SecondBanner {
@@ -164,7 +198,6 @@ body {
     display: flex;
     margin-top: 12px;
   }
-
 
   .highlights {
     display: none;

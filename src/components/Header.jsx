@@ -7,7 +7,8 @@ import {
   TbApple,
   TbCarrot,
   TbBuildingStore,
-  TbUserCircle,TbChevronRight
+  TbUserCircle,
+  TbChevronRight,
 } from "react-icons/tb";
 import SearchBar from "./SearchBar";
 import Logo from "../assets/logo.svg";
@@ -42,15 +43,17 @@ function Header() {
     setIsNavbarOpen(!isNavbarOpen);
   };
 
+  const handleNavSide = () => {
+    setIsNavbarOpen(!isNavbarOpen);
+  }
+
   return (
     <div className={styles.Header}>
       <div className={styles["header-container"]}>
         <div className={styles.content}>
           <div className={styles.firstContent}>
             <FiMenu onClick={toggleNavbar} />
-            <Link to="/">
-              <img src={Logo} alt="Logo" />
-            </Link>
+            <img onClick={() => navigate("/")} src={Logo} alt="Logo" />
           </div>
           <div className={styles.thirdContent}>
             {isAuthenticated ? (
@@ -84,12 +87,12 @@ function Header() {
             <div className={styles["navbarContent"]}>
               <div className={styles["navbarTop"]}>
                 <div className={styles["navbarHead"]}>
-                  <img src={Logo} alt="Logo" />
+                  <Link to="/"><img onClick={handleNavSide} src={Logo} alt="Logo" /></Link>
                   <MdClose onClick={toggleNavbar} />
                 </div>
                 <div className={styles["navbarMain"]}>
                   <Link to="/tienda">
-                    <div className={styles["navbar-option"]}>
+                    <div onClick={handleNavSide} className={styles["navbar-option"]}>
                       <TbBuildingStore /> Toda la tienda
                     </div>
                   </Link>
@@ -134,10 +137,13 @@ function Header() {
                   <Link to="/login">
                     <div className={styles["navbarAccountOff"]}>
                       <div className={styles["navbarAccountOffLeft"]}>
-                      <TbUserCircle />
-                      <p>Ingresar</p>
+                        <TbUserCircle />
+                        <p>Ingresar</p>
                       </div>
-                      <div className={styles["navbarAccountOffRight"]}> <TbChevronRight /></div>
+                      <div className={styles["navbarAccountOffRight"]}>
+                        {" "}
+                        <TbChevronRight />
+                      </div>
                     </div>
                   </Link>
                 )}

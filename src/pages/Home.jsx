@@ -81,8 +81,25 @@ function Home() {
         {isMobile ? (
           <div className={styles.SecondBanner}>
             <div className={styles.SecondProducts}>
-            <div className={styles["searchbar-products"]}>
+              <div className={styles["searchbar-products"]}>
                 <SearchBar onSearch={handleSearch} />
+              </div>
+              <div className={styles["button-carousel"]}>
+                <div onClick={() => navigate("/tienda")} className={styles["button-option"]}>
+                  <span>Ver toda la tienda</span>
+                </div>
+                <div onClick={() => navigate("/tienda")} className={styles["button-option"]}>
+                  <span>Frutas</span>
+                </div>
+                <div onClick={() => navigate("/tienda")} className={styles["button-option"]}>
+                  <span>Verduras</span>
+                </div>
+                <div onClick={() => navigate("/tienda")} className={styles["button-option"]}>
+                  <span>Granos</span>
+                </div>
+                <div onClick={() => navigate("/tienda")} className={styles["button-option"]}>
+                  <span>Artesanal</span>
+                </div>
               </div>
               <ListProducts
                 className={styles["products3"]}
