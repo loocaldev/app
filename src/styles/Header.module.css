@@ -8,8 +8,6 @@
   backdrop-filter: blur(10px);
 }
 
-
-
 .header-container {
   padding: 0.8rem 0.8rem 0;
 } 
@@ -145,9 +143,8 @@
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
+  height: 100vh;
   background: rgba(0, 0, 0, 0.5);
-  display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
@@ -314,6 +311,9 @@
   }
 
   .SearchBarWrapper {
+    display: none !important;
+  }
+  .secondContent {
     display: none !important;
   }
 }

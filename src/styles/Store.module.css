@@ -68,3 +68,12 @@
   align-items: center;
   gap: 6px;
 }
+
+.content-section-arrows svg {
+  cursor: pointer;
+  border-radius: 99px;
+}
+
+.content-section-arrows svg:hover {
+  background-color: var(--purple-alpha-color);
+}

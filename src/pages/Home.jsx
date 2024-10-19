@@ -11,7 +11,7 @@ import { FiCheckCircle } from "react-icons/fi";
 import graphLoocal from "../assets/graphLoccal2024.png";
 import personBanner from "../assets/personBanner.png";
 import Carousel from "../components/Carousel.jsx";
-import GridProducts from "../components/GridProducts.jsx";
+import SliderProducts from "../components/SliderProducts.jsx";
 import useScreenSize from "../hooks/useScreenSize.js";
 
 function Home() {
