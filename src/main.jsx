@@ -21,6 +21,7 @@ import CreateAccountDetail from "./pages/CreateAccountDetail.jsx";
 import AuthenticatedRoute from "./context/AuthenticatedRoute.jsx";
 import CreateAccountDetailAddress from "./pages/CreateAccountDetailAddress.jsx";
 import Store from "./pages/Store.jsx";
+import Category from "./pages/Category.jsx";
 import Profile from "./pages/Profile.jsx";
 
 const router = createBrowserRouter([
@@ -30,6 +31,7 @@ const router = createBrowserRouter([
     children: [
       { path: "/", element: <Home /> },
       { path: "/tienda", element: <Store /> },
+      { path: "/tienda/:category", element: <Category />},
       { path: "/login", element: <Login /> },
       { path: "/order", element: <Order /> },
       { path: "/checkout", element: <Checkout /> },

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styles from "../styles/Header.module.css";
 import { FiMenu, FiShoppingCart } from "react-icons/fi";
+import useScreenSize from "../hooks/useScreenSize.js";
 import { MdClose } from "react-icons/md";
 import {
   TbRosetteDiscount,
@@ -19,6 +20,7 @@ function Header() {
   const [searchQuery, setSearchQuery] = useState("");
   const { token, isAuthenticated, logout, userData } = useAuth();
   const navigate = useNavigate();
+  const isMobile = useScreenSize();
 
   const [isNavbarOpen, setIsNavbarOpen] = useState(false);
 
@@ -45,7 +47,7 @@ function Header() {
 
   const handleNavSide = () => {
     setIsNavbarOpen(!isNavbarOpen);
-  }
+  };
 
   return (
     <div className={styles.Header}>
@@ -54,6 +56,9 @@ function Header() {
           <div className={styles.firstContent}>
             <FiMenu onClick={toggleNavbar} />
             <img onClick={() => navigate("/")} src={Logo} alt="Logo" />
+          </div>
+          <div className={styles.secondContent}>
+            <span>Buscar...</span>
           </div>
           <div className={styles.thirdContent}>
             {isAuthenticated ? (
@@ -75,6 +80,23 @@ function Header() {
             )}
           </div>
         </div>
+        <div className={styles.SecondBar}>
+          <div className={styles.SecondBarLeft}>
+            <span>Ingresa tu dirección y recibe tu pedido en casa</span>
+          </div>
+          {isMobile ? (
+            <></>
+          ) : (
+            <div className={styles.SecondBarRight}>
+              <span>Ver todo</span>
+              <span>Frutas</span>
+              <span>Verduras y hortalizas</span>
+              <span>Granos y cereales</span>
+              <span>Productos orgánicos</span>
+              <span>Productos Artesanales</span>
+            </div>
+          )}
+        </div>
       </div>
       {isNavbarOpen && (
         <div className={styles.overlay} onClick={toggleNavbar}>
@@ -87,12 +109,17 @@ function Header() {
             <div className={styles["navbarContent"]}>
               <div className={styles["navbarTop"]}>
                 <div className={styles["navbarHead"]}>
-                  <Link to="/"><img onClick={handleNavSide} src={Logo} alt="Logo" /></Link>
+                  <Link to="/">
+                    <img onClick={handleNavSide} src={Logo} alt="Logo" />
+                  </Link>
                   <MdClose onClick={toggleNavbar} />
                 </div>
                 <div className={styles["navbarMain"]}>
                   <Link to="/tienda">
-                    <div onClick={handleNavSide} className={styles["navbar-option"]}>
+                    <div
+                      onClick={handleNavSide}
+                      className={styles["navbar-option"]}
+                    >
                       <TbBuildingStore /> Toda la tienda
                     </div>
                   </Link>

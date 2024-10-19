@@ -5,21 +5,24 @@
   z-index: 50;
   top: 0;
   width: 100%;
-  background-color: #fff;
+  backdrop-filter: blur(10px);
 }
 
+
+
 .header-container {
-  padding: 0.8rem;
-}
+  padding: 0.8rem 0.8rem 0;
+} 
 
 .content {
   display: flex;
   justify-content: space-between;
-  border-radius: 16px;
+  border-radius: 16px 16px 0px 0px;
   box-shadow: 0px 4px 12px 0px #ede8ef;
   background-color: #fff;
   padding: 12px 24px;
   gap: 20px;
+  z-index: 100;
 }
 
 .content div {
@@ -30,8 +33,59 @@
   gap: 20px;
 }
 
+.SecondBar {
+  background-color: var(--purple-alpha-color);
+  padding:6px 24px;
+  transform: translateY(-1px);
+  z-index: 10;
+  border-radius: 0px 0px 16px 16px;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.SecondBarLeft {
+  display: flex;
+  width: 30%;
+  gap: 16px;
+  justify-content: start;
+  align-items: center;
+}
+
+
+.SecondBarRight {
+  display: flex;
+  width: 70%;
+  gap: 16px;
+  justify-content: end;
+  align-items: center;
+}
+
+.SecondBar span {
+  font-size: 14px;
+  cursor: pointer;
+  color: var(--primary-purple-color);
+  opacity: 50%;
+}
+
+.SecondBar span:hover {
+  opacity: 100%;
+}
+
 .firstContent {
   justify-content: left;
+}
+
+.firstContent img {
+  margin: 0px;
+}
+
+.secondContent {
+  border-radius: 16px;
+  border: 1px solid var(--gray-5);
+  width: 60%;
+  padding: 4px 12px;
+  color: var(--gray-3);;
 }
 
 .thirdContent {
@@ -247,6 +301,16 @@
 @media screen and (max-width: 768px) {
   .thirdContent button {
     display: none !important;
+  }
+
+  .SecondBar {
+    padding: 4px;
+    
+  }
+
+  .SecondBarLeft {
+    width: 100%;
+    justify-content: center;
   }
 
   .SearchBarWrapper {

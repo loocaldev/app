@@ -1,43 +1,29 @@
-import React, { useState, useEffect } from "react";
-import { getAllProducts } from "../api/products.api";
+import React, { useState, useEffect, useRef } from "react";
 import ProductCardSQ from "./ProductCardSQ";
 import styles from "../styles/GridProducts.module.css";
 import { useCart } from "../hooks/useCart";
 import character_loocal from "../assets/character_loocal.svg";
 
-function GridProducts({ searchQuery, filter, sortOrder }) {
-  const [products, setProducts] = useState([]);
-  const [visibleRows, setVisibleRows] = useState(2); 
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768); 
+function GridProducts({ products, searchQuery, sortOrder, scrollRef }) {
+  const [visibleRows, setVisibleRows] = useState(2);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   const { cart } = useCart();
-
-  useEffect(() => {
-    async function loadProducts() {
-      const res = await getAllProducts();
-      setProducts(res.data);
-    }
-    loadProducts();
-  }, []);
+  const productRef = useRef(null);
 
   useEffect(() => {
     function handleResize() {
       setIsMobile(window.innerWidth < 768);
     }
-
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Filtrar y ordenar productos si es necesario
   const filteredProducts = products
     .filter((product) =>
       product.name.toLowerCase().includes((searchQuery || "").toLowerCase())
     )
-    .filter((product) => {
-      if (filter === "convencional") return product.type === "convencional";
-      if (filter === "organico") return product.type === "organico";
-      return true;
-    })
     .sort((a, b) => {
       if (sortOrder === "az") return a.name.localeCompare(b.name);
       if (sortOrder === "priceAsc") return a.price - b.price;
@@ -47,32 +33,41 @@ function GridProducts({ searchQuery, filter, sortOrder }) {
 
   const numProductsPerRow = 6;
   const visibleProducts = isMobile
-    ? filteredProducts 
-    : filteredProducts.slice(0, visibleRows * numProductsPerRow); 
+    ? filteredProducts
+    : filteredProducts.slice(0, visibleRows * numProductsPerRow);
 
   return (
     <div className={styles.productsContainer}>
-      <div className={styles.bannerProducts}>
+      <div className={styles.bannerProducts} ref={scrollRef}>
         {visibleProducts.length > 0 ? (
-          visibleProducts.map((product) => (
-            <ProductCardSQ key={product.id} product={product} />
+          visibleProducts.map((product, index) => (
+            <ProductCardSQ
+              key={product.id}
+              product={product}
+              ref={index === 0 ? productRef : null}
+            />
           ))
         ) : (
           <div className={styles["product-not-found"]}>
-            <span>Patroncit@<br />Aún no tenemos este producto</span>
+            <span>
+              Patroncit@
+              <br />
+              Aún no tenemos este producto
+            </span>
             <img src={character_loocal} />
           </div>
         )}
       </div>
 
-      {!isMobile && visibleRows * numProductsPerRow < filteredProducts.length && (
-        <button
-          className={styles.showMoreButton}
-          onClick={() => setVisibleRows((prev) => prev + 2)} 
-        >
-          Ver más
-        </button>
-      )}
+      {!isMobile &&
+        visibleRows * numProductsPerRow < filteredProducts.length && (
+          <button
+            className={styles.showMoreButton}
+            onClick={() => setVisibleRows((prev) => prev + 2)}
+          >
+            Ver más
+          </button>
+        )}
     </div>
   );
 }

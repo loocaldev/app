@@ -1,12 +1,12 @@
 @import "./variables.css";
 
 .Layout {
-  margin: 90px auto 20px;
+  margin: 0px auto 20px;
   display: flex;
   flex-direction: column;
   text-align: center;
   flex-wrap: wrap;
-  padding: 1rem;
+  padding: 130px 1rem 1rem 1rem;
   min-height: 70vh;
   text-align: left;
 }

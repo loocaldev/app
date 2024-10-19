@@ -1,9 +1,70 @@
 @import "./variables.css";
 
-body {
-    background-color: #F9F9F9;
+.container {
+  display: flex;
+  gap: 20px;
+  max-width: 100%;
 }
 
-.containerStore {
-    max-width: 100%;
+.sidebar {
+  width: 20%;
+  background-color: #fff;
+  border-radius: 16px;
+  padding: 12px;
+}
+
+.sidebar-title {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+  background-color: var(--purple-alpha-color);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.sidebar-title img {
+  width: 140px;
+}
+
+.content {
+  max-width: 80%;
+  background-color: #fff;
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.content-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.content-nav-item {
+  background-color: var(--purple-alpha-color);
+  padding: 32px 16px 6px 16px;
+  width: 100%;
+  display: flex;
+  border-radius: 16px;
+  justify-content: left;
+  align-items: center;
+  align-content: center;
+  margin-bottom: 12px;
+}
+
+.content-nav-item p{
+    font-weight: 600;
+}
+
+.content-section-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.content-section-arrows {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
 }

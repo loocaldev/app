@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, forwardRef } from "react";
 import styles from "../styles/ProductCardSQ.module.css";
 import {
   FiChevronDown,
@@ -11,7 +11,7 @@ import {
 import { BsCartCheck } from "react-icons/bs";
 import { useCart } from "../hooks/useCart";
 
-function ProductCardSQ({ product }) {
+const ProductCardSQ = forwardRef(({ product }, ref) => {
   const formatPriceToCOP = (price) => {
     const numericPrice = Number(price);
     if (!isNaN(numericPrice)) {
@@ -47,16 +47,22 @@ function ProductCardSQ({ product }) {
   const productQuantity = getProductQuantity(product);
 
   return (
-    <div className={styles.card}>
+    <div className={styles.card} ref={ref}>
       <div className={styles["main-product"]}>
         <div className={styles["product-img"]}>
-          <img src={product.image}></img>
+          <img src={product.image} alt={product.name} />
         </div>
         <div className={styles["product-content"]}>
           <p className={styles["product-content-name"]}>{product.name}</p>
           <div className={styles["product-variations"]}>
-            <span>Convencional</span>
-            <span>Maduro</span>
+            {/* Mostrar dinámicamente las categorías del producto */}
+            {product.categories && product.categories.length > 0 ? (
+              product.categories.map((category) => (
+                <span key={category.id}>{category.name}</span>
+              ))
+            ) : (
+              <span>Sin categoría</span>
+            )}
           </div>
         </div>
         <div className={styles["product-action"]}>
@@ -110,27 +116,8 @@ function ProductCardSQ({ product }) {
           </div>
         </div>
       </div>
-      {/* <div className={styles["extend-product"]}>
-          <div className={styles["extend-action"]}>
-            <div className={styles["extend-action-line"]}>
-              <hr />
-            </div>
-            <div
-              className={styles["extend-action-button"]}
-              onClick={toggleExtendContent}
-            >
-              <span>Ver más</span>
-              {isExtended ? <FiChevronUp /> : <FiChevronDown />}
-            </div>
-          </div>
-          {isExtended && (
-            <div className={styles["extend-content"]}>
-              <span>Lorem ipsum dolor sit amet</span>
-            </div>
-          )}
-        </div> */}
     </div>
   );
-}
+});
 
 export default ProductCardSQ;

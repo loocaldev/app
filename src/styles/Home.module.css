@@ -1,14 +1,12 @@
 @import "./variables.css";
 
-body {
-  background-color: #fff !important;
-}
 
 .section-banner {
   box-sizing: border-box;
   width: 100%;
   padding: 0px 6px 24px;
   display: none;
+  background-color: #fff;
 }
 
 .carousel-container {
@@ -21,7 +19,9 @@ body {
   gap: 20px;
   min-height: 580px;
   justify-content: center;
-  padding: 1rem;
+  padding: 1rem 1.5rem;
+  background-color: #fff;
+  border-radius: 16px;
 }
 
 .FirstBanner {
