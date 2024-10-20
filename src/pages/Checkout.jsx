@@ -1,16 +1,13 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useCart } from "../hooks/useCart";
 import { useLocation } from "react-router-dom";
 import styles from "../styles/Checkout.module.css";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import "react-phone-input-2/lib/style.css";
 import toast, { Toaster } from "react-hot-toast";
-import PhoneInput from "react-phone-input-2";
-import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
 import { departamentosYMunicipios } from "../data/departamentosYMunicipios";
 
+// Formato de precios a moneda COP
 const formatPriceToCOP = (price) => {
   const numericPrice = Number(price);
   if (!isNaN(numericPrice)) {
@@ -23,43 +20,17 @@ const formatPriceToCOP = (price) => {
   }
 };
 
-const initBoldCheckout = () => {
-  if (
-    document.querySelector(
-      'script[src="https://checkout.bold.co/library/boldPaymentButton.js"]'
-    )
-  ) {
-    console.warn("Bold Checkout script is already loaded.");
-    return;
-  }
-
-  var js;
-  js = document.createElement("script");
-  js.onload = () => {
-    window.dispatchEvent(new Event("boldCheckoutLoaded"));
-  };
-  js.onerror = () => {
-    window.dispatchEvent(new Event("boldCheckoutLoadFailed"));
-  };
-  js.src = "https://checkout.bold.co/library/boldPaymentButton.js";
-  document.head.appendChild(js);
-};
-
 function Checkout() {
   const { cart, subtotal } = useCart();
   const location = useLocation();
   const scriptContainerRef = useRef(null);
-  const [integrityHash, setIntegrityHash] = useState(null);
-
+  const [integrityHash, setIntegrityHash] = useState(null); // Hash de integridad para Wompi
   const [departamentoSeleccionado, setDepartamentoSeleccionado] = useState("");
   const [municipioSeleccionado, setMunicipioSeleccionado] = useState("");
-
   const [availableDates, setAvailableDates] = useState([]);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedHour, setSelectedHour] = useState("");
-
   const [incompleteFields, setIncompleteFields] = useState([]);
-
   const [formData, setFormData] = useState({
     firstname: "",
     lastname: "",
@@ -75,19 +46,13 @@ function Checkout() {
     horaEntrega: "",
   });
 
-  useEffect(() => {
-    if (location.state && location.state.integrity_hash) {
-      setIntegrityHash(location.state.integrity_hash);
-    }
-  }, [location.state]);
-
   const order = {
     order_id: localStorage.getItem("orderId"),
-    amount: subtotal * 100, // Convertimos el monto a centavos
+    amount: subtotal * 100, // Monto en centavos
     currency: "COP",
   };
 
-  // Obtener el hash de integridad del backend
+  // Obtener el hash de integridad del backend para Wompi
   useEffect(() => {
     const fetchIntegrityHash = async () => {
       try {
@@ -113,68 +78,46 @@ function Checkout() {
     }
   }, [order]);
 
-  // Inicializar el script de Wompi cuando el hash esté listo
+  // Inicializa el script de Wompi si no está cargado
   useEffect(() => {
-    if (integrityHash && order.order_id && order.amount) {
-      const script = document.createElement("script");
-      script.src = "https://checkout.wompi.co/widget.js";
-      script.async = true;
-      script.setAttribute("data-render", "button");
-      script.setAttribute(
-        "data-public-key",
-        "pub_test_gyZVH3hcyjvHHH8xA8AAvzue2QRBj49O"
-      ); // Llave pública Wompi
-      script.setAttribute("data-currency", order.currency);
-      script.setAttribute("data-amount-in-cents", order.amount);
-      script.setAttribute("data-reference", order.order_id);
-      script.setAttribute("data-signature:integrity", integrityHash);
-      script.setAttribute(
-        "data-redirect-url",
-        "https://loocal.co/order-status"
-      ); // URL redirección al finalizar
-
-      if (scriptContainerRef.current) {
-        scriptContainerRef.current.innerHTML = ""; // Limpiar cualquier script previo
-        scriptContainerRef.current.appendChild(script);
+    const loadWompiScript = () => {
+      if (!document.querySelector("script[src='https://checkout.wompi.co/widget.js']")) {
+        const script = document.createElement("script");
+        script.src = "https://checkout.wompi.co/widget.js";
+        script.async = true;
+        script.setAttribute("data-render", "false"); // Evita que se renderice el botón de Wompi automáticamente
+        document.body.appendChild(script);
       }
-    }
-  }, [integrityHash, order]);
+    };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    loadWompiScript();
+  }, []);
 
-    // Remover el campo de la lista de campos incompletos si se completa
-    if (incompleteFields.includes(name)) {
-      const updatedIncompleteFields = incompleteFields.filter(
-        (field) => field !== name
-      );
-      setIncompleteFields(updatedIncompleteFields);
-    }
-  };
-
+  // Abrir el checkout de Wompi al hacer clic en "Pagar y completar compra"
   const openWompiCheckout = () => {
     const checkout = new WidgetCheckout({
       currency: "COP",
-      amountInCents: order.amount,  // Asegúrate de que `order.amount` esté en centavos
-      reference: order.order_id,  // Usa el `order_id` de tu orden
-      publicKey: "pub_test_gyZVH3hcyjvHHH8xA8AAvzue2QRBj49O",  // Llave pública de Wompi
+      amountInCents: order.amount,
+      reference: order.order_id,
+      publicKey: "pub_test_gyZVH3hcyjvHHH8xA8AAvzue2QRBj49O", // Llave pública de Wompi
       signature: {
-        integrity: integrityHash,  // Firma de integridad generada en el backend
+        integrity: integrityHash,
       },
-      redirectUrl: `https://loocal.co/order-status?id=${order.order_id}`,  // Asegúrate de pasar el ID correcto
+      redirectUrl: `https://loocal.co/order-status?id=${order.order_id}`, // Redirección al finalizar
     });
-  
+
     checkout.open((result) => {
       const transaction = result.transaction;
-      console.log("Transaction ID: ", transaction.id);
-      console.log("Transaction object: ", transaction);
+      if (transaction.status === "APPROVED") {
+        // Redirigir manualmente si la transacción fue aprobada
+        window.location.href = `https://loocal.co/order-status?id=${transaction.reference}`;
+      } else {
+        toast.error("La transacción no fue aprobada. Inténtalo de nuevo.");
+      }
     });
   };
 
+  // Validación del formulario antes de proceder con el pago
   const validateForm = () => {
     const requiredFields = [
       "firstname",
@@ -192,27 +135,29 @@ function Checkout() {
     );
     if (incompleteFields.length > 0) {
       setIncompleteFields(incompleteFields);
-      toast.error(`Por favor completa los campos`);
+      toast.error("Por favor completa los campos.");
       return false;
     }
     return true;
   };
 
+  // Guardar los datos del formulario antes de iniciar el proceso de pago
   const handleFormSubmit = async () => {
     if (validateForm()) {
       try {
-        await saveFormData(); // Asegúrate de que los datos del cliente se guardan correctamente
-        openWompiCheckout(); // Dispara el widget de Wompi después de guardar los datos
+        await saveFormData(); // Guarda los datos del cliente
+        openWompiCheckout(); // Inicia el widget de Wompi
       } catch (error) {
         console.error("Error al procesar la orden:", error);
         toast.error("Error al procesar la orden.");
       }
     } else {
-      console.error("¡El formulario no está completo!");
+      console.error("Formulario incompleto");
       toast.error("Por favor completa todos los campos requeridos.");
     }
   };
 
+  // Guardar los datos del cliente en el backend
   const saveFormData = async () => {
     try {
       const patchData = {
@@ -248,17 +193,17 @@ function Checkout() {
       const data = await response.json();
       console.log("Datos de la orden actualizados:", data);
 
-      // Remover la orden del localStorage si es necesario
+      // Limpiar el localStorage si es necesario
       localStorage.removeItem("orderId");
       localStorage.removeItem("cart");
 
-      // Aquí puedes proceder a iniciar el pago si todo salió bien
     } catch (error) {
       console.error("Error al actualizar la orden:", error);
       toast.error("Error al actualizar la orden.");
     }
   };
 
+  // Manejo del cambio de departamento
   const handleDepartamentoChange = (event) => {
     const departamento = event.target.value;
     setDepartamentoSeleccionado(departamento);
@@ -269,6 +214,7 @@ function Checkout() {
     });
   };
 
+  // Manejo del cambio de municipio
   const handleMunicipioChange = (event) => {
     const municipio = event.target.value;
     setMunicipioSeleccionado(municipio);
@@ -278,36 +224,12 @@ function Checkout() {
     });
   };
 
-  useEffect(() => {
-    const loadWompiScript = () => {
-      if (!document.querySelector("script[src='https://checkout.wompi.co/widget.js']")) {
-        const script = document.createElement("script");
-        script.src = "https://checkout.wompi.co/widget.js";
-        script.async = true;
-        script.setAttribute("data-render", "false"); // Evitar que Wompi genere el botón por defecto
-        document.body.appendChild(script);
-      }
-    };
-  
-    loadWompiScript();
-  }, []);
-
-  
-
-  useEffect(() => {
-    setFormData((prevData) => ({
-      ...prevData,
-      departament: departamentoSeleccionado,
-      town: municipioSeleccionado,
-    }));
-  }, [departamentoSeleccionado, municipioSeleccionado]);
-
+  // Obtener los próximos 5 días disponibles para la entrega
   const getNextFiveDays = () => {
     const days = [];
     const today = new Date();
     const currentHour = today.getHours();
 
-    // Si es menos de 4 horas antes de las 6pm, mostrar solo los siguientes 5 días
     if (currentHour >= 15) {
       for (let i = 1; i < 6; i++) {
         const nextDate = new Date(today);
@@ -315,7 +237,6 @@ function Checkout() {
         days.push(nextDate.toLocaleDateString());
       }
     } else {
-      // Si hay más de 4 horas antes de las 6pm, incluir el día actual y los siguientes 4 días
       for (let i = 0; i < 5; i++) {
         const nextDate = new Date(today);
         nextDate.setDate(today.getDate() + i);
@@ -326,60 +247,10 @@ function Checkout() {
   };
 
   useEffect(() => {
-    const dates = getNextFiveDays();
-    setAvailableDates(dates);
+    setAvailableDates(getNextFiveDays());
   }, []);
 
-  const handleDateSelect = (date) => {
-    setSelectedDate(date);
-    setFormData({
-      ...formData,
-      fechaEntrega: date,
-    });
-  };
-
-  const handleTimeSelect = (hour) => {
-    setSelectedHour(hour);
-    setFormData({
-      ...formData,
-      horaEntrega: hour,
-    });
-  };
-
-  const formatDateString = (dateString) => {
-    const [day, month, year] = dateString.split("/");
-    const dateObj = new Date(year, month - 1, day);
-    const today = new Date();
-    const daysOfWeek = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
-    const months = [
-      "Ene",
-      "Feb",
-      "Mar",
-      "Abr",
-      "May",
-      "Jun",
-      "Jul",
-      "Ago",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dic",
-    ];
-
-    if (
-      dateObj.getDate() === today.getDate() &&
-      dateObj.getMonth() === today.getMonth() &&
-      dateObj.getFullYear() === today.getFullYear()
-    ) {
-      const dayOfWeek = daysOfWeek[dateObj.getDay()];
-      return { dayOfWeek, dayOfMonth: "", month: "Hoy" };
-    } else {
-      const dayOfWeek = daysOfWeek[dateObj.getDay()];
-      const monthName = months[dateObj.getMonth()];
-      const dayOfMonth = dateObj.getDate();
-      return { dayOfWeek, dayOfMonth, month: monthName };
-    }
-  };
+  // Componente de selección de fecha
   const DatePicker = ({ dates, onDateSelect }) => {
     return (
       <div className={styles["date-picker"]}>
@@ -405,44 +276,7 @@ function Checkout() {
     );
   };
 
-  const getAvailableHours = (selectedDate) => {
-    const availableHours = [];
-    const today = new Date();
-    const currentHour = today.getHours();
-    const [day, month, year] = selectedDate.split("/");
-    const selectedDateObj = new Date(year, month - 1, day);
-
-    if (selectedDateObj.getDate() === today.getDate()) {
-      // Si la fecha seleccionada es hoy
-      const startingHour = currentHour < 14 ? 18 : currentHour + 4;
-      for (let hour = startingHour; hour <= 18; hour++) {
-        availableHours.push(`${hour}:00`);
-      }
-    } else {
-      // Si la fecha seleccionada no es hoy
-      for (let hour = 8; hour <= 18; hour++) {
-        availableHours.push(`${hour}:00`);
-      }
-    }
-
-    return availableHours;
-  };
-
-  const formatHour = (hour) => {
-    const [hourPart, minutePart] = hour.split(":");
-    let formattedHour = parseInt(hourPart);
-    let period = "am";
-
-    if (formattedHour >= 12) {
-      period = "pm";
-      if (formattedHour > 12) {
-        formattedHour -= 12;
-      }
-    }
-
-    return { hour: formattedHour, minute: minutePart, period: period };
-  };
-
+  // Componente de selección de hora
   const TimePicker = ({ selectedDate }) => {
     const availableHours = getAvailableHours(selectedDate);
     return (
@@ -715,7 +549,7 @@ function Checkout() {
         {/* Contenedor del script de Wompi */}
         <div ref={scriptContainerRef} />
         <div
-          id="bold-checkout-button"
+          id="custom-checkout-button"
           className={styles["checkout-action-button"]}
           onClick={handleFormSubmit}
         >
