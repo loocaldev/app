@@ -81,7 +81,11 @@ function Checkout() {
   // Inicializa el script de Wompi si no está cargado
   useEffect(() => {
     const loadWompiScript = () => {
-      if (!document.querySelector("script[src='https://checkout.wompi.co/widget.js']")) {
+      if (
+        !document.querySelector(
+          "script[src='https://checkout.wompi.co/widget.js']"
+        )
+      ) {
         const script = document.createElement("script");
         script.src = "https://checkout.wompi.co/widget.js";
         script.async = true;
@@ -115,6 +119,23 @@ function Checkout() {
         toast.error("La transacción no fue aprobada. Inténtalo de nuevo.");
       }
     });
+  };
+
+   // Definición de la función handleChange para actualizar los datos del formulario
+   const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+
+    // Remover el campo de la lista de campos incompletos si se completa
+    if (incompleteFields.includes(name)) {
+      const updatedIncompleteFields = incompleteFields.filter(
+        (field) => field !== name
+      );
+      setIncompleteFields(updatedIncompleteFields);
+    }
   };
 
   // Validación del formulario antes de proceder con el pago
@@ -196,7 +217,6 @@ function Checkout() {
       // Limpiar el localStorage si es necesario
       localStorage.removeItem("orderId");
       localStorage.removeItem("cart");
-
     } catch (error) {
       console.error("Error al actualizar la orden:", error);
       toast.error("Error al actualizar la orden.");
