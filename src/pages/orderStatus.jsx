@@ -8,6 +8,7 @@ function OrderStatus() {
   const [transactionStatus, setTransactionStatus] = useState("");
   const [orderDetails, setOrderDetails] = useState(null); // Estado para almacenar los detalles de la orden
   const [errorMessage, setErrorMessage] = useState(null);
+  const [retryCount, setRetryCount] = useState(0); // Contador para reintentos de obtener el estado actualizado
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
@@ -31,39 +32,49 @@ function OrderStatus() {
           return;
         }
 
-        console.log("Datos de la transacción:", transactionData);
-
         // Actualizar el estado de la transacción
         setTransactionStatus(transactionData.status);
 
         if (transactionData.status === "APPROVED") {
           const orderId = transactionData.reference; // Verifica que el ID de la orden sea correcto
 
-          // Obtener los detalles de la orden desde el backend de Loocal
-          axios
-            .get(`https://loocal.co/api/orders/api/v1/orders/${orderId}/`)
-            .then((response) => {
-              setOrderDetails(response.data); // Guardar los detalles de la orden
-              console.log("Detalles de la orden:", response.data);
+          // Función para obtener los detalles de la orden
+          const fetchOrderDetails = () => {
+            axios
+              .get(`https://loocal.co/api/orders/api/v1/orders/${orderId}/`)
+              .then((response) => {
+                const orderData = response.data;
+                if (orderData.payment_status === "pending" && retryCount < 5) {
+                  // Reintentar si el pago aún está pendiente y no hemos superado los 5 intentos
+                  setTimeout(fetchOrderDetails, 5000); // Reintentar después de 5 segundos
+                  setRetryCount(retryCount + 1);
+                } else {
+                  setOrderDetails(orderData); // Guardar los detalles de la orden
+                  console.log("Detalles de la orden:", orderData);
 
-              // Actualizar el estado de la orden a "paid" en el backend
-              axios
-                .patch(
-                  `https://loocal.co/api/orders/api/v1/orders/${orderId}/`,
-                  { payment_status: "completed" }  // Cambia el estado de pago a "paid"
-                )
-                .then(() => {
-                  console.log("Estado de la orden actualizado en el backend.");
-                })
-                .catch((error) => {
-                  console.error("Error al actualizar el estado de la orden en el backend:", error);
-                  setErrorMessage("Error al actualizar el estado de la orden.");
-                });
-            })
-            .catch((error) => {
-              console.error("Error al obtener los detalles de la orden:", error);
-              setErrorMessage("Error al obtener los detalles de la orden.");
-            });
+                  // Actualizar el estado de la orden a "paid" en el backend
+                  axios
+                    .patch(
+                      `https://loocal.co/api/orders/api/v1/orders/${orderId}/`,
+                      { payment_status: "completed" }
+                    )
+                    .then(() => {
+                      console.log("Estado de la orden actualizado en el backend.");
+                    })
+                    .catch((error) => {
+                      console.error("Error al actualizar el estado de la orden en el backend:", error);
+                      setErrorMessage("Error al actualizar el estado de la orden.");
+                    });
+                }
+              })
+              .catch((error) => {
+                console.error("Error al obtener los detalles de la orden:", error);
+                setErrorMessage("Error al obtener los detalles de la orden.");
+              });
+          };
+
+          // Llamamos a la función para obtener los detalles de la orden
+          fetchOrderDetails();
         } else {
           console.log(`Estado de la transacción: ${transactionData.status}`);
         }
@@ -76,7 +87,7 @@ function OrderStatus() {
         }
         console.error("Error al obtener la transacción desde Wompi:", error);
       });
-  }, [location.search]);
+  }, [location.search, retryCount]);
 
   // Formatear precios a moneda COP
   const formatPriceToCOP = (price) => {
@@ -121,16 +132,12 @@ function OrderStatus() {
               <p><strong>Cantidad:</strong> {item.quantity}</p>
               <p><strong>Precio Unitario:</strong> {formatPriceToCOP(item.unit_price)}</p>
               <p><strong>Subtotal:</strong> {formatPriceToCOP(item.subtotal)}</p>
-              {item.product_variation && (
-                <>
-                  <p><strong>Variación:</strong> {item.product_variation.attribute_options[0].name}</p>
-                  <img
-                    src={item.product_variation.image}
-                    alt="Imagen del producto"
-                    style={{ width: "100px", height: "100px" }} // Ajusta el tamaño según sea necesario
-                  />
-                </>
-              )}
+              {/* Mostrar imagen del producto si existe */}
+              <img
+                src={item.product_variation?.image || item.product.image || "default-image-url"}
+                alt="Imagen del producto"
+                style={{ width: "100px", height: "100px" }} // Ajusta el tamaño según sea necesario
+              />
             </li>
           ))}
         </ul>
