@@ -102,6 +102,20 @@ function OrderStatus() {
     }
   };
 
+  // Función para obtener la imagen del producto o variación
+  const getProductImage = (item) => {
+    // Si el producto tiene una variación con imagen, usar esa imagen
+    if (item.product_variation && item.product_variation.image) {
+      return item.product_variation.image;
+    }
+    // Si no tiene variación, usar la imagen del producto simple
+    if (item.product && item.product.image) {
+      return item.product.image;
+    }
+    // Imagen por defecto si no hay ninguna
+    return "https://via.placeholder.com/100"; // Cambia esto por una imagen predeterminada
+  };
+
   if (errorMessage) {
     return <p style={{ color: "red" }}>{errorMessage}</p>;
   }
@@ -132,11 +146,11 @@ function OrderStatus() {
               <p><strong>Cantidad:</strong> {item.quantity}</p>
               <p><strong>Precio Unitario:</strong> {formatPriceToCOP(item.unit_price)}</p>
               <p><strong>Subtotal:</strong> {formatPriceToCOP(item.subtotal)}</p>
-              {/* Mostrar imagen del producto si existe */}
+              {/* Mostrar imagen del producto */}
               <img
-                src={item.product_variation?.image || item.product.image || "default-image-url"}
+                src={getProductImage(item)} // Usar la función para obtener la imagen correcta
                 alt="Imagen del producto"
-                style={{ width: "100px", height: "100px" }} // Ajusta el tamaño según sea necesario
+                style={{ width: "100px", height: "100px" }} // Ajustar el tamaño según sea necesario
               />
             </li>
           ))}
