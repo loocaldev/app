@@ -1,15 +1,26 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
-import formatPriceToCOP from "../utils/formatPrice"; // Asegúrate de tener esta función para formatear los precios
-import styles from "../styles/OrderStatus.module.css";
+import formatPriceToCOP from "../utils/formatPrice"; // Formatear el precio
+import styles from "../styles/OrderStatus.module.css"; // Asegúrate de tener un estilo para OrderStatus
 
 function OrderStatus() {
   const location = useLocation();
   const [transactionId, setTransactionId] = useState("");
   const [transactionStatus, setTransactionStatus] = useState("");
-  const [orderDetails, setOrderDetails] = useState(null); // Estado para almacenar los detalles de la orden
+  const [orderDetails, setOrderDetails] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
+
+  // Función para obtener los productos completos desde la API por ID
+  const fetchProductById = async (id) => {
+    try {
+      const response = await axios.get(`https://loocal.co/api/products/api/v1/products/${id}/`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error al obtener el producto ${id}:`, error);
+      return null;
+    }
+  };
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
@@ -22,10 +33,10 @@ function OrderStatus() {
 
     setTransactionId(transactionIdParam);
 
-    // Realizar la solicitud GET a Wompi para obtener el estado de la transacción
+    // Realizar la solicitud GET al servidor de Wompi para obtener el estado de la transacción
     axios
       .get(`https://sandbox.wompi.co/v1/transactions/${transactionIdParam}`)
-      .then((response) => {
+      .then(async (response) => {
         const transactionData = response.data?.data;
 
         if (!transactionData) {
@@ -33,22 +44,45 @@ function OrderStatus() {
           return;
         }
 
+        console.log("Datos de la transacción:", transactionData);
+
         // Actualizar el estado de la transacción
         setTransactionStatus(transactionData.status);
 
         if (transactionData.status === "APPROVED") {
           const orderId = transactionData.reference;
 
-          // Obtener los detalles de la orden
-          axios
-            .get(`https://loocal.co/api/orders/api/v1/orders/${orderId}/`)
-            .then((response) => {
-              setOrderDetails(response.data);
-            })
-            .catch((error) => {
-              console.error("Error al obtener los detalles de la orden:", error);
-              setErrorMessage("Error al obtener los detalles de la orden.");
+          // Obtener los detalles de la orden desde el backend
+          try {
+            const orderResponse = await axios.get(`https://loocal.co/api/orders/api/v1/orders/${orderId}/`);
+            const orderData = orderResponse.data;
+
+            // Procesar cada producto de la orden para obtener más detalles
+            const detailedItems = await Promise.all(
+              orderData.items.map(async (item) => {
+                const productData = await fetchProductById(item.product);
+
+                if (productData) {
+                  // Agregar los detalles del producto al item
+                  return {
+                    ...item,
+                    productDetails: productData,
+                    image: item.product_variation?.image || productData.image, // Imagen del producto o de la variación
+                  };
+                }
+                return item; // En caso de error, devolvemos el item tal cual
+              })
+            );
+
+            // Guardar los detalles completos de la orden
+            setOrderDetails({
+              ...orderData,
+              items: detailedItems, // Actualizamos los items con más detalles
             });
+          } catch (error) {
+            console.error("Error al obtener los detalles de la orden:", error);
+            setErrorMessage("Error al obtener los detalles de la orden.");
+          }
         } else {
           console.log(`Estado de la transacción: ${transactionData.status}`);
         }
@@ -63,63 +97,47 @@ function OrderStatus() {
       });
   }, [location.search]);
 
-  // Función para obtener la imagen correcta del producto o su variación
-  const getProductImage = (item) => {
-    if (item.product_variation && item.product_variation.image) {
-      return item.product_variation.image; // Imagen de la variación
-    }
-    if (item.product && item.product.image) {
-      return item.product.image; // Imagen del producto simple
-    }
-    return "https://via.placeholder.com/100"; // Imagen por defecto si no hay imagen
-  };
-
-  // Verificar si hay un error
-  if (errorMessage) {
-    return <p style={{ color: "red" }}>{errorMessage}</p>;
-  }
-
-  // Mostrar mientras se cargan los detalles de la orden
-  if (!orderDetails) {
-    return <p>Cargando detalles de la orden...</p>;
-  }
-
   return (
-    <div className={styles.orderStatus}>
+    <div>
       <h1>Estado de la Orden</h1>
-      <div>
-        <p><strong>ID de la Transacción:</strong> {transactionId}</p>
-        <p><strong>Estado de la Transacción:</strong> {transactionStatus}</p>
-        <p><strong>ID de la Orden:</strong> {orderDetails.custom_order_id}</p>
-        <p><strong>Nombre del Cliente:</strong> {orderDetails.firstname} {orderDetails.lastname}</p>
-        <p><strong>Email:</strong> {orderDetails.email}</p>
-        <p><strong>Teléfono:</strong> {orderDetails.phone}</p>
-        <p><strong>Subtotal:</strong> {formatPriceToCOP(orderDetails.subtotal)}</p>
-        <p><strong>Estado del Pago:</strong> {orderDetails.payment_status}</p>
-        <p><strong>Estado del Envío:</strong> {orderDetails.shipping_status}</p>
+      {errorMessage ? (
+        <p style={{ color: "red" }}>{errorMessage}</p>
+      ) : (
+        <>
+          <p>ID de la Transacción: {transactionId}</p>
+          <p>Estado de la Transacción: {transactionStatus}</p>
 
-        <h3>Productos en la Orden:</h3>
-        <div className={styles.productList}>
-          {orderDetails.items.map((item, index) => (
-            <div key={index} className={styles.productCard}>
-              {/* Imagen del producto */}
-              <div className={styles.productImage}>
-                <img
-                  src={getProductImage(item)}
-                  alt={`Producto ${item.product}`}
-                />
-              </div>
-              {/* Información del producto */}
-              <div className={styles.productInfo}>
-                <p><strong>Producto:</strong> {item.product_variation?.attribute_options[0]?.name || `Producto ID ${item.product}`}</p>
-                <p><strong>Cantidad:</strong> {item.quantity}</p>
-                <p><strong>Precio Unitario:</strong> {formatPriceToCOP(item.unit_price)}</p>
-                <p><strong>Subtotal:</strong> {formatPriceToCOP(item.subtotal)}</p>
+          {orderDetails && (
+            <div className={styles.orderSummary}>
+              <h2>Resumen de la Compra</h2>
+              <p><strong>Nombre:</strong> {orderDetails.firstname} {orderDetails.lastname}</p>
+              <p><strong>Email:</strong> {orderDetails.email}</p>
+              <p><strong>Teléfono:</strong> {orderDetails.phone}</p>
+              <p><strong>Total:</strong> {formatPriceToCOP(orderDetails.subtotal)}</p>
+
+              <h3>Productos:</h3>
+              <div className={styles.productList}>
+                {orderDetails.items.map((item) => (
+                  <div key={item.product} className={styles.productItem}>
+                    <img
+                      src={item.image || "https://via.placeholder.com/100"} // Mostrar imagen o placeholder si no hay imagen
+                      alt={item.productDetails?.name || "Producto"}
+                      className={styles.productImage}
+                    />
+                    <div>
+                      <p><strong>{item.productDetails?.name}</strong></p>
+                      <p>{item.quantity} x {formatPriceToCOP(item.unit_price)}</p>
+                      {item.product_variation && (
+                        <p>Variante: {item.product_variation.attribute_options.map(opt => opt.name).join(", ")}</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-          ))}
-        </div>
-      </div>
+          )}
+        </>
+      )}
     </div>
   );
 }
