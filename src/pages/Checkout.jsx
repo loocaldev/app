@@ -60,7 +60,6 @@ function Checkout() {
 
   const [incompleteFields, setIncompleteFields] = useState([]);
 
-
   const [formData, setFormData] = useState({
     firstname: "",
     lastname: "",
@@ -92,13 +91,16 @@ function Checkout() {
   useEffect(() => {
     const fetchIntegrityHash = async () => {
       try {
-        const response = await fetch("https://loocal.co/api/payments/generate_integrity_hash/", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ order }),
-        });
+        const response = await fetch(
+          "https://loocal.co/api/payments/generate_integrity_hash/",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ order }),
+          }
+        );
         const data = await response.json();
         setIntegrityHash(data.hash);
       } catch (error) {
@@ -118,12 +120,18 @@ function Checkout() {
       script.src = "https://checkout.wompi.co/widget.js";
       script.async = true;
       script.setAttribute("data-render", "button");
-      script.setAttribute("data-public-key", "pub_test_gyZVH3hcyjvHHH8xA8AAvzue2QRBj49O"); // Llave pública Wompi
+      script.setAttribute(
+        "data-public-key",
+        "pub_test_gyZVH3hcyjvHHH8xA8AAvzue2QRBj49O"
+      ); // Llave pública Wompi
       script.setAttribute("data-currency", order.currency);
       script.setAttribute("data-amount-in-cents", order.amount);
       script.setAttribute("data-reference", order.order_id);
       script.setAttribute("data-signature:integrity", integrityHash);
-      script.setAttribute("data-redirect-url", "https://loocal.co/order-status");// URL redirección al finalizar
+      script.setAttribute(
+        "data-redirect-url",
+        "https://loocal.co/order-status"
+      ); // URL redirección al finalizar
 
       if (scriptContainerRef.current) {
         scriptContainerRef.current.innerHTML = ""; // Limpiar cualquier script previo
@@ -138,17 +146,31 @@ function Checkout() {
       ...formData,
       [name]: value,
     });
-  
+
     // Remover el campo de la lista de campos incompletos si se completa
     if (incompleteFields.includes(name)) {
-      const updatedIncompleteFields = incompleteFields.filter(field => field !== name);
+      const updatedIncompleteFields = incompleteFields.filter(
+        (field) => field !== name
+      );
       setIncompleteFields(updatedIncompleteFields);
     }
   };
 
   const validateForm = () => {
-    const requiredFields = ["firstname", "lastname", "documentNumber", "documentType", "phone", "email", "address", "fechaEntrega", "horaEntrega"];
-    const incompleteFields = requiredFields.filter((field) => formData[field] === "");
+    const requiredFields = [
+      "firstname",
+      "lastname",
+      "documentNumber",
+      "documentType",
+      "phone",
+      "email",
+      "address",
+      "fechaEntrega",
+      "horaEntrega",
+    ];
+    const incompleteFields = requiredFields.filter(
+      (field) => formData[field] === ""
+    );
     if (incompleteFields.length > 0) {
       setIncompleteFields(incompleteFields);
       toast.error(`Por favor completa los campos`);
@@ -160,8 +182,8 @@ function Checkout() {
   const handleFormSubmit = async () => {
     if (validateForm()) {
       try {
-        await saveFormData();  // Asegúrate de que los datos del cliente se guardan correctamente
-        openWompiCheckout();  // Dispara el widget de Wompi después de guardar los datos
+        await saveFormData(); // Asegúrate de que los datos del cliente se guardan correctamente
+        openWompiCheckout(); // Dispara el widget de Wompi después de guardar los datos
       } catch (error) {
         console.error("Error al procesar la orden:", error);
         toast.error("Error al procesar la orden.");
@@ -171,7 +193,7 @@ function Checkout() {
       toast.error("Por favor completa todos los campos requeridos.");
     }
   };
-  
+
   const saveFormData = async () => {
     try {
       const patchData = {
@@ -183,31 +205,34 @@ function Checkout() {
         fechaEntrega: formData.fechaEntrega,
         horaEntrega: formData.horaEntrega,
       };
-  
+
       const orderId = localStorage.getItem("orderId");
       if (!orderId) {
         throw new Error("No se encontró el ID de la orden.");
       }
-  
-      const response = await fetch(`https://loocal.co/api/orders/api/v1/orders/${orderId}/`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(patchData),
-      });
-  
+
+      const response = await fetch(
+        `https://loocal.co/api/orders/api/v1/orders/${orderId}/`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(patchData),
+        }
+      );
+
       if (!response.ok) {
         throw new Error("Error en la actualización de la orden.");
       }
-  
+
       const data = await response.json();
       console.log("Datos de la orden actualizados:", data);
-      
+
       // Remover la orden del localStorage si es necesario
       localStorage.removeItem("orderId");
       localStorage.removeItem("cart");
-      
+
       // Aquí puedes proceder a iniciar el pago si todo salió bien
     } catch (error) {
       console.error("Error al actualizar la orden:", error);
@@ -236,12 +261,13 @@ function Checkout() {
 
   useEffect(() => {
     const loadWompiScript = () => {
-      const script = document.createElement('script');
+      const script = document.createElement("script");
       script.src = "https://checkout.wompi.co/widget.js";
       script.async = true;
+      script.setAttribute("data-render", "false"); // Evitar que Wompi genere el botón por defecto
       document.body.appendChild(script);
     };
-  
+
     loadWompiScript();
   }, []);
 
@@ -254,7 +280,7 @@ function Checkout() {
       signature: {
         integrity: integrityHash,  // Firma de integridad generada en el backend
       },
-      redirectUrl: "https://loocal.co/order-status",  // URL de redirección cuando se completa el pago
+      redirectUrl: `https://loocal.co/order-status?id=${order.order_id}`,  // Asegúrate de pasar el ID correcto
     });
   
     checkout.open((result) => {
@@ -263,7 +289,6 @@ function Checkout() {
       console.log("Transaction object: ", transaction);
     });
   };
-  
 
   useEffect(() => {
     setFormData((prevData) => ({
@@ -467,7 +492,16 @@ function Checkout() {
           <div className={styles["two-columns-form"]}>
             <div className={styles["input-form"]}>
               <label>Nombre</label>
-              <input type="text" name="firstname" onChange={handleChange} className={incompleteFields.includes("firstname") ? styles["incomplete-field"] : ""}></input>
+              <input
+                type="text"
+                name="firstname"
+                onChange={handleChange}
+                className={
+                  incompleteFields.includes("firstname")
+                    ? styles["incomplete-field"]
+                    : ""
+                }
+              ></input>
             </div>
             <div className={styles["input-form"]}>
               <label>Apellido</label>
@@ -475,14 +509,32 @@ function Checkout() {
                 type="text"
                 name="lastname"
                 onChange={handleChange}
-                className={incompleteFields.includes("lastname") ? styles["incomplete-field"] : ""}
+                className={
+                  incompleteFields.includes("lastname")
+                    ? styles["incomplete-field"]
+                    : ""
+                }
               ></input>
             </div>
           </div>
           <div className={styles["two-columns-form-13"]}>
-            <div className={`${styles["input-form"]} ${incompleteFields.includes("documentType") ? styles["incomplete-field"] : ""}`}>
+            <div
+              className={`${styles["input-form"]} ${
+                incompleteFields.includes("documentType")
+                  ? styles["incomplete-field"]
+                  : ""
+              }`}
+            >
               <label>Tipo de documento</label>
-              <select name="documentType" onChange={handleChange} className={incompleteFields.includes("documentType") ? styles["incomplete-select"] : ""}>
+              <select
+                name="documentType"
+                onChange={handleChange}
+                className={
+                  incompleteFields.includes("documentType")
+                    ? styles["incomplete-select"]
+                    : ""
+                }
+              >
                 <option value="C.C.">C.C.</option>
                 <option value="C.E.">C.E.</option>
                 <option value="Pasaporte">Pasaporte</option>
@@ -494,14 +546,27 @@ function Checkout() {
                 type="number"
                 name="documentNumber"
                 onChange={handleChange}
-                className={incompleteFields.includes("documentNumber") ? styles["incomplete-field"] : ""}
+                className={
+                  incompleteFields.includes("documentNumber")
+                    ? styles["incomplete-field"]
+                    : ""
+                }
               ></input>
             </div>
           </div>
           <div className={styles["one-column-form"]}>
             <div className={styles["input-form"]}>
               <label>Celular</label>
-              <input type="tel" name="phone" onChange={handleChange} className={incompleteFields.includes("phone") ? styles["incomplete-field"] : ""}></input>
+              <input
+                type="tel"
+                name="phone"
+                onChange={handleChange}
+                className={
+                  incompleteFields.includes("phone")
+                    ? styles["incomplete-field"]
+                    : ""
+                }
+              ></input>
             </div>
             <div className={styles["input-form"]}>
               <label>Correo electrónico</label>
@@ -509,7 +574,11 @@ function Checkout() {
                 type="email"
                 name="email"
                 onChange={handleChange}
-                className={incompleteFields.includes("email") ? styles["incomplete-field"] : ""}
+                className={
+                  incompleteFields.includes("email")
+                    ? styles["incomplete-field"]
+                    : ""
+                }
               ></input>
             </div>
           </div>
@@ -532,7 +601,11 @@ function Checkout() {
                 style={{
                   maxWidth: departamentoSeleccionado ? "40vw" : "100vw",
                 }}
-                className={`${incompleteFields.includes("department") ? styles["incomplete-field"] : ""} ${styles["department-select"]}`}
+                className={`${
+                  incompleteFields.includes("department")
+                    ? styles["incomplete-field"]
+                    : ""
+                } ${styles["department-select"]}`}
               >
                 <option value="DEFAULT" disabled hidden>
                   Selecciona un departamento
@@ -554,7 +627,11 @@ function Checkout() {
                   <select
                     value={municipioSeleccionado}
                     onChange={handleMunicipioChange}
-                    className={`${incompleteFields.includes("town") ? styles["incomplete-field"] : ""} ${styles["city-select"]}`}
+                    className={`${
+                      incompleteFields.includes("town")
+                        ? styles["incomplete-field"]
+                        : ""
+                    } ${styles["city-select"]}`}
                     name="town"
                   >
                     <option value="">Selecciona un municipio</option>
@@ -579,7 +656,11 @@ function Checkout() {
                 name="address"
                 placeholder="Calle 12 No. 5-10"
                 onChange={handleChange}
-                className={incompleteFields.includes("address") ? styles["incomplete-field"] : ""}
+                className={
+                  incompleteFields.includes("address")
+                    ? styles["incomplete-field"]
+                    : ""
+                }
               ></input>
             </div>
             <div className={styles["input-form"]}>
@@ -601,7 +682,11 @@ function Checkout() {
             <DatePicker
               dates={getNextFiveDays()}
               onDateSelect={handleDateSelect}
-              className={incompleteFields.includes("fechaEntrega") ? styles["incomplete-field"] : ""}
+              className={
+                incompleteFields.includes("fechaEntrega")
+                  ? styles["incomplete-field"]
+                  : ""
+              }
             />
             {selectedDate && (
               <>
@@ -609,7 +694,11 @@ function Checkout() {
                 <TimePicker
                   selectedDate={selectedDate}
                   onTimeSelect={handleTimeSelect}
-                  className={incompleteFields.includes("horaEntrega") ? styles["incomplete-field"] : ""}
+                  className={
+                    incompleteFields.includes("horaEntrega")
+                      ? styles["incomplete-field"]
+                      : ""
+                  }
                 />
               </>
             )}
