@@ -195,7 +195,7 @@ function Checkout() {
       const transaction = result.transaction;
       if (transaction.status === "APPROVED") {
         // Redirigir manualmente si la transacción fue aprobada
-        window.location.href = `https://loocal.co/order-status?id=${transaction.reference}`;
+        window.location.href = `https://loocal.co/order-status?id=${transaction.id}`;
       } else {
         toast.error("La transacción no fue aprobada. Inténtalo de nuevo.");
       }
