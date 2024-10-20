@@ -20,6 +20,42 @@ const formatPriceToCOP = (price) => {
   }
 };
 
+// Nueva función para formatear las fechas
+const formatDateString = (dateString) => {
+  const [day, month, year] = dateString.split("/");
+  const dateObj = new Date(year, month - 1, day);
+  const today = new Date();
+  const daysOfWeek = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+  const months = [
+    "Ene",
+    "Feb",
+    "Mar",
+    "Abr",
+    "May",
+    "Jun",
+    "Jul",
+    "Ago",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dic",
+  ];
+
+  if (
+    dateObj.getDate() === today.getDate() &&
+    dateObj.getMonth() === today.getMonth() &&
+    dateObj.getFullYear() === today.getFullYear()
+  ) {
+    const dayOfWeek = daysOfWeek[dateObj.getDay()];
+    return { dayOfWeek, dayOfMonth: "", month: "Hoy" };
+  } else {
+    const dayOfWeek = daysOfWeek[dateObj.getDay()];
+    const monthName = months[dateObj.getMonth()];
+    const dayOfMonth = dateObj.getDate();
+    return { dayOfWeek, dayOfMonth, month: monthName };
+  }
+};
+
 function Checkout() {
   const { cart, subtotal } = useCart();
   const location = useLocation();
