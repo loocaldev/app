@@ -56,6 +56,31 @@ const formatDateString = (dateString) => {
   }
 };
 
+
+// Función para obtener las horas disponibles según la fecha seleccionada
+const getAvailableHours = (selectedDate) => {
+  const availableHours = [];
+  const today = new Date();
+  const currentHour = today.getHours();
+  const [day, month, year] = selectedDate.split("/");
+  const selectedDateObj = new Date(year, month - 1, day);
+
+  if (selectedDateObj.getDate() === today.getDate()) {
+    // Si la fecha seleccionada es hoy
+    const startingHour = currentHour < 14 ? 18 : currentHour + 4;
+    for (let hour = startingHour; hour <= 18; hour++) {
+      availableHours.push(`${hour}:00`);
+    }
+  } else {
+    // Si la fecha seleccionada no es hoy
+    for (let hour = 8; hour <= 18; hour++) {
+      availableHours.push(`${hour}:00`);
+    }
+  }
+
+  return availableHours;
+};
+
 function Checkout() {
   const { cart, subtotal } = useCart();
   const location = useLocation();
