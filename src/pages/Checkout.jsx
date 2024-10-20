@@ -165,6 +165,9 @@ function Checkout() {
     checkout.open((result) => {
       const transaction = result.transaction;
       if (transaction.status === "APPROVED") {
+        // Limpiar el carrito cuando la transacción sea aprobada
+        clearCart();
+  
         window.location.href = `https://loocal.co/order-status?id=${transaction.id}`;
       } else {
         toast.error("La transacción no fue aprobada. Inténtalo de nuevo.");
