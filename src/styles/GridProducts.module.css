@@ -6,22 +6,10 @@
 
 .bannerProducts {
   margin: 20px 0;
-  display: flex; /* Cambiamos a flexbox para una sola fila */
-  overflow-x: auto; /* Habilitar desplazamiento horizontal */
-  scroll-snap-type: x mandatory; /* Habilitar snapping para productos */
-  -webkit-overflow-scrolling: touch; /* Scroll suave en dispositivos táctiles */
+  display: grid;
+  grid-template-columns: repeat(6, 1fr); /* 6 columnas */
   gap: 20px; /* Espaciado entre productos */
   max-width: 100%; /* Limitar el ancho visible al tamaño de la ventana */
-}
-
-.bannerProducts > * {
-  flex: 0 0 calc(100% / 6); /* Mostrar 6 productos visibles */
-  scroll-snap-align: start; /* Snap al principio del producto */
-}
-
-
-.bannerProducts::-webkit-scrollbar {
-  display: none; /* Ocultar barra en navegadores basados en Webkit */
 }
 
 .product-not-found {

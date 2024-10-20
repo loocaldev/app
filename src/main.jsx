@@ -23,6 +23,7 @@ import CreateAccountDetailAddress from "./pages/CreateAccountDetailAddress.jsx";
 import Store from "./pages/Store.jsx";
 import Category from "./pages/Category.jsx";
 import Profile from "./pages/Profile.jsx";
+import Payment from "./pages/Payment.jsx";
 
 const router = createBrowserRouter([
   {
@@ -35,6 +36,7 @@ const router = createBrowserRouter([
       { path: "/login", element: <Login /> },
       { path: "/order", element: <Order /> },
       { path: "/checkout", element: <Checkout /> },
+      { path: "/pago", element: <Payment /> },
       { path: "/order-status", element: <OrderStatus /> },
       { path: "/login", element: <Login /> },
       { path: "/crear-cuenta", element: <CreateAccount /> },

@@ -1,4 +1,4 @@
-import { createContext, useState, useReducer } from "react";
+import { createContext, useReducer } from "react";
 
 export const CartContext = createContext();
 
@@ -10,17 +10,27 @@ const updateLocalStorage = (state) => {
 
 const reducer = (state, action) => {
   const { type: actionType, payload: actionPayload } = action;
+
+  // Desestructuramos para usar variaciones
+  const { id, variationId, quantity } = actionPayload;
+
   switch (actionType) {
     case "ADD_TO_CART": {
-      const { id } = actionPayload;
-      const productInCartIndex = state.findIndex((item) => item.id === id);
+      const { id, variationId } = actionPayload;
 
+      const productInCartIndex = state.findIndex(
+        (item) => item.id === id && item.variationId === variationId
+      );
+
+      // Si el producto con la variación ya está en el carrito, solo incrementamos la cantidad
       if (productInCartIndex >= 0) {
         const newState = structuredClone(state);
         newState[productInCartIndex].quantity += 1;
         updateLocalStorage(newState);
         return newState;
       }
+
+      // Si es un nuevo producto/variación, lo añadimos al carrito
       const newState = [
         ...state,
         {
@@ -33,13 +43,16 @@ const reducer = (state, action) => {
     }
 
     case "DECREMENT_QUANTITY": {
-      const { id } = actionPayload;
-      const productInCartIndex = state.findIndex((item) => item.id === id);
+      const { id, variationId } = actionPayload;
+      const productInCartIndex = state.findIndex(
+        (item) => item.id === id && item.variationId === variationId
+      );
 
       if (productInCartIndex >= 0) {
         const newState = structuredClone(state);
         newState[productInCartIndex].quantity -= 1;
 
+        // Eliminar el producto si la cantidad llega a 0
         if (newState[productInCartIndex].quantity === 0) {
           newState.splice(productInCartIndex, 1);
         }
@@ -52,8 +65,9 @@ const reducer = (state, action) => {
     }
 
     case "REMOVE_FROM_CART": {
-      const { id } = actionPayload;
-      const newState = state.filter((item) => item.id != actionPayload.id);
+      const newState = state.filter(
+        (item) => item.id !== id || item.variationId !== variationId
+      );
       updateLocalStorage(newState);
       return newState;
     }
@@ -63,37 +77,45 @@ const reducer = (state, action) => {
       updateLocalStorage(newState);
       return newState;
     }
+
+    default:
+      return state;
   }
-  return state;
 };
 
 export function CartProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const addToCart = (product) =>
+  const addToCart = (product, variationId = null) => {
     dispatch({
       type: "ADD_TO_CART",
-      payload: product,
+      payload: { ...product, variationId },
     });
+  };
 
-  const decrementQuantity = (product) =>
+  const decrementQuantity = (product, variationId = null) => {
     dispatch({
       type: "DECREMENT_QUANTITY",
-      payload: product,
+      payload: { ...product, variationId },
     });
+  };
 
-  const removeFromCart = (product) =>
+  const removeFromCart = (product, variationId = null) => {
     dispatch({
       type: "REMOVE_FROM_CART",
-      payload: product,
+      payload: { ...product, variationId },
     });
+  };
 
   const clearCart = () => dispatch({ type: "CLEAR_CART" });
 
-  const subtotal = state.reduce(
-    (total, product) => total + parseFloat(product.price) * product.quantity,
-    0
-  );
+  // Cálculo del subtotal
+  const subtotal = state.reduce((total, product) => {
+    const price = product.variationId
+      ? product.variations.find(v => v.id === product.variationId)?.price
+      : product.price;
+    return total + parseFloat(price) * product.quantity;
+  }, 0);
 
   return (
     <CartContext.Provider
@@ -110,8 +132,3 @@ export function CartProvider({ children }) {
     </CartContext.Provider>
   );
 }
-
-//   const subtotal = state.cart.reduce(
-//     (total, product) => total + parseFloat(product.price),
-//     0
-//   );

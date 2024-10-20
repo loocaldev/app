@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FiShoppingCart, FiChevronRight, FiX } from "react-icons/fi";
 import ProductCard from "./ProductCard";
 import { useCart } from "../hooks/useCart";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 
 import styles from "../styles/Cart.module.css";
 
@@ -53,9 +53,9 @@ function Cart() {
     }
   }, [cart.length, isCartDetailedOpen]);
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  if (cart.length === 0){
+  if (cart.length === 0) {
     return null;
   }
 
@@ -96,6 +96,7 @@ function Cart() {
                   ) : (
                     <span className={styles["cart-counter"]}>
                       {cart.length}
+                      
                     </span>
                   )}
                 </div>
@@ -112,7 +113,8 @@ function Cart() {
                 </span>
               </div>
             </div>
-            <div onClick={() => navigate("/order")}
+            <div
+              onClick={() => navigate("/order")}
               className={`${styles["cart-action-box"]} ${
                 isCartOpen ? styles.show : styles.hide
               }`}
@@ -133,7 +135,10 @@ function Cart() {
           </div>
           <div className={styles["cart-detailed-content"]}>
             {cart.map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <ProductCard
+                key={`${product.id}-${product.variationId}`} // Clave única
+                product={product} // Enviar el producto completo, con la variación si la tiene
+              />
             ))}
           </div>
         </div>

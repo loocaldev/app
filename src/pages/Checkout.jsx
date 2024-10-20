@@ -82,78 +82,56 @@ function Checkout() {
     }
   }, [location.state]);
 
-  useEffect(() => {
-    if (integrityHash && order.order_id && subtotal) {
-        console.log(order.order_id)
-      const script = document.createElement("script");
-      script.src = "https://checkout.bold.co/library/boldPaymentButton.js";
-      script.async = true;
-      script.setAttribute("data-bold-button", "light-L");
-      script.setAttribute("data-order-id", order.order_id);
-      script.setAttribute("data-currency", "COP");
-      script.setAttribute("data-amount", subtotal);
-      script.setAttribute(
-        "data-api-key",
-        "KiF61KQUhJb5_nvNR0aNaQlpgcEAsofJyNv_34HsRJI"
-      );
-      script.setAttribute("data-integrity-signature", integrityHash);
-      script.setAttribute("data-redirection-url", "https://loocal.co/gracias");
-
-      if (scriptContainerRef.current) {
-        scriptContainerRef.current.innerHTML = ""; // Clear any existing scripts
-        scriptContainerRef.current.appendChild(script);
-      }
-    }
-  }, [integrityHash, subtotal]);
-
   const order = {
     order_id: localStorage.getItem("orderId"),
-    amount: subtotal,
+    amount: subtotal * 100, // Convertimos el monto a centavos
     currency: "COP",
   };
 
+  // Obtener el hash de integridad del backend
   useEffect(() => {
-    const initBoldCheckout = () => {
-      if (
-        document.querySelector(
-          'script[src="https://checkout.bold.co/library/boldPaymentButton.js"]'
-        )
-      ) {
-        console.warn("Bold Checkout script is already loaded.");
-        return;
+    const fetchIntegrityHash = async () => {
+      try {
+        const response = await fetch("https://loocal.co/api/payments/generate_integrity_hash/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ order }),
+        });
+        const data = await response.json();
+        setIntegrityHash(data.hash);
+      } catch (error) {
+        console.error("Error al generar el hash de integridad:", error);
       }
-
-      var js;
-      js = document.createElement("script");
-      js.onload = () => {
-        window.dispatchEvent(new Event("boldCheckoutLoaded"));
-      };
-      js.onerror = () => {
-        window.dispatchEvent(new Event("boldCheckoutLoadFailed"));
-      };
-      js.src = "https://checkout.bold.co/library/boldPaymentButton.js";
-      document.head.appendChild(js);
     };
 
-    initBoldCheckout();
-  }, []);
-
- const initiateBoldPayment = () => {
-    if (window.BoldCheckout) {
-      const checkout = new window.BoldCheckout({
-        orderId: order.order_id,
-        currency: order.currency,
-        amount: order.amount,
-        apiKey: "KiF61KQUhJb5_nvNR0aNaQlpgcEAsofJyNv_34HsRJI",
-        redirectionUrl: "https://loocal.co/order-status/",
-        integritySignature: integrityHash,
-        description: "Productos",
-      });
-      checkout.open();
-    } else {
-      console.error("BoldCheckout is not available.");
+    if (order.order_id && order.amount) {
+      fetchIntegrityHash();
     }
-  };
+  }, [order]);
+
+  // Inicializar el script de Wompi cuando el hash esté listo
+  useEffect(() => {
+    if (integrityHash && order.order_id && order.amount) {
+      const script = document.createElement("script");
+      script.src = "https://checkout.wompi.co/widget.js";
+      script.async = true;
+      script.setAttribute("data-render", "button");
+      script.setAttribute("data-public-key", "pub_test_gyZVH3hcyjvHHH8xA8AAvzue2QRBj49O"); // Llave pública Wompi
+      script.setAttribute("data-currency", order.currency);
+      script.setAttribute("data-amount-in-cents", order.amount);
+      script.setAttribute("data-reference", order.order_id);
+      script.setAttribute("data-signature:integrity", integrityHash);
+      script.setAttribute("data-redirect-url", "https://loocal.co/order-status");// URL redirección al finalizar
+
+      if (scriptContainerRef.current) {
+        scriptContainerRef.current.innerHTML = ""; // Limpiar cualquier script previo
+        scriptContainerRef.current.appendChild(script);
+      }
+    }
+  }, [integrityHash, order]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -181,7 +159,7 @@ function Checkout() {
 
   const handleFormSubmit = () => {
     if (validateForm()) {
-      initiateBoldPayment();
+      // initiateBoldPayment();
       saveFormData();
     } else {
       console.error("¡El formulario no está completo!");
@@ -189,34 +167,36 @@ function Checkout() {
   };
 
   const saveFormData = () => {
-    const postData = {
+    const patchData = {
       firstname: formData.firstname,
       lastname: formData.lastname,
       email: formData.email,
       phone: formData.phone,
-      custom_order_id: order.order_id,
-      subtotal: subtotal,
-      payment_status: "pending", // Puedes cambiar esto según tus necesidades
-      products: cart.map(item => item.id)
+      // No necesitas incluir custom_order_id en el body, ya está en la URL
     };
   
-    console.log("Datos a enviar en la solicitud POST:", postData); // Imprimir el JSON antes de enviarlo
+    console.log("Datos a enviar en la solicitud PATCH:", patchData);
   
-    fetch("http://loocal.co/api/orders/api/v1/orders/", {
-      method: "POST",
+    fetch(`https://loocal.co/api/orders/api/v1/orders/${order.order_id}/`, {
+      method: "PATCH", // Cambiamos de POST a PATCH
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(postData),
+      body: JSON.stringify(patchData),
     })
-      .then((response) => response.json())
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        }
+        throw new Error('Error en la actualización de la orden');
+      })
       .then((data) => {
-        console.log("Formulario guardado:", data);
-        localStorage.removeItem("orderId");
-        localStorage.removeItem("cart");
+        console.log("Datos de la orden actualizados:", data);
+        localStorage.removeItem("orderId"); // Remover ID después de actualizar si es necesario
+        localStorage.removeItem("cart"); // Limpiar carrito si ya no es necesario
       })
       .catch((error) => {
-        console.error("Error al guardar el formulario:", error);
+        console.error("Error al actualizar la orden:", error);
       });
   };
 
@@ -595,6 +575,8 @@ function Checkout() {
       </div>
       <div className={styles["checkout-action"]}>
         <div className={styles["checkout-action-content"]}></div>
+        {/* Contenedor del script de Wompi */}
+        <div ref={scriptContainerRef} />
         <div
           id="bold-checkout-button"
           className={styles["checkout-action-button"]}

@@ -1,14 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import ProductCardSQ from "./ProductCardSQ";
 import styles from "../styles/SliderProducts.module.css";
-import { useCart } from "../hooks/useCart";
 import character_loocal from "../assets/character_loocal.svg";
 
 function SliderProducts({ products, searchQuery, sortOrder, scrollRef }) {
   const [visibleRows, setVisibleRows] = useState(2);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
-  const { cart } = useCart();
   const productRef = useRef(null);
 
   useEffect(() => {

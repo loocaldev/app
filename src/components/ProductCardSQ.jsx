@@ -1,123 +1,129 @@
-import React, { useState, forwardRef } from "react";
-import styles from "../styles/ProductCardSQ.module.css";
-import {
-  FiChevronDown,
-  FiPlus,
-  FiMinus,
-  FiShoppingCart,
-  FiChevronUp,
-  FiCheck,
-} from "react-icons/fi";
-import { BsCartCheck } from "react-icons/bs";
-import { useCart } from "../hooks/useCart";
+  import React, { useState, forwardRef } from "react";
+  import styles from "../styles/ProductCardSQ.module.css";
+  import { FiShoppingCart, FiCheck, FiPlus, FiMinus } from "react-icons/fi";
+  import { useCart } from "../hooks/useCart";
+  import formatPriceToCOP from "../utils/formatPrice";
 
-const ProductCardSQ = forwardRef(({ product }, ref) => {
-  const formatPriceToCOP = (price) => {
-    const numericPrice = Number(price);
-    if (!isNaN(numericPrice)) {
-      return numericPrice.toLocaleString("es-CO", {
-        style: "currency",
-        currency: "COP",
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
+  const ProductCardSQ = forwardRef(({ product }, ref) => {
+    const { cart, addToCart, decrementQuantity, removeFromCart } = useCart();
+    const [selectedVariation, setSelectedVariation] = useState(null); // Selección de variación
+
+    // Si el producto tiene variaciones
+    const hasVariations = product.is_variable && product.variations.length > 0;
+
+    const handleVariationChange = (event) => {
+      const variationId = event.target.value;
+      const variation = product.variations.find(
+        (variation) => variation.id === parseInt(variationId)
+      );
+      setSelectedVariation(variation);
+    };
+
+    // Ajustamos la lógica para que maneje tanto productos fijos como variables
+    const isProductInCart = (productId, variationId = null) => {
+      return cart.some((item) => {
+        // Para productos fijos, no usamos variationId
+        if (!variationId) {
+          return item.id === productId && !item.variationId;
+        }
+        // Para productos variables, usamos variationId
+        return item.id === productId && item.variationId === variationId;
       });
-    }
-  };
+    };
 
-  const [isExtended, setIsExtended] = useState(false);
+    const getProductQuantity = () => {
+      const cartProduct = cart.find(
+        (item) => item.id === product.id && (selectedVariation ? item.variationId === selectedVariation.id : !item.variationId)
+      );
+      return cartProduct ? cartProduct.quantity : 0;
+    };
 
-  const toggleExtendContent = () => {
-    setIsExtended(!isExtended);
-  };
+    const handleAddToCart = () => {
+      const variationId = selectedVariation ? selectedVariation.id : null;
+      addToCart(product, variationId);
+    };
 
-  const checkProductInCart = (product) => {
-    if (!product) return false;
-    return cart.some((item) => item.id === product.id);
-  };
+    const handleDecrement = () => {
+      const variationId = selectedVariation ? selectedVariation.id : null;
+      decrementQuantity(product, variationId);
+    };
 
-  const { cart, addToCart, removeFromCart, decrementQuantity } = useCart();
+    const handleRemoveFromCart = () => {
+      const variationId = selectedVariation ? selectedVariation.id : null;
+      removeFromCart(product, variationId);
+    };
 
-  const isProductInCart = checkProductInCart(product);
+    const productInCart = isProductInCart(
+      product.id,
+      selectedVariation ? selectedVariation.id : null
+    );
+    const productQuantity = getProductQuantity();
 
-  const getProductQuantity = (product) => {
-    const cartProduct = cart.find((item) => item.id === product.id);
-    return cartProduct ? cartProduct.quantity : 0;
-  };
+    const getProductPrice = () => {
+      if (selectedVariation) {
+        return formatPriceToCOP(selectedVariation.price);
+      }
+      return product.is_variable ? null : formatPriceToCOP(product.price);
+    };
 
-  const productQuantity = getProductQuantity(product);
-
-  return (
-    <div className={styles.card} ref={ref}>
-      <div className={styles["main-product"]}>
-        <div className={styles["product-img"]}>
-          <img src={product.image} alt={product.name} />
-        </div>
-        <div className={styles["product-content"]}>
-          <p className={styles["product-content-name"]}>{product.name}</p>
-          <div className={styles["product-variations"]}>
-            {/* Mostrar dinámicamente las categorías del producto */}
-            {product.categories && product.categories.length > 0 ? (
-              product.categories.map((category) => (
-                <span key={category.id}>{category.name}</span>
-              ))
-            ) : (
-              <span>Sin categoría</span>
+    return (
+      <div className={styles.card} ref={ref}>
+        <div className={styles["main-product"]}>
+          <div className={styles["product-img"]}>
+            <img
+              src={
+                selectedVariation?.image || product.image
+              } /* Imagen de la variación o imagen general */
+              alt={product.name}
+            />
+          </div>
+          <div className={styles["product-content"]}>
+            <p className={styles["product-content-name"]}>{product.name}</p>
+            {hasVariations && (
+              <select onChange={handleVariationChange}>
+                <option value="">Selecciona una variación</option>
+                {product.variations.map((variation) => (
+                  <option key={variation.id} value={variation.id}>
+                    {variation.attribute_options
+                      .map((opt) => opt.name)
+                      .join(", ")}{" "}
+                    - {formatPriceToCOP(variation.price)}
+                  </option>
+                ))}
+              </select>
             )}
           </div>
-        </div>
-        <div className={styles["product-action"]}>
-          <div className={styles["product-action-price"]}>
-            {isProductInCart ? (
-              <p>{formatPriceToCOP(productQuantity * product.price)}</p>
-            ) : (
-              <p>{formatPriceToCOP(product.price)}</p>
-            )}
-          </div>
-          <div className={styles["product-action-pum"]}>
-            <span>Kg a {formatPriceToCOP(product.price)}</span>
-          </div>
-          <div
-            className={`${styles["product-action-buttons"]} ${
-              isProductInCart ? styles["added"] : ""
-            }`}
-          >
-            <div
-              className={`${styles["product-button-add"]} ${
-                isProductInCart ? styles["added"] : ""
-              }`}
-            >
-              {isProductInCart ? (
-                <FiCheck />
+          <div className={styles["product-action"]}>
+            <div className={styles["product-action-price"]}>
+              <p>{getProductPrice()}</p>
+            </div>
+            <div className={styles["product-action-buttons"]}>
+              {/* Productos variables o fijos */}
+              {selectedVariation || !hasVariations ? (
+                productInCart ? (
+                  <div className={styles["product-action-quantity"]}>
+                    <button onClick={handleDecrement}>
+                      <FiMinus />
+                    </button>
+                    <span>{productQuantity}</span>
+                    <button onClick={handleAddToCart}>
+                      <FiPlus />
+                    </button>
+                  </div>
+                ) : (
+                  <div onClick={handleAddToCart}>
+                    <FiShoppingCart />
+                    <span>Añadir</span>
+                  </div>
+                )
               ) : (
-                <>
-                  <FiShoppingCart onClick={() => addToCart(product)} />
-                  <span
-                    onClick={() => addToCart(product)}
-                    className={styles["buy-span"]}
-                  >
-                    Añadir
-                  </span>
-                </>
+                <span>Selecciona una variación</span>
               )}
             </div>
-            {isProductInCart ? (
-              <div className={styles["product-action-quantity"]}>
-                <button onClick={() => decrementQuantity(product)}>
-                  <FiMinus />
-                </button>
-                <span>{productQuantity} Kg</span>
-                <button onClick={() => addToCart(product)}>
-                  <FiPlus />
-                </button>
-              </div>
-            ) : (
-              ""
-            )}
           </div>
         </div>
       </div>
-    </div>
-  );
-});
+    );
+  });
 
-export default ProductCardSQ;
+  export default ProductCardSQ;

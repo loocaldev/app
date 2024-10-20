@@ -88,12 +88,12 @@ function Header() {
             <></>
           ) : (
             <div className={styles.SecondBarRight}>
-              <span>Ver todo</span>
-              <span>Frutas</span>
-              <span>Verduras y hortalizas</span>
-              <span>Granos y cereales</span>
-              <span>Productos orgánicos</span>
-              <span>Productos Artesanales</span>
+              <Link to="/tienda"><span>Ver todo</span></Link>
+              <Link to="/tienda/frutas"><span>Frutas</span></Link>
+              <Link to="/tienda/verduras"><span>Verduras y hortalizas</span></Link>
+              <Link to="/tienda/Granos%20y%20cereales"><span>Granos y cereales</span></Link>
+              <Link to="/tienda/productos%20organicos"><span>Productos orgánicos</span></Link>
+              <Link to="/tienda/productos%20artesanales"><span>Productos artesanales</span></Link>
             </div>
           )}
         </div>

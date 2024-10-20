@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios"; // Importar Axios para realizar solicitudes HTTP
-import { Link } from "react-router-dom";
+import axios from "axios";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { useCart } from "../hooks/useCart";
 import ProductCard from "../components/ProductCard";
 import { v4 as uuidv4 } from "uuid";
 import { useNavigate } from "react-router-dom";
-
 import styles from "../styles/Order.module.css";
 
 const formatPriceToCOP = (price) => {
@@ -22,20 +20,19 @@ const formatPriceToCOP = (price) => {
 };
 
 function Order() {
-  const { cart, addToCart, checkProductInCart, removeFromCart, subtotal } =
-    useCart();
-  const [integrityHash, setIntegrityHash] = useState("");
-
+  const { cart, subtotal } = useCart();
   const navigate = useNavigate();
+  const [orderId, setOrderId] = useState(localStorage.getItem("orderId"));
 
   useEffect(() => {
-    const orderId = localStorage.getItem("orderId");
+    // Generar el ID de la orden si no existe
     if (!orderId) {
-      const newOrderId = generateOrderId(); // Generar nuevo ID de orden estructurado
+      const newOrderId = generateOrderId(); // Lógica que ya tienes
       localStorage.setItem("orderId", newOrderId);
-      console.log(orderId)
+      setOrderId(newOrderId);
     }
   }, []);
+
 
   const generateOrderId = () => {
     const now = new Date();
@@ -47,36 +44,39 @@ function Order() {
     const second = ("0" + now.getSeconds()).slice(-2);
     const millisecond = ("00" + now.getMilliseconds()).slice(-3);
     const productCount = "C" + cart.length;
-    const randomValue = "R" + Math.floor(Math.random() * 9000 + 1000); // Valor aleatorio de 4 dígitos
+    const randomValue = "R" + Math.floor(Math.random() * 9000 + 1000);
     const orderId = `LC${year}${month}${day}${hour}${minute}${second}${millisecond}${productCount}${randomValue}`;
     return orderId;
   };
 
   const handleConfirmOrder = async () => {
-    const order_id = localStorage.getItem("orderId");
-    const amount = subtotal;
-    const currency = "COP";
-
     try {
-      const order = {
-        order_id: order_id,
-        amount: amount,
-        currency: currency,
+      // Preparar los items de la orden
+      const orderItems = cart.map((item) => ({
+        product_variation_id: item.variationId || null, // Para productos fijos, variationId es null
+        product_id: item.id, // Para productos fijos, usar product_id
+        quantity: item.quantity,
+      }));
+
+      const orderData = {
+        custom_order_id: orderId,
+        items: orderItems, // Enviar todos los productos
+        subtotal: subtotal, // Enviar el subtotal calculado
       };
+
+      console.log("Datos enviados:", orderData);
+
+      // Crear la orden en el backend
       const response = await axios.post(
-        "https://loocal.co/api/payments/generate_integrity_hash/",
-        {
-          order: order,
-        }
+        "https://loocal.co/api/orders/api/v1/orders/",
+        orderData
       );
-      const integrity_hash = response.data.hash;
-      console.log(integrity_hash)
-      setIntegrityHash(integrity_hash);
-      navigate("/checkout", { state: { integrity_hash} });
-      return integrity_hash;
+
+      console.log("Orden creada:", response.data);
+      // Redirigir al checkout
+      navigate("/checkout", { state: { orderId } });
     } catch (error) {
-      console.log(error.response.data);
-      return null;
+      console.error("Error al crear la orden:", error);
     }
   };
 
@@ -94,8 +94,6 @@ function Order() {
         {cart.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
-        <div>
-        </div>
       </div>
 
       <div className={styles["order-subtotal"]}>
