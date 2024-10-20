@@ -65,30 +65,42 @@ function Checkout() {
   };
 
   // Crear la orden en el backend
-  const createOrder = async () => {
+   // Crear la orden en el backend
+   const createOrder = async () => {
     const newOrderId = generateOrderId();
     setOrderId(newOrderId);
     localStorage.setItem("orderId", newOrderId);
 
     // Preparar los items de la orden
     const orderItems = cart.map((item) => ({
-      product_variation_id: item.variationId || null,
-      product_id: item.id,
-      quantity: item.quantity,
+      product_id: item.id, // El id del producto
+      quantity: item.quantity, // La cantidad del producto
     }));
 
+    // Preparar los datos de la dirección (descomponiendo el objeto address)
+    const addressData = {
+      street: formData.address, // Calle o dirección principal
+      city: formData.town, // Ciudad o municipio
+      state: formData.departament, // Departamento
+      postal_code: "00000", // Código postal predeterminado
+      country: "Colombia", // País
+    };
+
+    // Prepara el objeto con los datos completos de la orden
     const orderData = {
       custom_order_id: newOrderId,
       firstname: formData.firstname,
       lastname: formData.lastname,
       email: formData.email,
       phone: formData.phone,
-      address: formData.address,
+      ...addressData, // Envía los datos de la dirección
       items: orderItems, // Productos
       delivery_date: formData.fechaEntrega,
       delivery_time: formData.horaEntrega,
       subtotal: subtotal,
     };
+
+    console.log("Datos enviados en la creación de la orden:", orderData); // Debug para verificar los datos enviados
 
     try {
       const response = await axios.post(
@@ -178,8 +190,8 @@ function Checkout() {
     }
   };
 
-   // Validación de formulario
-   const validateForm = () => {
+  // Validación de formulario
+  const validateForm = () => {
     const requiredFields = [
       "firstname",
       "lastname",
@@ -213,39 +225,6 @@ function Checkout() {
       }
     } else {
       toast.error("Por favor completa todos los campos requeridos.");
-    }
-  };
-  const saveFormData = async () => {
-    try {
-      const patchData = {
-        firstname: formData.firstname,
-        lastname: formData.lastname,
-        email: formData.email,
-        phone: formData.phone,
-        address: formData.address,
-        fechaEntrega: formData.fechaEntrega,
-        horaEntrega: formData.horaEntrega,
-      };
-
-      const orderId = localStorage.getItem("orderId");
-      if (!orderId) throw new Error("No se encontró el ID de la orden.");
-
-      const response = await fetch(
-        `https://loocal.co/api/orders/api/v1/orders/${orderId}/`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(patchData),
-        }
-      );
-
-      if (!response.ok)
-        throw new Error("Error en la actualización de la orden.");
-      localStorage.removeItem("orderId");
-      localStorage.removeItem("cart");
-    } catch (error) {
-      console.error("Error al actualizar la orden:", error);
-      toast.error("Error al actualizar la orden.");
     }
   };
 
