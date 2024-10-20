@@ -157,11 +157,18 @@ function Checkout() {
     return true;
   };
 
-  const handleFormSubmit = () => {
+  const handleFormSubmit = async () => {
     if (validateForm()) {
-      saveFormData(); // Asegúrate de guardar los datos del cliente antes del pago
+      try {
+        await saveFormData();  // Asegúrate de que los datos del cliente se guardan correctamente
+        openWompiCheckout();  // Dispara el widget de Wompi después de guardar los datos
+      } catch (error) {
+        console.error("Error al procesar la orden:", error);
+        toast.error("Error al procesar la orden.");
+      }
     } else {
       console.error("¡El formulario no está completo!");
+      toast.error("Por favor completa todos los campos requeridos.");
     }
   };
   
@@ -227,6 +234,35 @@ function Checkout() {
     });
   };
 
+  useEffect(() => {
+    const loadWompiScript = () => {
+      const script = document.createElement('script');
+      script.src = "https://checkout.wompi.co/widget.js";
+      script.async = true;
+      document.body.appendChild(script);
+    };
+  
+    loadWompiScript();
+  }, []);
+
+  const openWompiCheckout = () => {
+    const checkout = new WidgetCheckout({
+      currency: "COP",
+      amountInCents: order.amount,  // Asegúrate de que `order.amount` esté en centavos
+      reference: order.order_id,  // Usa el `order_id` de tu orden
+      publicKey: "pub_test_gyZVH3hcyjvHHH8xA8AAvzue2QRBj49O",  // Llave pública de Wompi
+      signature: {
+        integrity: integrityHash,  // Firma de integridad generada en el backend
+      },
+      redirectUrl: "https://loocal.co/order-status",  // URL de redirección cuando se completa el pago
+    });
+  
+    checkout.open((result) => {
+      const transaction = result.transaction;
+      console.log("Transaction ID: ", transaction.id);
+      console.log("Transaction object: ", transaction);
+    });
+  };
   
 
   useEffect(() => {

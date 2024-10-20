@@ -37,7 +37,7 @@ function OrderStatus() {
           axios
             .patch(
               `https://loocal.co/api/orders/api/v1/orders/${orderId}/`,
-              { payment_status: "paid" }  // Cambia el estado de pago a "paid"
+              { payment_status: "completed" }  // Cambia el estado de pago a "paid"
             )
             .then((response) => {
               console.log("Estado de la orden actualizado en el backend:", response.data);
