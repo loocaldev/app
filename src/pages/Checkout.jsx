@@ -6,106 +6,20 @@ import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import "react-phone-input-2/lib/style.css";
 import toast, { Toaster } from "react-hot-toast";
 import { departamentosYMunicipios } from "../data/departamentosYMunicipios";
-
-// Formato de precios a moneda COP
-const formatPriceToCOP = (price) => {
-  const numericPrice = Number(price);
-  if (!isNaN(numericPrice)) {
-    return numericPrice.toLocaleString("es-CO", {
-      style: "currency",
-      currency: "COP",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    });
-  }
-};
-
-// Función para formatear una hora en formato de 24 horas a formato de 12 horas con AM/PM
-const formatHour = (hour) => {
-  const [hourPart, minutePart] = hour.split(":");
-  let formattedHour = parseInt(hourPart);
-  let period = "AM";
-
-  if (formattedHour >= 12) {
-    period = "PM";
-    if (formattedHour > 12) {
-      formattedHour -= 12;
-    }
-  }
-
-  if (formattedHour === 0) {
-    formattedHour = 12; // Manejar medianoche como 12 AM
-  }
-
-  return { hour: formattedHour, minute: minutePart, period: period };
-};
-
-// Nueva función para formatear las fechas
-const formatDateString = (dateString) => {
-  const [day, month, year] = dateString.split("/");
-  const dateObj = new Date(year, month - 1, day);
-  const today = new Date();
-  const daysOfWeek = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
-  const months = [
-    "Ene",
-    "Feb",
-    "Mar",
-    "Abr",
-    "May",
-    "Jun",
-    "Jul",
-    "Ago",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dic",
-  ];
-
-  if (
-    dateObj.getDate() === today.getDate() &&
-    dateObj.getMonth() === today.getMonth() &&
-    dateObj.getFullYear() === today.getFullYear()
-  ) {
-    const dayOfWeek = daysOfWeek[dateObj.getDay()];
-    return { dayOfWeek, dayOfMonth: "", month: "Hoy" };
-  } else {
-    const dayOfWeek = daysOfWeek[dateObj.getDay()];
-    const monthName = months[dateObj.getMonth()];
-    const dayOfMonth = dateObj.getDate();
-    return { dayOfWeek, dayOfMonth, month: monthName };
-  }
-};
-
-
-// Función para obtener las horas disponibles según la fecha seleccionada
-const getAvailableHours = (selectedDate) => {
-  const availableHours = [];
-  const today = new Date();
-  const currentHour = today.getHours();
-  const [day, month, year] = selectedDate.split("/");
-  const selectedDateObj = new Date(year, month - 1, day);
-
-  if (selectedDateObj.getDate() === today.getDate()) {
-    // Si la fecha seleccionada es hoy
-    const startingHour = currentHour < 14 ? 18 : currentHour + 4;
-    for (let hour = startingHour; hour <= 18; hour++) {
-      availableHours.push(`${hour}:00`);
-    }
-  } else {
-    // Si la fecha seleccionada no es hoy
-    for (let hour = 8; hour <= 18; hour++) {
-      availableHours.push(`${hour}:00`);
-    }
-  }
-
-  return availableHours;
-};
+import formatPriceToCOP from "../utils/formatPrice";
+import TimePicker from '../components/TimePicker';
+import {
+  formatHour,
+  formatDateString,
+  getAvailableHours,
+} from "../utils/dateTime";
+import DatePicker from "../components/DatePicker";
 
 function Checkout() {
   const { cart, subtotal } = useCart();
   const location = useLocation();
   const scriptContainerRef = useRef(null);
-  const [integrityHash, setIntegrityHash] = useState(null); // Hash de integridad para Wompi
+  const [integrityHash, setIntegrityHash] = useState(null);
   const [departamentoSeleccionado, setDepartamentoSeleccionado] = useState("");
   const [municipioSeleccionado, setMunicipioSeleccionado] = useState("");
   const [availableDates, setAvailableDates] = useState([]);
@@ -129,11 +43,10 @@ function Checkout() {
 
   const order = {
     order_id: localStorage.getItem("orderId"),
-    amount: subtotal * 100, // Monto en centavos
+    amount: subtotal * 100,
     currency: "COP",
   };
 
-  // Obtener el hash de integridad del backend para Wompi
   useEffect(() => {
     const fetchIntegrityHash = async () => {
       try {
@@ -159,7 +72,6 @@ function Checkout() {
     }
   }, [order]);
 
-  // Inicializa el script de Wompi si no está cargado
   useEffect(() => {
     const loadWompiScript = () => {
       if (
@@ -170,7 +82,7 @@ function Checkout() {
         const script = document.createElement("script");
         script.src = "https://checkout.wompi.co/widget.js";
         script.async = true;
-        script.setAttribute("data-render", "false"); // Evita que se renderice el botón de Wompi automáticamente
+        script.setAttribute("data-render", "false");
         document.body.appendChild(script);
       }
     };
@@ -178,23 +90,19 @@ function Checkout() {
     loadWompiScript();
   }, []);
 
-  // Abrir el checkout de Wompi al hacer clic en "Pagar y completar compra"
   const openWompiCheckout = () => {
     const checkout = new WidgetCheckout({
       currency: "COP",
       amountInCents: order.amount,
       reference: order.order_id,
-      publicKey: "pub_test_gyZVH3hcyjvHHH8xA8AAvzue2QRBj49O", // Llave pública de Wompi
-      signature: {
-        integrity: integrityHash,
-      },
-      redirectUrl: `https://loocal.co/order-status?id=${order.order_id}`, // Redirección al finalizar
+      publicKey: "pub_test_gyZVH3hcyjvHHH8xA8AAvzue2QRBj49O",
+      signature: { integrity: integrityHash },
+      redirectUrl: `https://loocal.co/order-status?id=${order.order_id}`,
     });
 
     checkout.open((result) => {
       const transaction = result.transaction;
       if (transaction.status === "APPROVED") {
-        // Redirigir manualmente si la transacción fue aprobada
         window.location.href = `https://loocal.co/order-status?id=${transaction.id}`;
       } else {
         toast.error("La transacción no fue aprobada. Inténtalo de nuevo.");
@@ -202,15 +110,10 @@ function Checkout() {
     });
   };
 
-   // Definición de la función handleChange para actualizar los datos del formulario
-   const handleChange = (e) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    setFormData({ ...formData, [name]: value });
 
-    // Remover el campo de la lista de campos incompletos si se completa
     if (incompleteFields.includes(name)) {
       const updatedIncompleteFields = incompleteFields.filter(
         (field) => field !== name
@@ -219,7 +122,6 @@ function Checkout() {
     }
   };
 
-  // Validación del formulario antes de proceder con el pago
   const validateForm = () => {
     const requiredFields = [
       "firstname",
@@ -243,23 +145,20 @@ function Checkout() {
     return true;
   };
 
-  // Guardar los datos del formulario antes de iniciar el proceso de pago
   const handleFormSubmit = async () => {
     if (validateForm()) {
       try {
-        await saveFormData(); // Guarda los datos del cliente
-        openWompiCheckout(); // Inicia el widget de Wompi
+        await saveFormData();
+        openWompiCheckout();
       } catch (error) {
         console.error("Error al procesar la orden:", error);
         toast.error("Error al procesar la orden.");
       }
     } else {
-      console.error("Formulario incompleto");
       toast.error("Por favor completa todos los campos requeridos.");
     }
   };
 
-  // Guardar los datos del cliente en el backend
   const saveFormData = async () => {
     try {
       const patchData = {
@@ -273,29 +172,19 @@ function Checkout() {
       };
 
       const orderId = localStorage.getItem("orderId");
-      if (!orderId) {
-        throw new Error("No se encontró el ID de la orden.");
-      }
+      if (!orderId) throw new Error("No se encontró el ID de la orden.");
 
       const response = await fetch(
         `https://loocal.co/api/orders/api/v1/orders/${orderId}/`,
         {
           method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(patchData),
         }
       );
 
-      if (!response.ok) {
+      if (!response.ok)
         throw new Error("Error en la actualización de la orden.");
-      }
-
-      const data = await response.json();
-      console.log("Datos de la orden actualizados:", data);
-
-      // Limpiar el localStorage si es necesario
       localStorage.removeItem("orderId");
       localStorage.removeItem("cart");
     } catch (error) {
@@ -304,45 +193,27 @@ function Checkout() {
     }
   };
 
-  // Funciones para manejar la selección de fecha y hora
   const handleDateSelect = (date) => {
     setSelectedDate(date);
-    setFormData({
-      ...formData,
-      fechaEntrega: date,
-    });
+    setFormData({ ...formData, fechaEntrega: date });
   };
 
   const handleTimeSelect = (hour) => {
     setSelectedHour(hour);
-    setFormData({
-      ...formData,
-      horaEntrega: hour,
-    });
+    setFormData({ ...formData, horaEntrega: hour });
   };
 
-  // Manejo del cambio de departamento
   const handleDepartamentoChange = (event) => {
-    const departamento = event.target.value;
-    setDepartamentoSeleccionado(departamento);
+    setDepartamentoSeleccionado(event.target.value);
     setMunicipioSeleccionado("");
-    setFormData({
-      ...formData,
-      departament: departamento,
-    });
+    setFormData({ ...formData, departament: event.target.value });
   };
 
-  // Manejo del cambio de municipio
   const handleMunicipioChange = (event) => {
-    const municipio = event.target.value;
-    setMunicipioSeleccionado(municipio);
-    setFormData({
-      ...formData,
-      town: municipio,
-    });
+    setMunicipioSeleccionado(event.target.value);
+    setFormData({ ...formData, town: event.target.value });
   };
 
-  // Obtener los próximos 5 días disponibles para la entrega
   const getNextFiveDays = () => {
     const days = [];
     const today = new Date();
@@ -367,59 +238,6 @@ function Checkout() {
   useEffect(() => {
     setAvailableDates(getNextFiveDays());
   }, []);
-
-  // Componente de selección de fecha
-  const DatePicker = ({ dates, onDateSelect }) => {
-    return (
-      <div className={styles["date-picker"]}>
-        {dates.map((date, index) => {
-          const { dayOfWeek, month, dayOfMonth } = formatDateString(date);
-          return (
-            <div
-              key={index}
-              className={`${styles["date-option"]} ${
-                date === selectedDate ? styles["selected"] : ""
-              }`}
-              onClick={() => onDateSelect(date)}
-            >
-              <span className={styles["date-option-day"]}>{dayOfWeek}</span>
-              <br />
-              <span className={styles["date-option-date"]}>
-                {month} {dayOfMonth}
-              </span>
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
-
-  // Componente de selección de hora
-  const TimePicker = ({ selectedDate }) => {
-    const availableHours = getAvailableHours(selectedDate);
-    return (
-      <div className={styles["time-picker"]}>
-        {availableHours.map((hour, index) => {
-          const { hour: formattedHour, minute, period } = formatHour(hour);
-          return (
-            <div
-              key={index}
-              className={`${styles["time-option"]} ${
-                hour === selectedHour ? styles["selected"] : ""
-              }`}
-              onClick={() => handleTimeSelect(hour)}
-            >
-              <span className={styles["time-option-hour"]}>
-                {formattedHour}:{minute}
-              </span>
-              <br />
-              <span className={styles["time-option-period"]}>{period}</span>
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
 
   return (
     <>
@@ -457,7 +275,7 @@ function Checkout() {
                     ? styles["incomplete-field"]
                     : ""
                 }
-              ></input>
+              />
             </div>
             <div className={styles["input-form"]}>
               <label>Apellido</label>
@@ -470,17 +288,11 @@ function Checkout() {
                     ? styles["incomplete-field"]
                     : ""
                 }
-              ></input>
+              />
             </div>
           </div>
           <div className={styles["two-columns-form-13"]}>
-            <div
-              className={`${styles["input-form"]} ${
-                incompleteFields.includes("documentType")
-                  ? styles["incomplete-field"]
-                  : ""
-              }`}
-            >
+            <div className={styles["input-form"]}>
               <label>Tipo de documento</label>
               <select
                 name="documentType"
@@ -507,7 +319,7 @@ function Checkout() {
                     ? styles["incomplete-field"]
                     : ""
                 }
-              ></input>
+              />
             </div>
           </div>
           <div className={styles["one-column-form"]}>
@@ -522,7 +334,7 @@ function Checkout() {
                     ? styles["incomplete-field"]
                     : ""
                 }
-              ></input>
+              />
             </div>
             <div className={styles["input-form"]}>
               <label>Correo electrónico</label>
@@ -535,7 +347,7 @@ function Checkout() {
                     ? styles["incomplete-field"]
                     : ""
                 }
-              ></input>
+              />
             </div>
           </div>
           <div className={styles["title-section-form"]}>
@@ -554,14 +366,11 @@ function Checkout() {
                 value={departamentoSeleccionado || "DEFAULT"}
                 onChange={handleDepartamentoChange}
                 name="departament"
-                style={{
-                  maxWidth: departamentoSeleccionado ? "40vw" : "100vw",
-                }}
-                className={`${
+                className={`${styles["department-select"]} ${
                   incompleteFields.includes("department")
                     ? styles["incomplete-field"]
                     : ""
-                } ${styles["department-select"]}`}
+                }`}
               >
                 <option value="DEFAULT" disabled hidden>
                   Selecciona un departamento
@@ -578,28 +387,25 @@ function Checkout() {
             {departamentoSeleccionado && (
               <div className={styles["input-form"]}>
                 <label>Ciudad</label>
-
-                <div>
-                  <select
-                    value={municipioSeleccionado}
-                    onChange={handleMunicipioChange}
-                    className={`${
-                      incompleteFields.includes("town")
-                        ? styles["incomplete-field"]
-                        : ""
-                    } ${styles["city-select"]}`}
-                    name="town"
-                  >
-                    <option value="">Selecciona un municipio</option>
-                    {departamentosYMunicipios[departamentoSeleccionado]
-                      .sort()
-                      .map((municipio) => (
-                        <option key={municipio} value={municipio}>
-                          {municipio}
-                        </option>
-                      ))}
-                  </select>
-                </div>
+                <select
+                  value={municipioSeleccionado}
+                  onChange={handleMunicipioChange}
+                  name="town"
+                  className={`${styles["city-select"]} ${
+                    incompleteFields.includes("town")
+                      ? styles["incomplete-field"]
+                      : ""
+                  }`}
+                >
+                  <option value="">Selecciona un municipio</option>
+                  {departamentosYMunicipios[departamentoSeleccionado]
+                    .sort()
+                    .map((municipio) => (
+                      <option key={municipio} value={municipio}>
+                        {municipio}
+                      </option>
+                    ))}
+                </select>
               </div>
             )}
           </div>
@@ -617,7 +423,7 @@ function Checkout() {
                     ? styles["incomplete-field"]
                     : ""
                 }
-              ></input>
+              />
             </div>
             <div className={styles["input-form"]}>
               <label>Detalle</label>
@@ -627,7 +433,7 @@ function Checkout() {
                 name="detalle"
                 placeholder="Interior número 5, diagonal al colegio"
                 onChange={handleChange}
-              ></input>
+              />
             </div>
           </div>
           <div className={styles["title-section-form"]}>
@@ -638,23 +444,14 @@ function Checkout() {
             <DatePicker
               dates={getNextFiveDays()}
               onDateSelect={handleDateSelect}
-              className={
-                incompleteFields.includes("fechaEntrega")
-                  ? styles["incomplete-field"]
-                  : ""
-              }
             />
             {selectedDate && (
               <>
                 <label>Selecciona una hora</label>
                 <TimePicker
                   selectedDate={selectedDate}
+                  selectedHour={selectedHour}
                   onTimeSelect={handleTimeSelect}
-                  className={
-                    incompleteFields.includes("horaEntrega")
-                      ? styles["incomplete-field"]
-                      : ""
-                  }
                 />
               </>
             )}
