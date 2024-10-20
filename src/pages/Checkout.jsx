@@ -164,13 +164,22 @@ function Checkout() {
 
     checkout.open((result) => {
       const transaction = result.transaction;
-      if (transaction.status === "APPROVED") {
+
+      // Verificar si el objeto transaction está definido
+      if (transaction && transaction.status === "APPROVED") {
         // Limpiar el carrito cuando la transacción sea aprobada
         clearCart();
-  
+
         window.location.href = `https://loocal.co/order-status?id=${transaction.id}`;
-      } else {
+      } else if (transaction) {
+        // Manejo de errores si la transacción no fue aprobada
         toast.error("La transacción no fue aprobada. Inténtalo de nuevo.");
+      } else {
+        // Si no hay información de la transacción
+        console.error("Error: No se pudo obtener la transacción.");
+        toast.error(
+          "Error en la transacción. Por favor, inténtalo nuevamente."
+        );
       }
     });
   };
