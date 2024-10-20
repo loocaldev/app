@@ -223,6 +223,23 @@ function Checkout() {
     }
   };
 
+  // Funciones para manejar la selección de fecha y hora
+  const handleDateSelect = (date) => {
+    setSelectedDate(date);
+    setFormData({
+      ...formData,
+      fechaEntrega: date,
+    });
+  };
+
+  const handleTimeSelect = (hour) => {
+    setSelectedHour(hour);
+    setFormData({
+      ...formData,
+      horaEntrega: hour,
+    });
+  };
+
   // Manejo del cambio de departamento
   const handleDepartamentoChange = (event) => {
     const departamento = event.target.value;
