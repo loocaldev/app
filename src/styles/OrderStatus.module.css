@@ -1,0 +1,20 @@
+.order-status-container {
+    padding: 20px;
+  }
+  
+  .order-details {
+    margin-top: 20px;
+  }
+  
+  .order-item {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  
+  .product-image {
+    max-width: 100px;
+    margin-top: 10px;
+  }
+  
