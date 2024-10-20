@@ -17,7 +17,7 @@ import {
 import DatePicker from "../components/DatePicker";
 
 function Checkout() {
-  const { cart, subtotal } = useCart();
+  const { cart, subtotal, clearCart } = useCart();
   const location = useLocation();
   const scriptContainerRef = useRef(null);
   const [integrityHash, setIntegrityHash] = useState(null);
