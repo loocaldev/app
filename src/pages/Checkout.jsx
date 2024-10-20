@@ -167,8 +167,6 @@ function Checkout() {
 
       // Verificar si el objeto transaction está definido
       if (transaction && transaction.status === "APPROVED") {
-        // Limpiar el carrito cuando la transacción sea aprobada
-        clearCart();
 
         window.location.href = `https://loocal.co/order-status?id=${transaction.id}`;
       } else if (transaction) {
