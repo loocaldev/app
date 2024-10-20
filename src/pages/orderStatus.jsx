@@ -52,6 +52,11 @@ function OrderStatus() {
         if (transactionData.status === "APPROVED") {
           const orderId = transactionData.reference;
 
+          // Actualizar el estado de pago en el backend
+          await axios.patch(`https://loocal.co/api/orders/api/v1/orders/${orderId}/`, {
+            payment_status: "completed",  // Cambia el estado de pago a "completed"
+          });
+
           // Obtener los detalles de la orden desde el backend
           try {
             const orderResponse = await axios.get(`https://loocal.co/api/orders/api/v1/orders/${orderId}/`);
@@ -114,6 +119,10 @@ function OrderStatus() {
               <p><strong>Email:</strong> {orderDetails.email}</p>
               <p><strong>Teléfono:</strong> {orderDetails.phone}</p>
               <p><strong>Total:</strong> {formatPriceToCOP(orderDetails.subtotal)}</p>
+
+              {/* Mostrar fecha y hora de entrega */}
+              <p><strong>Fecha de Entrega:</strong> {orderDetails.fechaEntrega || 'No seleccionada'}</p>
+              <p><strong>Hora de Entrega:</strong> {orderDetails.horaEntrega || 'No seleccionada'}</p>
 
               <h3>Productos:</h3>
               <div className={styles.productList}>
