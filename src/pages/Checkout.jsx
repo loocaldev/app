@@ -159,45 +159,53 @@ function Checkout() {
 
   const handleFormSubmit = () => {
     if (validateForm()) {
-      // initiateBoldPayment();
-      saveFormData();
+      saveFormData(); // Asegúrate de guardar los datos del cliente antes del pago
     } else {
       console.error("¡El formulario no está completo!");
     }
   };
-
-  const saveFormData = () => {
-    const patchData = {
-      firstname: formData.firstname,
-      lastname: formData.lastname,
-      email: formData.email,
-      phone: formData.phone,
-      // No necesitas incluir custom_order_id en el body, ya está en la URL
-    };
   
-    console.log("Datos a enviar en la solicitud PATCH:", patchData);
+  const saveFormData = async () => {
+    try {
+      const patchData = {
+        firstname: formData.firstname,
+        lastname: formData.lastname,
+        email: formData.email,
+        phone: formData.phone,
+        address: formData.address,
+        fechaEntrega: formData.fechaEntrega,
+        horaEntrega: formData.horaEntrega,
+      };
   
-    fetch(`https://loocal.co/api/orders/api/v1/orders/${order.order_id}/`, {
-      method: "PATCH", // Cambiamos de POST a PATCH
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(patchData),
-    })
-      .then((response) => {
-        if (response.ok) {
-          return response.json();
-        }
-        throw new Error('Error en la actualización de la orden');
-      })
-      .then((data) => {
-        console.log("Datos de la orden actualizados:", data);
-        localStorage.removeItem("orderId"); // Remover ID después de actualizar si es necesario
-        localStorage.removeItem("cart"); // Limpiar carrito si ya no es necesario
-      })
-      .catch((error) => {
-        console.error("Error al actualizar la orden:", error);
+      const orderId = localStorage.getItem("orderId");
+      if (!orderId) {
+        throw new Error("No se encontró el ID de la orden.");
+      }
+  
+      const response = await fetch(`https://loocal.co/api/orders/api/v1/orders/${orderId}/`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(patchData),
       });
+  
+      if (!response.ok) {
+        throw new Error("Error en la actualización de la orden.");
+      }
+  
+      const data = await response.json();
+      console.log("Datos de la orden actualizados:", data);
+      
+      // Remover la orden del localStorage si es necesario
+      localStorage.removeItem("orderId");
+      localStorage.removeItem("cart");
+      
+      // Aquí puedes proceder a iniciar el pago si todo salió bien
+    } catch (error) {
+      console.error("Error al actualizar la orden:", error);
+      toast.error("Error al actualizar la orden.");
+    }
   };
 
   const handleDepartamentoChange = (event) => {

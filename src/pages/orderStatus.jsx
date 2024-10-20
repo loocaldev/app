@@ -9,34 +9,34 @@ function OrderStatus() {
   const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
-    // Obtener el transactionId de los parámetros de la URL
     const searchParams = new URLSearchParams(location.search);
     const transactionIdParam = searchParams.get("id"); // ID de la transacción desde Wompi
-
-    // Validar si existe un transactionId en los parámetros
+  
     if (!transactionIdParam) {
       setErrorMessage("No se encontró un ID de transacción en la URL.");
       return;
     }
-
+  
     setTransactionId(transactionIdParam);
-
+  
     // Realizar solicitud GET al servidor de Wompi para obtener el estado de la transacción
     axios
       .get(`https://sandbox.wompi.co/v1/transactions/${transactionIdParam}`)
       .then((response) => {
         const transactionData = response.data;
         console.log("Datos de la transacción:", transactionData);
-
+  
         // Actualizar el estado de la transacción
         setTransactionStatus(transactionData.data.status);
-
+  
         // Verificar si la transacción fue aprobada
         if (transactionData.data.status === "APPROVED") {
+          const orderId = transactionData.data.reference; // Verifica que sea el custom_order_id
+  
           // Actualizar el estado de la orden en el backend de Loocal
           axios
             .patch(
-              `https://loocal.co/api/orders/api/v1/orders/${transactionData.data.reference}/`, 
+              `https://loocal.co/api/orders/api/v1/orders/${orderId}/`,
               { payment_status: "paid" }  // Cambia el estado de pago a "paid"
             )
             .then((response) => {
