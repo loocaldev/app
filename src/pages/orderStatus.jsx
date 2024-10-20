@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
+import { useCart } from '../hooks/useCart'; 
 import formatPriceToCOP from "../utils/formatPrice"; // Formatear el precio
 import styles from "../styles/OrderStatus.module.css"; // Asegúrate de tener un estilo para OrderStatus
 
 function OrderStatus() {
   const location = useLocation();
+  const { clearCart } = useCart();
   const [transactionId, setTransactionId] = useState("");
   const [transactionStatus, setTransactionStatus] = useState("");
   const [orderDetails, setOrderDetails] = useState(null);
@@ -51,6 +53,8 @@ function OrderStatus() {
 
         if (transactionData.status === "APPROVED") {
           const orderId = transactionData.reference;
+          // Limpiar el carrito después de la aprobación de la transacción
+          clearCart(); 
 
           // Actualizar el estado de pago en el backend
           await axios.patch(`https://loocal.co/api/orders/api/v1/orders/${orderId}/`, {
