@@ -20,6 +20,26 @@ const formatPriceToCOP = (price) => {
   }
 };
 
+// Función para formatear una hora en formato de 24 horas a formato de 12 horas con AM/PM
+const formatHour = (hour) => {
+  const [hourPart, minutePart] = hour.split(":");
+  let formattedHour = parseInt(hourPart);
+  let period = "AM";
+
+  if (formattedHour >= 12) {
+    period = "PM";
+    if (formattedHour > 12) {
+      formattedHour -= 12;
+    }
+  }
+
+  if (formattedHour === 0) {
+    formattedHour = 12; // Manejar medianoche como 12 AM
+  }
+
+  return { hour: formattedHour, minute: minutePart, period: period };
+};
+
 // Nueva función para formatear las fechas
 const formatDateString = (dateString) => {
   const [day, month, year] = dateString.split("/");
