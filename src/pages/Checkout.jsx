@@ -40,11 +40,66 @@ function Checkout() {
     fechaEntrega: "",
     horaEntrega: "",
   });
+  const [orderId, setOrderId] = useState(localStorage.getItem("orderId"));
+
+  // Función para generar custom_order_id
+  const generateOrderId = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = ("0" + (now.getMonth() + 1)).slice(-2);
+    const day = ("0" + now.getDate()).slice(-2);
+    const hour = ("0" + now.getHours()).slice(-2);
+    const minute = ("0" + now.getMinutes()).slice(-2);
+    const second = ("0" + now.getSeconds()).slice(-2);
+    const millisecond = ("00" + now.getMilliseconds()).slice(-3);
+    const productCount = "C" + cart.length;
+    const randomValue = "R" + Math.floor(Math.random() * 9000 + 1000);
+    return `LC${year}${month}${day}${hour}${minute}${second}${millisecond}${productCount}${randomValue}`;
+  };
 
   const order = {
     order_id: localStorage.getItem("orderId"),
     amount: subtotal * 100,
     currency: "COP",
+  };
+
+  // Crear la orden en el backend
+  const createOrder = async () => {
+    const newOrderId = generateOrderId();
+    setOrderId(newOrderId);
+    localStorage.setItem("orderId", newOrderId);
+
+    // Preparar los items de la orden
+    const orderItems = cart.map((item) => ({
+      product_variation_id: item.variationId || null,
+      product_id: item.id,
+      quantity: item.quantity,
+    }));
+
+    const orderData = {
+      custom_order_id: newOrderId,
+      firstname: formData.firstname,
+      lastname: formData.lastname,
+      email: formData.email,
+      phone: formData.phone,
+      address: formData.address,
+      items: orderItems, // Productos
+      delivery_date: formData.fechaEntrega,
+      delivery_time: formData.horaEntrega,
+      subtotal: subtotal,
+    };
+
+    try {
+      const response = await axios.post(
+        "https://loocal.co/api/orders/api/v1/orders/",
+        orderData
+      );
+      console.log("Orden creada:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error al crear la orden:", error);
+      throw new Error("No se pudo crear la orden.");
+    }
   };
 
   useEffect(() => {
@@ -122,7 +177,8 @@ function Checkout() {
     }
   };
 
-  const validateForm = () => {
+   // Validación de formulario
+   const validateForm = () => {
     const requiredFields = [
       "firstname",
       "lastname",
@@ -148,8 +204,8 @@ function Checkout() {
   const handleFormSubmit = async () => {
     if (validateForm()) {
       try {
-        await saveFormData();
-        openWompiCheckout();
+        await createOrder(); // Crear la orden
+        openWompiCheckout(); // Abrir Wompi después de crear la orden
       } catch (error) {
         console.error("Error al procesar la orden:", error);
         toast.error("Error al procesar la orden.");
@@ -158,7 +214,6 @@ function Checkout() {
       toast.error("Por favor completa todos los campos requeridos.");
     }
   };
-
   const saveFormData = async () => {
     try {
       const patchData = {
