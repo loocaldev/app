@@ -27,6 +27,7 @@ function Checkout() {
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedHour, setSelectedHour] = useState("");
   const [incompleteFields, setIncompleteFields] = useState([]);
+  const [loading, setLoading] = useState(false); // Estado para manejar la carga
   const [formData, setFormData] = useState({
     firstname: "",
     lastname: "",
@@ -58,49 +59,38 @@ function Checkout() {
     return `LC${year}${month}${day}${hour}${minute}${second}${millisecond}${productCount}${randomValue}`;
   };
 
-  const order = {
-    order_id: localStorage.getItem("orderId"),
-    amount: subtotal * 100,
-    currency: "COP",
-  };
-
   // Crear la orden en el backend
-   // Crear la orden en el backend
-   const createOrder = async () => {
+  const createOrder = async () => {
     const newOrderId = generateOrderId();
     setOrderId(newOrderId);
     localStorage.setItem("orderId", newOrderId);
 
-    // Preparar los items de la orden
     const orderItems = cart.map((item) => ({
-      product_id: item.id, // El id del producto
-      quantity: item.quantity, // La cantidad del producto
+      product_id: item.id,
+      product_variation_id: item.variationId || null,
+      quantity: item.quantity,
     }));
 
-    // Preparar los datos de la dirección (descomponiendo el objeto address)
     const addressData = {
-      street: formData.address, // Calle o dirección principal
-      city: formData.town, // Ciudad o municipio
-      state: formData.departament, // Departamento
-      postal_code: "00000", // Código postal predeterminado
-      country: "Colombia", // País
+      street: formData.address,
+      city: "Bogotá",
+      state: "Cundinamarca",
+      postal_code: "00000",
+      country: "Colombia",
     };
 
-    // Prepara el objeto con los datos completos de la orden
     const orderData = {
       custom_order_id: newOrderId,
       firstname: formData.firstname,
       lastname: formData.lastname,
       email: formData.email,
       phone: formData.phone,
-      ...addressData, // Envía los datos de la dirección
-      items: orderItems, // Productos
+      ...addressData,
+      items: orderItems,
       delivery_date: formData.fechaEntrega,
       delivery_time: formData.horaEntrega,
       subtotal: subtotal,
     };
-
-    console.log("Datos enviados en la creación de la orden:", orderData); // Debug para verificar los datos enviados
 
     try {
       const response = await axios.post(
@@ -114,31 +104,6 @@ function Checkout() {
       throw new Error("No se pudo crear la orden.");
     }
   };
-
-  useEffect(() => {
-    const fetchIntegrityHash = async () => {
-      try {
-        const response = await fetch(
-          "https://loocal.co/api/payments/generate_integrity_hash/",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ order }),
-          }
-        );
-        const data = await response.json();
-        setIntegrityHash(data.hash);
-      } catch (error) {
-        console.error("Error al generar el hash de integridad:", error);
-      }
-    };
-
-    if (order.order_id && order.amount) {
-      fetchIntegrityHash();
-    }
-  }, [order]);
 
   useEffect(() => {
     const loadWompiScript = () => {
@@ -158,14 +123,43 @@ function Checkout() {
     loadWompiScript();
   }, []);
 
-  const openWompiCheckout = () => {
+  // Modificar el JSON que envías al backend
+  const fetchIntegrityHash = async (orderId, amount) => {
+    try {
+      const response = await fetch(
+        "https://loocal.co/api/payments/generate_integrity_hash/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          // Cambia la estructura de envío para que coincida con lo que el backend espera
+          body: JSON.stringify({
+            order: {
+              order_id: orderId,
+              amount: amount,
+              currency: "COP", // Si quieres mantener 'COP' por defecto
+            },
+          }),
+        }
+      );
+      const data = await response.json();
+      console.log("Hash generado:", data.hash);
+      return data.hash;
+    } catch (error) {
+      console.error("Error al generar el hash de integridad:", error);
+      throw new Error("No se pudo generar el hash de integridad.");
+    }
+  };
+  // Abrir el widget de Wompi
+  const openWompiCheckout = (hash, orderId, amount) => {
     const checkout = new WidgetCheckout({
       currency: "COP",
-      amountInCents: order.amount,
-      reference: order.order_id,
+      amountInCents: amount,
+      reference: orderId,
       publicKey: "pub_test_gyZVH3hcyjvHHH8xA8AAvzue2QRBj49O",
-      signature: { integrity: integrityHash },
-      redirectUrl: `https://loocal.co/order-status?id=${order.order_id}`,
+      signature: { integrity: hash },
+      redirectUrl: `https://loocal.co/order-status?id=${orderId}`,
     });
 
     checkout.open((result) => {
@@ -178,25 +172,11 @@ function Checkout() {
     });
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-
-    if (incompleteFields.includes(name)) {
-      const updatedIncompleteFields = incompleteFields.filter(
-        (field) => field !== name
-      );
-      setIncompleteFields(updatedIncompleteFields);
-    }
-  };
-
-  // Validación de formulario
+  // Validar el formulario antes de enviar la orden
   const validateForm = () => {
     const requiredFields = [
       "firstname",
       "lastname",
-      "documentNumber",
-      "documentType",
       "phone",
       "email",
       "address",
@@ -207,30 +187,70 @@ function Checkout() {
       (field) => formData[field] === ""
     );
     if (incompleteFields.length > 0) {
-      setIncompleteFields(incompleteFields);
-      toast.error("Por favor completa los campos.");
+      toast.error("Por favor completa todos los campos.");
       return false;
     }
     return true;
   };
 
+  // Manejar la acción del botón de pagar
   const handleFormSubmit = async () => {
     if (validateForm()) {
+      setLoading(true);
       try {
-        await createOrder(); // Crear la orden
-        openWompiCheckout(); // Abrir Wompi después de crear la orden
+        // 1. Crear la orden
+        const orderData = await createOrder();
+
+        // 2. Obtener el hash de integridad
+        const hash = await fetchIntegrityHash(
+          orderData.custom_order_id,
+          subtotal * 100
+        );
+
+        // 3. Verificar si el hash está disponible y abrir el widget de Wompi
+        if (hash) {
+          openWompiCheckout(hash, orderData.custom_order_id, subtotal * 100);
+        } else {
+          throw new Error("No se pudo generar el hash de integridad.");
+        }
       } catch (error) {
         console.error("Error al procesar la orden:", error);
         toast.error("Error al procesar la orden.");
+      } finally {
+        setLoading(false);
       }
     } else {
       toast.error("Por favor completa todos los campos requeridos.");
     }
   };
 
-  const handleDateSelect = (date) => {
-    setSelectedDate(date);
-    setFormData({ ...formData, fechaEntrega: date });
+  // Función para manejar los cambios en los campos del formulario
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleDateSelect = (dateString) => {
+    // dateString es el valor seleccionado del DatePicker, como "21/10/2024"
+
+    // Divide el string en día, mes y año
+    const [day, month, year] = dateString.split("/");
+
+    // Crea un nuevo objeto Date en el formato adecuado "YYYY-MM-DD"
+    const formattedDate = new Date(`${year}-${month}-${day}`);
+
+    // Actualiza el estado con la fecha formateada a "YYYY-MM-DD"
+    if (!isNaN(formattedDate)) {
+      // Verificamos si es una fecha válida
+      setSelectedDate(formattedDate.toISOString().split("T")[0]); // Solo la parte de la fecha
+      setFormData({
+        ...formData,
+        fechaEntrega: formattedDate.toISOString().split("T")[0],
+      });
+    } else {
+      console.error("Fecha inválida:", dateString);
+      toast.error("Fecha inválida, por favor selecciona una fecha correcta.");
+    }
   };
 
   const handleTimeSelect = (hour) => {
@@ -499,13 +519,20 @@ function Checkout() {
         <div className={styles["checkout-action-content"]}></div>
         {/* Contenedor del script de Wompi */}
         <div ref={scriptContainerRef} />
+        {/* Tu código de UI */}
         <div
           id="custom-checkout-button"
           className={styles["checkout-action-button"]}
           onClick={handleFormSubmit}
         >
-          <p>Pagar y completar compra</p>
-          <FiChevronRight />
+          {loading ? (
+            <p>Cargando...</p>
+          ) : (
+            <>
+              <p>Pagar y completar compra</p>
+              <FiChevronRight />
+            </>
+          )}
         </div>
       </div>
     </>

@@ -5,7 +5,6 @@ import { useCart } from "../hooks/useCart";
 import ProductCard from "../components/ProductCard";
 import { useNavigate } from "react-router-dom";
 import styles from "../styles/Order.module.css";
-import axios from "axios";
 
 const formatPriceToCOP = (price) => {
   const numericPrice = Number(price);
