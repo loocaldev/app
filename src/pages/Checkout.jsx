@@ -156,6 +156,25 @@ function Checkout() {
     }
   };
 
+  const openWompiCheckout = () => {
+    const checkout = new WidgetCheckout({
+      currency: "COP",
+      amountInCents: order.amount,  // Asegúrate de que `order.amount` esté en centavos
+      reference: order.order_id,  // Usa el `order_id` de tu orden
+      publicKey: "pub_test_gyZVH3hcyjvHHH8xA8AAvzue2QRBj49O",  // Llave pública de Wompi
+      signature: {
+        integrity: integrityHash,  // Firma de integridad generada en el backend
+      },
+      redirectUrl: `https://loocal.co/order-status?id=${order.order_id}`,  // Asegúrate de pasar el ID correcto
+    });
+  
+    checkout.open((result) => {
+      const transaction = result.transaction;
+      console.log("Transaction ID: ", transaction.id);
+      console.log("Transaction object: ", transaction);
+    });
+  };
+
   const validateForm = () => {
     const requiredFields = [
       "firstname",
@@ -261,34 +280,19 @@ function Checkout() {
 
   useEffect(() => {
     const loadWompiScript = () => {
-      const script = document.createElement("script");
-      script.src = "https://checkout.wompi.co/widget.js";
-      script.async = true;
-      script.setAttribute("data-render", "false"); // Evitar que Wompi genere el botón por defecto
-      document.body.appendChild(script);
+      if (!document.querySelector("script[src='https://checkout.wompi.co/widget.js']")) {
+        const script = document.createElement("script");
+        script.src = "https://checkout.wompi.co/widget.js";
+        script.async = true;
+        script.setAttribute("data-render", "false"); // Evitar que Wompi genere el botón por defecto
+        document.body.appendChild(script);
+      }
     };
-
+  
     loadWompiScript();
   }, []);
 
-  const openWompiCheckout = () => {
-    const checkout = new WidgetCheckout({
-      currency: "COP",
-      amountInCents: order.amount,  // Asegúrate de que `order.amount` esté en centavos
-      reference: order.order_id,  // Usa el `order_id` de tu orden
-      publicKey: "pub_test_gyZVH3hcyjvHHH8xA8AAvzue2QRBj49O",  // Llave pública de Wompi
-      signature: {
-        integrity: integrityHash,  // Firma de integridad generada en el backend
-      },
-      redirectUrl: `https://loocal.co/order-status?id=${order.order_id}`,  // Asegúrate de pasar el ID correcto
-    });
   
-    checkout.open((result) => {
-      const transaction = result.transaction;
-      console.log("Transaction ID: ", transaction.id);
-      console.log("Transaction object: ", transaction);
-    });
-  };
 
   useEffect(() => {
     setFormData((prevData) => ({

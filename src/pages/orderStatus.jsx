@@ -23,15 +23,20 @@ function OrderStatus() {
     axios
       .get(`https://sandbox.wompi.co/v1/transactions/${transactionIdParam}`)
       .then((response) => {
-        const transactionData = response.data;
+        const transactionData = response.data?.data; // Asegurarse que data existe
+        if (!transactionData) {
+          setErrorMessage("No se pudieron obtener los datos de la transacción.");
+          return;
+        }
+  
         console.log("Datos de la transacción:", transactionData);
   
         // Actualizar el estado de la transacción
-        setTransactionStatus(transactionData.data.status);
+        setTransactionStatus(transactionData.status);
   
         // Verificar si la transacción fue aprobada
-        if (transactionData.data.status === "APPROVED") {
-          const orderId = transactionData.data.reference; // Verifica que sea el custom_order_id
+        if (transactionData.status === "APPROVED") {
+          const orderId = transactionData.reference; // Verifica que sea el custom_order_id
   
           // Actualizar el estado de la orden en el backend de Loocal
           axios
@@ -47,7 +52,7 @@ function OrderStatus() {
               setErrorMessage("Error al actualizar el estado de la orden.");
             });
         } else {
-          console.log(`Estado de la transacción: ${transactionData.data.status}`);
+          console.log(`Estado de la transacción: ${transactionData.status}`);
         }
       })
       .catch((error) => {
