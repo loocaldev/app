@@ -7,7 +7,7 @@ import "react-phone-input-2/lib/style.css";
 import toast, { Toaster } from "react-hot-toast";
 import { departamentosYMunicipios } from "../data/departamentosYMunicipios";
 import formatPriceToCOP from "../utils/formatPrice";
-import TimePicker from '../components/TimePicker';
+import TimePicker from "../components/TimePicker";
 import {
   formatHour,
   formatDateString,
@@ -444,6 +444,7 @@ function Checkout() {
             <DatePicker
               dates={getNextFiveDays()}
               onDateSelect={handleDateSelect}
+              selectedDate={selectedDate} // Pasa la fecha seleccionada aquí
             />
             {selectedDate && (
               <>

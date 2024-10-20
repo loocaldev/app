@@ -13,7 +13,10 @@ const TimePicker = ({ selectedDate, selectedHour, onTimeSelect }) => {
           <div
             key={index}
             className={`${styles["time-option"]} ${hour === selectedHour ? styles["selected"] : ""}`}
-            onClick={() => onTimeSelect(hour)}
+            onClick={() => {
+                console.log("Hora seleccionada:", hour);  // Agregar console.log para ver la hora seleccionada
+                onTimeSelect(hour);
+              }}
           >
             <span className={styles["time-option-hour"]}>{formattedHour}:{minute}</span>
             <br />
