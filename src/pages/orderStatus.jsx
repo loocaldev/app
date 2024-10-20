@@ -10,34 +10,34 @@ function OrderStatus() {
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
-    const transactionIdParam = searchParams.get("id"); // ID de la transacción desde Wompi
-  
+    const transactionIdParam = searchParams.get("id"); // Obtener el ID de la transacción de la URL
+
     if (!transactionIdParam) {
       setErrorMessage("No se encontró un ID de transacción en la URL.");
       return;
     }
-  
+
     setTransactionId(transactionIdParam);
-  
-    // Realizar solicitud GET al servidor de Wompi para obtener el estado de la transacción
+
+    // Realizar la solicitud GET al servidor de Wompi para obtener el estado de la transacción
     axios
       .get(`https://sandbox.wompi.co/v1/transactions/${transactionIdParam}`)
       .then((response) => {
-        const transactionData = response.data?.data; // Asegurarse que data existe
+        const transactionData = response.data?.data;
+
         if (!transactionData) {
           setErrorMessage("No se pudieron obtener los datos de la transacción.");
           return;
         }
-  
+
         console.log("Datos de la transacción:", transactionData);
-  
+
         // Actualizar el estado de la transacción
         setTransactionStatus(transactionData.status);
-  
-        // Verificar si la transacción fue aprobada
+
         if (transactionData.status === "APPROVED") {
-          const orderId = transactionData.reference; // Verifica que sea el custom_order_id
-  
+          const orderId = transactionData.reference; // Verifica que el ID de la orden sea correcto
+
           // Actualizar el estado de la orden en el backend de Loocal
           axios
             .patch(
@@ -56,8 +56,12 @@ function OrderStatus() {
         }
       })
       .catch((error) => {
+        if (error.response && error.response.status === 404) {
+          setErrorMessage("Transacción no encontrada. Verifica el ID.");
+        } else {
+          setErrorMessage("Error al obtener el estado de la transacción.");
+        }
         console.error("Error al obtener la transacción desde Wompi:", error);
-        setErrorMessage("Error al obtener el estado de la transacción.");
       });
   }, [location.search]);
 
