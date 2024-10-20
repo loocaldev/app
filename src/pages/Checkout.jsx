@@ -123,7 +123,7 @@ function Checkout() {
       script.setAttribute("data-amount-in-cents", order.amount);
       script.setAttribute("data-reference", order.order_id);
       script.setAttribute("data-signature:integrity", integrityHash);
-      script.setAttribute("data-redirect-url", "http://localhost:5173/order-status");// URL redirección al finalizar
+      script.setAttribute("data-redirect-url", "https://loocal.co/order-status");// URL redirección al finalizar
 
       if (scriptContainerRef.current) {
         scriptContainerRef.current.innerHTML = ""; // Limpiar cualquier script previo
