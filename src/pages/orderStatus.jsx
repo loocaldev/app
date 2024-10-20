@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
+import formatPriceToCOP from "../utils/formatPrice"; // Asegúrate de tener esta función para formatear los precios
+import styles from "../styles/OrderStatus.module.css";
 
 function OrderStatus() {
   const location = useLocation();
@@ -8,11 +10,10 @@ function OrderStatus() {
   const [transactionStatus, setTransactionStatus] = useState("");
   const [orderDetails, setOrderDetails] = useState(null); // Estado para almacenar los detalles de la orden
   const [errorMessage, setErrorMessage] = useState(null);
-  const [retryCount, setRetryCount] = useState(0); // Contador para reintentos de obtener el estado actualizado
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
-    const transactionIdParam = searchParams.get("id"); // Obtener el ID de la transacción de la URL
+    const transactionIdParam = searchParams.get("id");
 
     if (!transactionIdParam) {
       setErrorMessage("No se encontró un ID de transacción en la URL.");
@@ -21,7 +22,7 @@ function OrderStatus() {
 
     setTransactionId(transactionIdParam);
 
-    // Realizar la solicitud GET al servidor de Wompi para obtener el estado de la transacción
+    // Realizar la solicitud GET a Wompi para obtener el estado de la transacción
     axios
       .get(`https://sandbox.wompi.co/v1/transactions/${transactionIdParam}`)
       .then((response) => {
@@ -36,45 +37,18 @@ function OrderStatus() {
         setTransactionStatus(transactionData.status);
 
         if (transactionData.status === "APPROVED") {
-          const orderId = transactionData.reference; // Verifica que el ID de la orden sea correcto
+          const orderId = transactionData.reference;
 
-          // Función para obtener los detalles de la orden
-          const fetchOrderDetails = () => {
-            axios
-              .get(`https://loocal.co/api/orders/api/v1/orders/${orderId}/`)
-              .then((response) => {
-                const orderData = response.data;
-                if (orderData.payment_status === "pending" && retryCount < 5) {
-                  // Reintentar si el pago aún está pendiente y no hemos superado los 5 intentos
-                  setTimeout(fetchOrderDetails, 5000); // Reintentar después de 5 segundos
-                  setRetryCount(retryCount + 1);
-                } else {
-                  setOrderDetails(orderData); // Guardar los detalles de la orden
-                  console.log("Detalles de la orden:", orderData);
-
-                  // Actualizar el estado de la orden a "paid" en el backend
-                  axios
-                    .patch(
-                      `https://loocal.co/api/orders/api/v1/orders/${orderId}/`,
-                      { payment_status: "completed" }
-                    )
-                    .then(() => {
-                      console.log("Estado de la orden actualizado en el backend.");
-                    })
-                    .catch((error) => {
-                      console.error("Error al actualizar el estado de la orden en el backend:", error);
-                      setErrorMessage("Error al actualizar el estado de la orden.");
-                    });
-                }
-              })
-              .catch((error) => {
-                console.error("Error al obtener los detalles de la orden:", error);
-                setErrorMessage("Error al obtener los detalles de la orden.");
-              });
-          };
-
-          // Llamamos a la función para obtener los detalles de la orden
-          fetchOrderDetails();
+          // Obtener los detalles de la orden
+          axios
+            .get(`https://loocal.co/api/orders/api/v1/orders/${orderId}/`)
+            .then((response) => {
+              setOrderDetails(response.data);
+            })
+            .catch((error) => {
+              console.error("Error al obtener los detalles de la orden:", error);
+              setErrorMessage("Error al obtener los detalles de la orden.");
+            });
         } else {
           console.log(`Estado de la transacción: ${transactionData.status}`);
         }
@@ -87,45 +61,31 @@ function OrderStatus() {
         }
         console.error("Error al obtener la transacción desde Wompi:", error);
       });
-  }, [location.search, retryCount]);
+  }, [location.search]);
 
-  // Formatear precios a moneda COP
-  const formatPriceToCOP = (price) => {
-    const numericPrice = Number(price);
-    if (!isNaN(numericPrice)) {
-      return numericPrice.toLocaleString("es-CO", {
-        style: "currency",
-        currency: "COP",
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-      });
-    }
-  };
-
-  // Función para obtener la imagen del producto o variación
+  // Función para obtener la imagen correcta del producto o su variación
   const getProductImage = (item) => {
-    // Si el producto tiene una variación con imagen, usar esa imagen
     if (item.product_variation && item.product_variation.image) {
-      return item.product_variation.image;
+      return item.product_variation.image; // Imagen de la variación
     }
-    // Si no tiene variación, usar la imagen del producto simple
     if (item.product && item.product.image) {
-      return item.product.image;
+      return item.product.image; // Imagen del producto simple
     }
-    // Imagen por defecto si no hay ninguna
-    return "https://via.placeholder.com/100"; // Cambia esto por una imagen predeterminada
+    return "https://via.placeholder.com/100"; // Imagen por defecto si no hay imagen
   };
 
+  // Verificar si hay un error
   if (errorMessage) {
     return <p style={{ color: "red" }}>{errorMessage}</p>;
   }
 
+  // Mostrar mientras se cargan los detalles de la orden
   if (!orderDetails) {
     return <p>Cargando detalles de la orden...</p>;
   }
 
   return (
-    <div>
+    <div className={styles.orderStatus}>
       <h1>Estado de la Orden</h1>
       <div>
         <p><strong>ID de la Transacción:</strong> {transactionId}</p>
@@ -139,22 +99,26 @@ function OrderStatus() {
         <p><strong>Estado del Envío:</strong> {orderDetails.shipping_status}</p>
 
         <h3>Productos en la Orden:</h3>
-        <ul>
+        <div className={styles.productList}>
           {orderDetails.items.map((item, index) => (
-            <li key={index}>
-              <p><strong>Producto:</strong> {item.product_variation?.attribute_options[0]?.name || `Producto ID ${item.product}`}</p>
-              <p><strong>Cantidad:</strong> {item.quantity}</p>
-              <p><strong>Precio Unitario:</strong> {formatPriceToCOP(item.unit_price)}</p>
-              <p><strong>Subtotal:</strong> {formatPriceToCOP(item.subtotal)}</p>
-              {/* Mostrar imagen del producto */}
-              <img
-                src={getProductImage(item)} // Usar la función para obtener la imagen correcta
-                alt="Imagen del producto"
-                style={{ width: "100px", height: "100px" }} // Ajustar el tamaño según sea necesario
-              />
-            </li>
+            <div key={index} className={styles.productCard}>
+              {/* Imagen del producto */}
+              <div className={styles.productImage}>
+                <img
+                  src={getProductImage(item)}
+                  alt={`Producto ${item.product}`}
+                />
+              </div>
+              {/* Información del producto */}
+              <div className={styles.productInfo}>
+                <p><strong>Producto:</strong> {item.product_variation?.attribute_options[0]?.name || `Producto ID ${item.product}`}</p>
+                <p><strong>Cantidad:</strong> {item.quantity}</p>
+                <p><strong>Precio Unitario:</strong> {formatPriceToCOP(item.unit_price)}</p>
+                <p><strong>Subtotal:</strong> {formatPriceToCOP(item.subtotal)}</p>
+              </div>
+            </div>
           ))}
-        </ul>
+        </div>
       </div>
     </div>
   );
