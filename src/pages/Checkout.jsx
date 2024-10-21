@@ -31,7 +31,7 @@ function Checkout() {
   const [formData, setFormData] = useState({
     firstname: "",
     lastname: "",
-    documentType: "C.C.",
+    documentType: "CC",
     documentNumber: "",
     phone: "",
     email: "",
@@ -159,21 +159,26 @@ function Checkout() {
       reference: orderId,
       publicKey: "pub_test_gyZVH3hcyjvHHH8xA8AAvzue2QRBj49O",
       signature: { integrity: hash },
-      redirectUrl: `https://loocal.co/order-status?id=${orderId}`,
+      redirectUrl: `http://localhost:5173/order-status?id=${orderId}`,
+
+      // Prellenar la información del pagador desde los datos del formulario
+      customerData: {
+        email: formData.email,
+        fullName: `${formData.firstname} ${formData.lastname}`,
+        phoneNumber: formData.phone,
+        phoneNumberPrefix: "+57", // Colombia, ajusta si es necesario
+        legalId: formData.documentNumber,
+        legalIdType: formData.documentType, // Asegúrate de que el valor coincida con los permitidos por Wompi
+      },
     });
 
     checkout.open((result) => {
       const transaction = result.transaction;
-
-      // Verificar si el objeto transaction está definido
       if (transaction && transaction.status === "APPROVED") {
-
-        window.location.href = `https://loocal.co/order-status?id=${transaction.id}`;
+        window.location.href = `http://localhost:5173/order-status?id=${transaction.id}`;
       } else if (transaction) {
-        // Manejo de errores si la transacción no fue aprobada
         toast.error("La transacción no fue aprobada. Inténtalo de nuevo.");
       } else {
-        // Si no hay información de la transacción
         console.error("Error: No se pudo obtener la transacción.");
         toast.error(
           "Error en la transacción. Por favor, inténtalo nuevamente."
@@ -368,9 +373,9 @@ function Checkout() {
                     : ""
                 }
               >
-                <option value="C.C.">C.C.</option>
-                <option value="C.E.">C.E.</option>
-                <option value="Pasaporte">Pasaporte</option>
+                <option value="CC">C.C.</option>
+                <option value="CE">C.E.</option>
+                <option value="PP">Pasaporte</option>
               </select>
             </div>
             <div className={styles["input-form"]}>

@@ -37,28 +37,35 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (username, password) => {
     try {
-      const response = await fetch(
-        "https://loocal.co/api/register",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ username, password }),
-        }
-      );
-
+      const response = await fetch("https://loocal.co/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
+  
       if (response.ok) {
         const data = await response.json();
         setCookie("authToken", data.token);
         setToken(data.token);
         setIsAuthenticated(true);
         getUserDetails(data.token);
+      } else if (response.status === 400) {
+        const errorData = await response.json();
+        
+        // Verificar si el error tiene la clave 'username'
+        if (errorData.username) {
+          throw new Error(errorData.username[0]);  // Capturar el primer mensaje de error de 'username'
+        } else {
+          throw new Error(errorData.error || "Error en el registro");
+        }
       } else {
         throw new Error("ERROR");
       }
     } catch (error) {
-      console.log(error);
+      console.log(error.message);
+      return { error: error.message };  // Retorna el error capturado
     }
   };
 

@@ -21,6 +21,7 @@ function CreateAccount() {
   const [errorMessage, setErrorMessage] = useState("");
   const [buttonDisabled, setButtonDisabled] = useState(true);
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [registrationError, setRegistrationError] = useState("");
 
   const navigate = useNavigate();
 
@@ -29,10 +30,14 @@ function CreateAccount() {
   };
 
   const handleSubmit = async () => {
-    setFormSubmitted(true); // Marcar que se ha intentado enviar el formulario
+    setFormSubmitted(true);
 
     try {
-      setLoading(true); // Activar la animación de carga
+      setLoading(true);
+      setErrorMessage(""); // Limpiar los mensajes de error del formulario
+      setRegistrationError(""); // Limpiar los errores de registro previos
+
+      // Validaciones del formulario
       if (!validateEmail(email)) {
         setErrorMessage("Ingresa un correo electrónico válido.");
       } else if (!validatePassword(password)) {
@@ -44,16 +49,19 @@ function CreateAccount() {
           "Asegúrate de aceptar los términos y condiciones y la política de privacidad."
         );
       } else {
-        await register(email, password);
-        navigate("/crear-cuenta/detalles");
-        // Lógica adicional después de iniciar sesión, como redireccionar a otra página
+        // Intentar registrar el usuario
+        const result = await register(email, password);
+
+        if (result?.error) {
+          setRegistrationError(result.error); // Mostrar el error del registro (usuario ya existente)
+        } else {
+          navigate("/crear-cuenta/detalles");
+        }
       }
     } catch (error) {
       console.error("Error:", error);
-      navigate("/");
-      // Manejo de errores de inicio de sesión
     } finally {
-      setLoading(false); // Desactivar la animación de carga
+      setLoading(false);
     }
   };
 
@@ -181,8 +189,7 @@ function CreateAccount() {
                   >
                     {passwordValid ? (
                       <span className={passwordValid ? styles.success : ""}>
-                        ¡Bien! Tu contraseña cumple los requisitos de
-                        seguridad.
+                        ¡Bien! Tu contraseña cumple los requisitos de seguridad.
                       </span>
                     ) : (
                       <>
@@ -312,8 +319,20 @@ function CreateAccount() {
               </button>
 
               <div className={styles["error-message"]}>
-                {formSubmitted && errorMessage && (
-                  <div className={styles.errorMessage}>{errorMessage}</div>
+                {formSubmitted && registrationError && (
+                  <div className={styles.errorMessage}>
+                    {registrationError.includes("Ya existe una cuenta") ? (
+                      <>
+                        <span>{registrationError}</span>
+                        <br />
+                        <Link to="/login">
+                          Haz clic aquí para iniciar sesión
+                        </Link>
+                      </>
+                    ) : (
+                      <span>{registrationError}</span>
+                    )}
+                  </div>
                 )}
               </div>
             </form>

@@ -11,9 +11,6 @@ const updateLocalStorage = (state) => {
 const reducer = (state, action) => {
   const { type: actionType, payload: actionPayload } = action;
 
-  // Desestructuramos para usar variaciones
-  const { id, variationId, quantity } = actionPayload;
-
   switch (actionType) {
     case "ADD_TO_CART": {
       const { id, variationId } = actionPayload;
@@ -65,6 +62,7 @@ const reducer = (state, action) => {
     }
 
     case "REMOVE_FROM_CART": {
+      const { id, variationId } = actionPayload; // Asegúrate de que haya un payload para esta acción
       const newState = state.filter(
         (item) => item.id !== id || item.variationId !== variationId
       );
@@ -73,7 +71,7 @@ const reducer = (state, action) => {
     }
 
     case "CLEAR_CART": {
-      const newState = [];
+      const newState = [];  // No necesita un payload
       updateLocalStorage(newState);
       return newState;
     }
@@ -106,6 +104,7 @@ export function CartProvider({ children }) {
       payload: { ...product, variationId },
     });
   };
+
 
   const clearCart = () => dispatch({ type: "CLEAR_CART" });
 

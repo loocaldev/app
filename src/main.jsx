@@ -24,6 +24,7 @@ import Store from "./pages/Store.jsx";
 import Category from "./pages/Category.jsx";
 import Profile from "./pages/Profile.jsx";
 import Payment from "./pages/Payment.jsx";
+import CreateProfile from "./pages/CreateProfile.jsx";
 
 const router = createBrowserRouter([
   {
@@ -40,6 +41,7 @@ const router = createBrowserRouter([
       { path: "/order-status", element: <OrderStatus /> },
       { path: "/login", element: <Login /> },
       { path: "/crear-cuenta", element: <CreateAccount /> },
+      { path: "/crear-perfil", element: <CreateProfile /> },
       { path: "/crear-cuenta/detalles",element: <AuthenticatedRoute component={CreateAccountDetail} />},
       { path: "/crear-cuenta/detalles/direccion",element: <AuthenticatedRoute component={CreateAccountDetailAddress} />},
       { path: "/perfil",element: <AuthenticatedRoute component={Profile} />},
