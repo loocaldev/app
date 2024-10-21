@@ -11,12 +11,14 @@ function Profile() {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     const maxSize = 10 * 1024 * 1024; // Tamaño máximo permitido (10 MB)
-  
+
     if (file.size > maxSize) {
-      alert("El archivo es demasiado grande. El tamaño máximo permitido es de 10 MB.");
+      alert(
+        "El archivo es demasiado grande. El tamaño máximo permitido es de 10 MB."
+      );
       return;
     }
-  
+
     setProfilePicture(file);
   };
 
@@ -44,16 +46,20 @@ function Profile() {
       <div className={styles["content"]}>
         <h1>{userData?.username}</h1>
         <h2>Mi cuenta</h2>
-        
+
         {userData?.profile?.profile_picture ? (
-          <img
-            src={userData.profile.profile_picture}
-            alt="Foto de perfil"
-            className={styles["profile-picture"]}
-          />
+          <>
+            <img
+              src={userData.profile.profile_picture}
+              alt="Foto de perfil"
+              className={styles["profile-picture"]}
+            />
+            <p>URL de la imagen: {userData.profile.profile_picture}</p>{" "}
+            {/* Añade esto temporalmente para depurar */}
+          </>
         ) : (
           <img
-            src="/default-placeholder.png"  // Mostrar placeholder si no hay foto
+            src="/default-placeholder.png"
             alt="Sin foto de perfil"
             className={styles["profile-picture"]}
           />
