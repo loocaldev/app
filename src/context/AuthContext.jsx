@@ -159,19 +159,29 @@ export const AuthProvider = ({ children }) => {
   const updateUser = async (updatedData) => {
     try {
       console.log("Sending update request with data:", updatedData);
-      const response = await fetch(
-        "https://loocal.co/api/update_user/",
-        {
-          method: "PATCH",
-          headers: {
-            Authorization: `Token ${token}`,
-            "Content-Type": "application/json",
-            "X-CSRFToken": getCSRFToken(),
-          },
-          body: JSON.stringify(updatedData),
-        }
-      );
-
+  
+      // Crear FormData para manejar tanto datos como archivos
+      const formData = new FormData();
+  
+      // Añadir los campos de texto al FormData
+      if (updatedData.first_name) formData.append("first_name", updatedData.first_name);
+      if (updatedData.last_name) formData.append("last_name", updatedData.last_name);
+      if (updatedData.email) formData.append("email", updatedData.email);
+  
+      // Añadir la imagen de perfil si existe
+      if (updatedData.profile_picture) {
+        formData.append("profile_picture", updatedData.profile_picture);
+      }
+  
+      const response = await fetch("https://loocal.co/api/update_user/", {
+        method: "PATCH",
+        headers: {
+          Authorization: `Token ${token}`,  // No establecer manualmente 'Content-Type' aquí
+          "X-CSRFToken": getCSRFToken(),  // Mantener el token CSRF
+        },
+        body: formData,  // Enviar los datos usando FormData
+      });
+  
       if (response.ok) {
         const data = await response.json();
         console.log("Update successful:", data);
@@ -185,6 +195,7 @@ export const AuthProvider = ({ children }) => {
       console.error("Error updating user:", error);
     }
   };
+ 
 
   // Nueva función para agregar dirección en AuthContext.jsx
 const addAddress = async (addressData) => {

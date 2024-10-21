@@ -64,7 +64,7 @@ function Header() {
             {isAuthenticated ? (
               <div>
                 {userData ? (
-                  <p onClick={handleLogout}>Hola {userData.username}</p>
+                  <Link to="/perfil"><p>Hola {userData.username}</p></Link>
                 ) : (
                   <p>Cargando...</p>
                 )}
