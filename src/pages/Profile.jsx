@@ -8,9 +8,16 @@ function Profile() {
   const [profilePicture, setProfilePicture] = useState(null); // Almacena la imagen seleccionada
   const [loading, setLoading] = useState(false);
 
-  // Manejar el cambio de archivo
   const handleFileChange = (e) => {
-    setProfilePicture(e.target.files[0]); // Guardar la imagen seleccionada
+    const file = e.target.files[0];
+    const maxSize = 10 * 1024 * 1024; // Tamaño máximo permitido (10 MB)
+  
+    if (file.size > maxSize) {
+      alert("El archivo es demasiado grande. El tamaño máximo permitido es de 10 MB.");
+      return;
+    }
+  
+    setProfilePicture(file);
   };
 
   // Subir la imagen de perfil
