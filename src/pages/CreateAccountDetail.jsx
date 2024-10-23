@@ -12,8 +12,8 @@ import 'react-phone-input-2/lib/material.css'
 
 function CreateAccountDetail() {
   const [formData, setFormData] = useState({
-    firstname: "",
-    lastname: "",
+    first_name: "",
+    last_name: "",
     documentType: "C.C.",
     documentNumber: "",
     phone: "",
@@ -46,7 +46,7 @@ function CreateAccountDetail() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFormSubmitted(true);
-    const requiredFields = ["firstname", "lastname", "documentType", "documentNumber", "phone"];
+    const requiredFields = ["first_name", "last_name", "documentType", "documentNumber", "phone"];
     const newIncompleteFields = requiredFields.filter(field => !formData[field]);
     setIncompleteFields(newIncompleteFields);
 
@@ -59,8 +59,8 @@ function CreateAccountDetail() {
       setLoading(true);
       console.log("Form data to send:", formData);
       await updateUser({
-        first_name: formData.firstname,
-        last_name: formData.lastname,
+        first_name: formData.first_name,
+        last_name: formData.last_name,
         email: formData.email,
         // Añadir otros campos necesarios para actualizar el perfil
       });
@@ -87,10 +87,10 @@ function CreateAccountDetail() {
                   <label>Nombre</label>
                   <input
                     type="text"
-                    name="firstname"
+                    name="first_name"
                     onChange={handleChange}
                     className={
-                      incompleteFields.includes("firstname")
+                      incompleteFields.includes("first_name")
                         ? styles["incomplete-field"]
                         : ""
                     }
@@ -100,10 +100,10 @@ function CreateAccountDetail() {
                   <label>Apellido</label>
                   <input
                     type="text"
-                    name="lastname"
+                    name="last_name"
                     onChange={handleChange}
                     className={
-                      incompleteFields.includes("lastname")
+                      incompleteFields.includes("last_name")
                         ? styles["incomplete-field"]
                         : ""
                     }
