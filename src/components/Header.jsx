@@ -62,13 +62,26 @@ function Header() {
           </div>
           <div className={styles.thirdContent}>
             {isAuthenticated ? (
-              <div>
-                {userData ? (
-                  <Link to="/perfil"><p>Hola {userData.username}</p></Link>
+              <div
+                onClick={() => navigate("/perfil")}
+                className={styles["profile-card"]}
+              >
+                {userData?.userprofile?.profile_picture ? (
+                  <img
+                    src={userData.userprofile.profile_picture}
+                    alt="Foto de perfil"
+                    className={styles["profile-picture"]}
+                  />
                 ) : (
-                  <p>Cargando...</p>
+                  <img
+                    src="/default-placeholder.png"
+                    alt="Sin foto de perfil"
+                    className={styles["profile-picture"]}
+                  />
                 )}
-                <button onClick={handleLogout}>Logout</button>
+                <div onClick={() => navigate("/perfil")} className={styles["username"]}>
+                  <span>{userData?.first_name}</span>
+                </div>
               </div>
             ) : (
               <div>
@@ -88,12 +101,24 @@ function Header() {
             <></>
           ) : (
             <div className={styles.SecondBarRight}>
-              <Link to="/tienda"><span>Ver todo</span></Link>
-              <Link to="/tienda/frutas"><span>Frutas</span></Link>
-              <Link to="/tienda/verduras"><span>Verduras y hortalizas</span></Link>
-              <Link to="/tienda/Granos%20y%20cereales"><span>Granos y cereales</span></Link>
-              <Link to="/tienda/productos%20organicos"><span>Productos orgánicos</span></Link>
-              <Link to="/tienda/productos%20artesanales"><span>Productos artesanales</span></Link>
+              <Link to="/tienda">
+                <span>Ver todo</span>
+              </Link>
+              <Link to="/tienda/frutas">
+                <span>Frutas</span>
+              </Link>
+              <Link to="/tienda/verduras">
+                <span>Verduras y hortalizas</span>
+              </Link>
+              <Link to="/tienda/Granos%20y%20cereales">
+                <span>Granos y cereales</span>
+              </Link>
+              <Link to="/tienda/productos%20organicos">
+                <span>Productos orgánicos</span>
+              </Link>
+              <Link to="/tienda/productos%20artesanales">
+                <span>Productos artesanales</span>
+              </Link>
             </div>
           )}
         </div>
