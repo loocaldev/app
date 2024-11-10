@@ -1,0 +1,256 @@
+@import "./variables.css";
+
+.product-box {
+  border: 1px solid var(--gray-7);
+  border-radius: 16px;
+  padding: 12px;
+  min-width: 180px;
+  background-color: #fff;
+}
+
+.product-box-content {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  width: 100%;
+}
+
+.product-box-first {
+  display: flex;
+  position: relative;
+  gap: 6px;
+  align-items: center;
+  min-width: 60%;
+  max-width: 60%;
+}
+
+.product-image {
+  width: 40%;
+}
+
+.product-image img {
+  max-width: 100%;
+  border-radius: 16px;
+  margin-top: 0px;
+}
+
+.promo-label {
+  position: absolute;
+  background-color: var(--organe-alpha-color);
+  color: var(--secondary-organge-color);
+  border-radius: 16px;
+  padding: 2px 6px;
+  top: 0;
+  left: 0;
+}
+
+.promo-label span {
+    font-size: 14px;
+}
+
+.product-info {
+  width: 70%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.product-info p {
+  font-size: 20px;
+  line-height: 24px;
+  font-weight: 500;
+}
+
+.product-variables {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+}
+
+.product-variable {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  width: 100%;
+}
+
+.product-variable label {
+    display: none;
+}
+
+.product-variables select {
+  padding: 2px;
+}
+
+.product-info label {
+  font-size: 14px;
+  line-height: 24px;
+  font-weight: 400;
+  color: var(--gray-3);
+}
+
+.product-price {
+  display: flex;
+  flex-direction: column;
+}
+
+.product-box-second {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 40%;
+  max-width: 40%;
+  justify-content: space-around;
+}
+
+.product-pricePromo {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  justify-content: end;
+}
+
+.product-pricePromo span:first-child {
+  background-color: var(--organe-alpha-color);
+  color: var(--secondary-organge-color);
+  padding: 2px 6px;
+  border-radius: 16px;
+  font-size: 12px;
+}
+
+.product-pricePromo span {
+  font-size: 12px;
+  text-align: right;
+}
+
+.product-pricePromo span:last-child {
+  text-decoration: line-through;
+  color: var(--gray-3);
+  font-weight: 300;
+  font-style: italic;
+}
+
+.product-priceMain {
+  display: flex;
+  justify-content: end;
+  text-align: right;
+  align-items: center;
+  gap: 4px;
+}
+
+.product-priceMain p {
+  font-size: 20px;
+  line-height: 24px;
+  font-weight: 700;
+}
+
+.product-priceMain span {
+  font-weight: 300;
+  font-size: 12px;
+  color: var(--gray-3);
+}
+
+.product-pricePum {
+  display: flex;
+  justify-content: start;
+}
+
+.product-pricePum span {
+  font-weight: 300;
+  font-style: italic;
+  color: var(--gray-3);
+  font-size: 10px !important;
+  line-height: 16px;
+  text-align: right;
+}
+
+.product-action {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  margin-top: 6px;
+  justify-content: space-between;
+}
+
+.adding-animation .addButton-iconCompra {
+  transition: transform 0.5s ease;
+  transform: translateX(10px); /* Ajusta el desplazamiento según lo necesites */
+}
+
+.product-addButton svg {
+  stroke: #1c1c1c;
+  padding: 2px 6px;
+  border-radius: 16px;
+  cursor: pointer;
+}
+
+.product-addButton {
+  display: flex;
+  align-items: center;
+  background-color: var(--gray-7);
+  border-radius: 16px;
+  gap: 6px;
+  width: auto;
+}
+
+.product-addButton span {
+  font-size: 14px;
+  margin-right: 6px;
+}
+
+.addButton-iconCompra {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  width: 100%;
+  cursor: pointer;
+}
+
+.addButton-iconCompra svg {
+  stroke: #fff;
+  padding: 6px 8px;
+  background-color: var(--primary-purple-color);
+  border-radius: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.product-addButton span {
+  width: calc(100% - 8px);
+  text-align: center;
+}
+
+.product-showExtend {
+  width: auto;
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+
+.product-showExtend svg {
+    width: 16px;
+    height: 16px;
+    stroke: #999;
+}
+
+.product-extend {
+  margin-top: 4px;
+}
+
+.product-extend span {
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.option-disabled {
+  color: #999;
+  background-color: #f9f9f9;
+  pointer-events: none;
+  cursor: not-allowed;
+}

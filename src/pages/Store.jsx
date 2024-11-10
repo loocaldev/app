@@ -8,6 +8,7 @@ import styles from "../styles/Store.module.css";
 import graphLoocal from "../assets/graphLoccal2024.png";
 import { getAllCategories, getAllProducts } from "../api/products.api";
 import ProductCardSquare from "../components/ProductCardSquare";
+import ProductCardSQRead from "../components/ProductCardSQRead";
 
 function Store() {
   const [categories, setCategories] = useState([]);
@@ -133,7 +134,7 @@ function Store() {
           </div>
         </div>
         <div>
-          <ProductCardSquare/>
+          <ProductCardSQRead/>
         </div>
 
         {/* Aquí va todo el Grid de productos distribudos en diferentes secciones por alguna agregación, por ejemplo categoría*/}

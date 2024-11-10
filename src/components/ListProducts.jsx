@@ -4,6 +4,9 @@ import ProductCard from "./ProductCard";
 import styles from "../styles/ListProducts.module.css";
 import { useCart } from "../hooks/useCart";
 import character_loocal from "../assets/character_loocal.svg"
+import ProductCardSQRead from "./ProductCardSQRead";
+import ProductCardSQ from "./ProductCardSQ";
+import ProductCardHZ from "./ProductCardHZ"
 
 function ListProducts({ searchQuery }) {
   const [products, setProducts] = useState([]);
@@ -43,7 +46,7 @@ function ListProducts({ searchQuery }) {
       {filteredProducts.length > 0 ? (
         filteredProducts
           .slice(0, numOfProducts)
-          .map((product) => <ProductCard key={product.id} product={product} />)
+          .map((product) => <ProductCardHZ key={product.id} product={product} />)
       ) : (
         <div className={styles["product-not-found"]}>
           <span>Patroncit@<br/>Aún no tenemos este producto</span>

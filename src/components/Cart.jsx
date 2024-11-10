@@ -5,6 +5,7 @@ import { useCart } from "../hooks/useCart";
 import { useNavigate } from "react-router-dom";
 
 import styles from "../styles/Cart.module.css";
+import ProductCardSQRead from "./ProductCardSQRead";
 
 const formatPriceToCOP = (price) => {
   const numericPrice = Number(price);
@@ -135,7 +136,7 @@ function Cart() {
           </div>
           <div className={styles["cart-detailed-content"]}>
             {cart.map((product) => (
-              <ProductCard
+              <ProductCardSQRead
                 key={`${product.id}-${product.variationId}`} // Clave única
                 product={product} // Enviar el producto completo, con la variación si la tiene
               />
