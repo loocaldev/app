@@ -128,6 +128,7 @@ const ProductCardSQ = forwardRef(({ product }, ref) => {
   const productQuantity = getProductQuantity();
   const displayQuantity = convertQuantity(selectedVariation || product, productQuantity);
 
+
   const unitPrice = selectedVariation ? selectedVariation.price : product.price;
   const priceWithPromotion = selectedVariation?.final_price || product.final_price || unitPrice;
   const totalPrice = priceWithPromotion * productQuantity;
@@ -164,6 +165,7 @@ const ProductCardSQ = forwardRef(({ product }, ref) => {
   return (
     <div className={styles["product-box"]} ref={ref}>
       <div className={styles["product-box-content"]}>
+        <div className={styles["product-box-first"]}>
         
         <div className={styles["product-image"]}>
           <img src={selectedVariation?.image || product.image} alt={product.name} />
@@ -200,6 +202,8 @@ const ProductCardSQ = forwardRef(({ product }, ref) => {
             </div>
           )}
         </div>
+        </div>
+        <div className={styles["product-box-second"]}>
         
         <div className={styles["product-price"]}>
           {isOnPromotion && (
@@ -210,8 +214,8 @@ const ProductCardSQ = forwardRef(({ product }, ref) => {
           )}
           
           <div className={styles["product-priceMain"]}>
-            <p>{promoPrice || originalPrice}</p>
-            <span>({displayQuantity})</span>
+            <p>{formatPriceToCOP(totalPrice)}</p>
+            <span>({displayQuantity})</span> {/* Esta valor no se esta mostrando correctamente para productos variables. Recuerda que este valor es dinamico y cambio con la cantidad agregada al carrito. Por ejemplo, si un producto se vende por 500 gr y se agrega tres, serian 1.5 Kg */}
           </div>
           
           <div className={styles["product-pricePum"]}>
@@ -230,10 +234,10 @@ const ProductCardSQ = forwardRef(({ product }, ref) => {
                 <FiPlus onClick={handleAddToCart} />
               </>
             ) : (
-              <>
-                <FiShoppingCart className={styles["addButton-iconCompra"]} />
-                <span onClick={handleAddToCart}>Añadir</span>
-              </>
+              <div onClick={handleAddToCart} className={styles["addButton-iconCompra"]}>
+                <FiShoppingCart />
+                <span>Añadir</span>
+              </div>
             )}
           </div>
           
@@ -242,11 +246,13 @@ const ProductCardSQ = forwardRef(({ product }, ref) => {
           </div>
         </div>
         
+        
         {showDescription && (
           <div className={styles["product-extend"]}>
             <span>Descripción: {product.description || "Sin descripción disponible"}</span>
           </div>
         )}
+        </div>
       </div>
     </div>
   );

@@ -83,39 +83,41 @@ const reducer = (state, action) => {
 
 export function CartProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
-  
 
-  const convertQuantity = (product, quantity) => {
-    
-    // Verifica que product.unit_type y product.unit_quantity existan
-    if (!product.unit_type || !product.unit_quantity) {
-      return `${quantity}`;
-    }
-  
-    // Calcula la cantidad total
-    const totalQuantity = product.unit_quantity * quantity;
-    const unitType = product.unit_type; // Usar directamente como string
-  
-    // Determina la unidad de medida adecuada
+  const convertQuantity = (item, quantity) => {
+    const unitQuantity = parseFloat(item.unit_quantity || item.product.unit_quantity || 1);
+    const totalQuantity = unitQuantity * quantity;
+    const unitType = item.unit_type || item.product.unit_type;
+
+    const abbreviations = {
+        Peso: totalQuantity >= 1000 ? "Kg" : "Gr",
+        Volumen: totalQuantity >= 1000 ? "L" : "Ml",
+        Unidad: "Und",
+    };
+
+    // Formato: muestra 1.5 como "1.5" y 1.00 como "1"
+    const formatQuantity = (value) => {
+        if (value % 1 === 0) {
+            return value.toString(); // No muestra decimales si es un número entero
+        } else {
+            return value.toFixed(1).replace(".", ","); // Usa una coma como separador decimal para decimales
+        }
+    };
+
     if (unitType === "Peso") {
-      const result = totalQuantity >= 1000 
-        ? `${(totalQuantity / 1000).toFixed(2)} kilogramos`
-        : `${totalQuantity} gramos`;
-      return result;
+        return totalQuantity >= 1000
+            ? `${formatQuantity(totalQuantity / 1000)} ${abbreviations[unitType]}`
+            : `${formatQuantity(totalQuantity)} ${abbreviations[unitType]}`;
     } else if (unitType === "Volumen") {
-      const result = totalQuantity >= 1000 
-        ? `${(totalQuantity / 1000).toFixed(2)} litros`
-        : `${totalQuantity} mililitros`;
-      return result;
+        return totalQuantity >= 1000
+            ? `${formatQuantity(totalQuantity / 1000)} ${abbreviations[unitType]}`
+            : `${formatQuantity(totalQuantity)} ${abbreviations[unitType]}`;
     } else if (unitType === "Unidad") {
-      const result = `${totalQuantity} unidades`;
-      return result;
+        return `${formatQuantity(totalQuantity)} ${abbreviations[unitType]}`;
     }
-  
-    // Valor por defecto
-    const result = `${totalQuantity}`;
-    return result;
-  };
+
+    return formatQuantity(totalQuantity);
+};
 
   const addToCart = (product, variationId = null) => {
     dispatch({
@@ -143,11 +145,12 @@ export function CartProvider({ children }) {
   // Cálculo del subtotal
   const subtotal = state.reduce((total, product) => {
     const price = product.variationId
-        ? product.variations?.find((v) => v.id === product.variationId)?.price || product.price
-        : product.price;
+      ? product.variations?.find((v) => v.id === product.variationId)?.price ||
+        product.price
+      : product.price;
 
     return total + (parseFloat(price) || 0) * product.quantity;
-}, 0);
+  }, 0);
 
   return (
     <CartContext.Provider

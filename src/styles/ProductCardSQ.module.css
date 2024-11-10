@@ -4,13 +4,16 @@
   border: 1px solid var(--gray-7);
   border-radius: 16px;
   padding: 12px;
-  max-width: 180px;
+  min-width: 180px;
+  background-color: #fff;
 }
 
 .product-box-content {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  justify-content: space-between;
+  height: 100%;
 }
 
 .product-image {
@@ -20,6 +23,7 @@
 .product-image img {
   max-width: 100%;
   border-radius: 16px;
+  height: 10rem;
 }
 
 .promo-label {
@@ -39,14 +43,20 @@
 }
 
 .product-variables {
-    display: flex;
-    flex-direction: row;
-    gap: 4px;
-    align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+}
+
+.product-variable {
+  display: flex;
+  gap: 4px;
+  width: 100%;
 }
 
 .product-variables select {
-    padding: 2px;
+  padding: 2px;
 }
 
 .product-info label {
@@ -57,68 +67,67 @@
 }
 
 .product-price {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+  display: flex;
+  flex-direction: column;
 }
 
 .product-pricePromo {
-    display: flex;
-    gap: 4px;
-    align-items: center;
+  display: flex;
+  gap: 4px;
+  align-items: center;
 }
 
 .product-pricePromo span:first-child {
-    background-color: var(--organe-alpha-color);
-    color: var(--secondary-organge-color);
-    padding: 2px 6px;
-    border-radius: 16px;
+  background-color: var(--organe-alpha-color);
+  color: var(--secondary-organge-color);
+  padding: 2px 6px;
+  border-radius: 16px;
 }
 
 .product-pricePromo span:last-child {
-    text-decoration: line-through;
-    color: var(--gray-3);
-    font-weight: 300;
-    font-style: italic;
+  text-decoration: line-through;
+  color: var(--gray-3);
+  font-weight: 300;
+  font-style: italic;
 }
 
 .product-priceMain {
-    display: flex;
-    gap: 6px;
-    align-items: center;
+  display: flex;
+  gap: 6px;
+  align-items: center;
 }
 
 .product-priceMain p {
-    font-size: 20px;
-    line-height: 24px;
-    font-weight: 700;
+  font-size: 20px;
+  line-height: 24px;
+  font-weight: 700;
 }
 
 .product-priceMain span {
-    font-weight: 300;
+  font-weight: 300;
 }
 
-.product-pricePum {
-    font-weight: 300;
-    font-style: italic;
-    color: var(--gray-3);
-    font-size: 12px;
-    line-height: 16px;
+.product-pricePum span {
+  font-weight: 300;
+  font-style: italic;
+  color: var(--gray-3);
+  font-size: 12px !important;
+  line-height: 16px;
 }
 
 .product-action {
-    display: flex;
-    align-items: center;
-    gap: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .product-addButton {
-    display: flex;
-    align-items: center;
-    background-color: var(--gray-7);
-    border-radius: 16px;
-    gap: 6px;
-    width: 90%;
+  display: flex;
+  align-items: center;
+  background-color: var(--gray-7);
+  border-radius: 16px;
+  gap: 6px;
+  width: 90%;
 }
 
 .adding-animation .addButton-iconCompra {
@@ -126,32 +135,53 @@
   transform: translateX(10px); /* Ajusta el desplazamiento según lo necesites */
 }
 
-.product-addButton svg:first-child {
-    stroke: #fff;
-    padding: 6px 16px;
-    background-color: var(--primary-purple-color);
-    border-radius: 16px;
+.product-box-second {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.product-addButton svg{
+  stroke: #1c1c1c ;
+  padding: 6px  ;
+  border-radius: 16px;
+  cursor: pointer;
+}
+
+.addButton-iconCompra {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  width: 100%;
+  cursor: pointer;
+}
+
+.addButton-iconCompra svg {
+  stroke: #fff;
+  padding: 6px 16px;
+  background-color: var(--primary-purple-color);
+  border-radius: 16px;
 }
 
 .product-addButton span {
-    width: calc(100% - 8px);    
-    text-align: center;
+  width: calc(100% - 8px);
+  text-align: center;
 }
 
 .product-showExtend {
-    width: 10%;
-    display: flex;
-    align-items: center;
-    justify-content: end;
+  width: 10%;
+  display: flex;
+  align-items: center;
+  justify-content: end;
 }
 
 .product-extend {
-    margin-top: 4px;
+  margin-top: 4px;
 }
 
 .product-extend span {
-    font-size: 12px;
-    line-height: 16px;
+  font-size: 12px;
+  line-height: 16px;
 }
 
 .option-disabled {
