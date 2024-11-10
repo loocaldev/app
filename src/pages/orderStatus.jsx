@@ -57,13 +57,13 @@ function OrderStatus() {
           clearCart(); 
 
           // Actualizar el estado de pago en el backend
-          await axios.patch(`https://loocal.co/api/orders/api/v1/orders/${orderId}/`, {
+          await axios.patch(`https://loocal.co/api/orders/${orderId}/`, {
             payment_status: "completed",  // Cambia el estado de pago a "completed"
           });
 
           // Obtener los detalles de la orden desde el backend
           try {
-            const orderResponse = await axios.get(`https://loocal.co/api/orders/api/v1/orders/${orderId}/`);
+            const orderResponse = await axios.get(`https://loocal.co/api/orders/${orderId}/`);
             const orderData = orderResponse.data;
 
             // Procesar cada producto de la orden para obtener más detalles

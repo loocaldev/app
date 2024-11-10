@@ -94,7 +94,7 @@ function Checkout() {
 
     try {
       const response = await axios.post(
-        "https://loocal.co/api/orders/api/v1/orders/",
+        "https://loocal.co/api/orders/",
         orderData
       );
       console.log("Orden creada:", response.data);

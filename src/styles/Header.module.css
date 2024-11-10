@@ -10,7 +10,7 @@
 
 .header-container {
   padding: 0.8rem 0.8rem 0;
-} 
+}
 
 .content {
   display: flex;
@@ -33,7 +33,7 @@
 
 .SecondBar {
   background-color: var(--purple-alpha-color);
-  padding:6px 24px;
+  padding: 6px 24px;
   transform: translateY(-1px);
   z-index: 10;
   border-radius: 0px 0px 16px 16px;
@@ -49,7 +49,6 @@
   justify-content: start;
   align-items: center;
 }
-
 
 .SecondBarRight {
   display: flex;
@@ -83,7 +82,7 @@
   border: 1px solid var(--gray-5);
   width: 60%;
   padding: 4px 12px;
-  color: var(--gray-3);;
+  color: var(--gray-3);
 }
 
 .thirdContent {
@@ -120,7 +119,7 @@
 }
 
 .profile-card img {
-  width:52px;
+  width: 52px;
   height: 52px;
   margin: 0;
   border-radius: 16px;
@@ -174,9 +173,9 @@
   text-align: left;
 }
 
-.navbar svg{
+.navbar svg {
   color: #828282;
-  cursor: pointer;  
+  cursor: pointer;
 }
 .navbar.open {
   transform: translateX(0);
@@ -238,7 +237,6 @@
   border-bottom: none;
 }
 
-
 .navbarBottom {
   display: flex;
   flex-direction: column;
@@ -246,20 +244,18 @@
   gap: 20px;
 }
 
-.navbarBottom span{
+.navbarBottom span {
   font-size: 14px;
   font-weight: 700;
 }
 
-.navbarBottom p{
+.navbarBottom p {
   font-size: 12px;
   font-weight: 400;
   color: var(--gray-3);
 }
 
-.navbarAccount
-
-.navbarInfo {
+.navbarAccount .navbarInfo {
   padding-bottom: 30px;
 }
 
@@ -274,7 +270,7 @@
   color: var(--primary-purple-color);
 }
 
-.navbarAccountOff{
+.navbarAccountOff {
   display: flex;
   justify-content: space-between;
   background-color: var(--purple-alpha-color);
@@ -289,7 +285,6 @@
   gap: 10px;
   align-items: center;
   padding: 4px 6px;
-  
 }
 
 .navbarAccountOffLeft p {
@@ -306,6 +301,38 @@
   align-items: center;
 }
 
+.profile-menu {
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  width: 180px;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  display: block !important;
+}
+
+.menu-item {
+  padding: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  transition: background-color 0.2s ease;
+  border-radius: 8px;
+  color: var(--black-color);
+}
+
+.menu-item a{
+  color: var(--black-color);
+}
+
+.menu-item:hover {
+  background-color: var(--purple-alpha-color);
+  color: var(--primary-purple-color);
+}
+
 @media screen and (max-width: 768px) {
   .thirdContent button {
     display: none !important;
@@ -313,7 +340,6 @@
 
   .SecondBar {
     padding: 4px;
-    
   }
 
   .SecondBarLeft {
@@ -333,7 +359,7 @@
   .thirdContent button {
     display: none !important;
   }
-  .SearchBarWrapper  {
+  .SearchBarWrapper {
     display: none !important;
   }
 }

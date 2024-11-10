@@ -18,15 +18,15 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [token, setToken] = useState("");
   const [userData, setUserData] = useState(null);
+  const [addresses, setAddresses] = useState([]);
 
   useEffect(() => {
-    // Verificar si hay un token almacenado en las cookies al cargar el componente
     const storedToken = getCookie("authToken");
     const storedUserData = localStorage.getItem("userData");
 
     if (storedToken) {
       setToken(storedToken);
-      setIsAuthenticated(true); // Si hay un token, el usuario está autenticado
+      setIsAuthenticated(true);
       if (storedUserData) {
         setUserData(JSON.parse(storedUserData));
       } else {
@@ -37,16 +37,13 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (username, password) => {
     try {
-      const response = await fetch(
-        "https://loocal.co/api/register",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ username, password }),
-        }
-      );
+      const response = await fetch("https://loocal.co/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
 
       if (response.ok) {
         const data = await response.json();
@@ -65,17 +62,14 @@ export const AuthProvider = ({ children }) => {
   const login = async (username, password) => {
     try {
       // Realizar la solicitud de inicio de sesión al backend
-      const response = await fetch(
-        "https://loocal.co/api/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": getCSRFToken(), // Incluir el token CSRF en el encabezado
-          },
-          body: JSON.stringify({ username, password }),
-        }
-      );
+      const response = await fetch("https://loocal.co/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCSRFToken(), // Incluir el token CSRF en el encabezado
+        },
+        body: JSON.stringify({ username, password }),
+      });
 
       if (response.ok) {
         const data = await response.json();
@@ -94,17 +88,14 @@ export const AuthProvider = ({ children }) => {
 
   const getUserDetails = async (authToken) => {
     try {
-      const response = await fetch(
-        "https://loocal.co/api/profile",
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Token ${authToken}`,
-            "Content-Type": "application/json",
-            "X-CSRFToken": getCSRFToken(),
-          },
-        }
-      );
+      const response = await fetch("https://loocal.co/api/profile", {
+        method: "GET",
+        headers: {
+          Authorization: `Token ${authToken}`,
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCSRFToken(),
+        },
+      });
 
       if (response.ok) {
         const data = await response.json();
@@ -121,17 +112,14 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       // Realizar la solicitud de logout al backend
-      const response = await fetch(
-        "https://loocal.co/api/logout",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Token ${token}`,
-            "Content-Type": "application/json",
-            "X-CSRFToken": getCSRFToken(), // Incluir el token CSRF en el encabezado
-          },
-        }
-      );
+      const response = await fetch("https://loocal.co/api/logout", {
+        method: "POST",
+        headers: {
+          Authorization: `Token ${token}`,
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCSRFToken(), // Incluir el token CSRF en el encabezado
+        },
+      });
 
       if (response.ok) {
         // Eliminar la cookie de token y datos del usuario de localStorage
@@ -149,7 +137,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Nueva función para actualizar los datos del usuario
-  
+
   const updateUser = async (updatedData) => {
     try {
       const isFormData = updatedData instanceof FormData; // Verifica si el objeto es FormData
@@ -157,21 +145,21 @@ export const AuthProvider = ({ children }) => {
         Authorization: `Token ${token}`,
         "X-CSRFToken": getCSRFToken(),
       };
-  
+
       // No incluir "Content-Type" cuando estás enviando FormData, ya que el navegador lo gestiona automáticamente
       if (!isFormData) {
         headers["Content-Type"] = "application/json";
       }
-  
+
       const response = await fetch("https://loocal.co/api/update_user/", {
         method: "PATCH",
         headers: headers,
-        body: isFormData ? updatedData : JSON.stringify(updatedData),  // Si es FormData, lo enviamos directamente
+        body: isFormData ? updatedData : JSON.stringify(updatedData), // Si es FormData, lo enviamos directamente
       });
-  
+
       if (response.ok) {
         console.log("Update successful.");
-        
+
         // Realizar una nueva solicitud al backend para obtener los datos actualizados del usuario
         await getUserDetails(token);
       } else {
@@ -183,37 +171,186 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Nueva función para agregar dirección en AuthContext.jsx
-const addAddress = async (addressData) => {
-  try {
-    console.log("Sending address data:", addressData);
-    const response = await fetch(
-      "https://loocal.co/api/add_address/",
-      {
-        method: "POST",
+  const getOrders = async () => {
+    try {
+      const response = await fetch("https://loocal.co/api/orders/", {
+        method: "GET",
         headers: {
-          Authorization: `Token ${token}`,  // Enviar el token de autenticación
+          Authorization: `Token ${token}`,
           "Content-Type": "application/json",
           "X-CSRFToken": getCSRFToken(),
         },
-        body: JSON.stringify(addressData),
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Órdenes del usuario:", data);
+        return data; // En lugar de usar setOrders, devolvemos los datos directamente
+      } else {
+        throw new Error("Failed to fetch orders");
       }
-    );
-
-    if (response.ok) {
-      const data = await response.json();
-      console.log("Address added successfully:", data);
-      return data;
-    } else {
-      const errorData = await response.json();
-      console.log("Failed to add address:", errorData);
-      throw new Error("Failed to add address");
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+      throw error; // Devolvemos el error para manejarlo en el componente
     }
-  } catch (error) {
-    console.error("Error adding address:", error);
-    throw error;
-  }
-};
+  };
+
+  // Función para obtener las direcciones
+  const getAddresses = async () => {
+    try {
+      const response = await fetch("https://loocal.co/api/get_addresses/", {
+        method: "GET",
+        headers: {
+          Authorization: `Token ${token}`,
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCSRFToken(),
+        },
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+  
+        // Ordenar para que la dirección principal esté siempre al inicio
+        const sortedAddresses = data.sort((a, b) => (a.is_default ? -1 : 1));
+        setAddresses(sortedAddresses);
+        console.log("Direcciones recibidas desde API en AuthContext:", sortedAddresses);
+      } else {
+        throw new Error("Failed to fetch addresses");
+      }
+    } catch (error) {
+      console.error("Error fetching addresses:", error);
+    }
+  };
+
+  const updateAddress = async (id, updatedAddress) => {
+    try {
+      const response = await fetch(`https://loocal.co/api/update_address/${id}/`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Token ${token}`,
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCSRFToken(),
+        },
+        body: JSON.stringify(updatedAddress),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Dirección actualizada con éxito:", data);
+        getAddresses(); // Refrescar la lista de direcciones
+      } else {
+        console.log("Fallo al actualizar la dirección:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error al actualizar dirección:", error);
+    }
+  };
+
+  const addAddress = async (addressData) => {
+    try {
+      const isFirstAddress = addresses.length === 0;
+      const response = await fetch("https://loocal.co/api/add_address/", {
+        method: "POST",
+        headers: {
+          Authorization: `Token ${token}`,
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCSRFToken(),
+        },
+        body: JSON.stringify({ ...addressData, is_default: isFirstAddress }),
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Address added successfully:", data);
+        getAddresses(); // Actualiza lista para reflejar cambios
+        return data;
+      } else {
+        const errorData = await response.json();
+        console.log("Failed to add address:", errorData);
+        throw new Error("Failed to add address");
+      }
+    } catch (error) {
+      console.error("Error adding address:", error);
+      throw error;
+    }
+  };
+  
+  const deleteAddress = async (id) => {
+    try {
+      const addressToDelete = addresses.find((address) => address.id === id);
+      const response = await fetch(`https://loocal.co/api/delete_address/${id}/`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Token ${token}`,
+          "X-CSRFToken": getCSRFToken(),
+        },
+      });
+  
+      if (response.ok) {
+        // Filtrar la dirección eliminada y verificar si era la predeterminada
+        let updatedAddresses = addresses.filter((address) => address.id !== id);
+  
+        // Si se eliminó la dirección predeterminada, configurar una nueva como predeterminada
+        if (addressToDelete.is_default && updatedAddresses.length > 0) {
+          const newPrimaryAddressId = updatedAddresses[0].id;
+          await setPrimaryAddress(newPrimaryAddressId);
+        }
+  
+        getAddresses(); // Volver a obtener las direcciones para reflejar la lista actualizada y ordenada
+      } else {
+        throw new Error("Failed to delete address");
+      }
+    } catch (error) {
+      console.error("Error deleting address:", error);
+    }
+  };
+
+  const setPrimaryAddress = async (addressId) => {
+    try {
+      const response = await fetch(`https://loocal.co/api/update_address/${addressId}/`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Token ${token}`,
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCSRFToken(),
+        },
+        body: JSON.stringify({ is_default: true }), // Marcar como principal
+      });
+  
+      if (response.ok) {
+        console.log("Address marked as primary successfully.");
+        getAddresses(); // Actualiza las direcciones para reflejar el cambio
+      } else {
+        throw new Error("Failed to set primary address");
+      }
+    } catch (error) {
+      console.error("Error setting primary address:", error);
+    }
+  };
+
+  const changePassword = async (currentPassword, newPassword) => {
+    try {
+      const response = await fetch("https://loocal.co/api/change_password/", {
+        method: "POST",
+        headers: {
+          Authorization: `Token ${token}`,
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCSRFToken(),
+        },
+        body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
+      });
+  
+      if (response.ok) {
+        console.log("Password changed successfully");
+        return true;
+      } else {
+        console.log("Failed to change password");
+        return false;
+      }
+    } catch (error) {
+      console.error("Error changing password:", error);
+      return false;
+    }
+  };
 
   // Función para establecer una cookie
   const setCookie = (name, value) => {
@@ -235,7 +372,23 @@ const addAddress = async (addressData) => {
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, token, userData, login, logout, register, updateUser, addAddress }}
+      value={{
+        isAuthenticated,
+        token,
+        userData,
+        addresses, // <-- Asegurarse de que esté aquí
+        login,
+        logout,
+        register,
+        updateUser,
+        getOrders,
+        getAddresses, // <-- Incluir este método
+        addAddress,
+        deleteAddress,
+        setPrimaryAddress,
+        updateAddress,
+        changePassword
+      }}
     >
       {children}
     </AuthContext.Provider>

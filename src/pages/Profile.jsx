@@ -2,8 +2,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import styles from "../styles/Profile.module.css";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import ProfileDetail from "../components/Profile/profileDetail";
+import ProfilePassword from "../components/Profile/profileChangePassword";
 import ProfileAddress from "../components/Profile/profileAddress";
 import ProfileOrders from "../components/Profile/profileOrders";
 import { FaCamera } from "react-icons/fa"; // Asegúrate de instalar react-icons
@@ -18,22 +19,33 @@ import {
 
 function Profile() {
   const { userData, updateUser } = useAuth();
+  const location = useLocation();
   const [profilePicture, setProfilePicture] = useState(null);
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef(null); // Referencia al input de archivo
 
+  const initialSection = location.state?.section || "ProfileDetail";
   const [selectedSection, setSelectedSection] = useState("ProfileDetail");
+
+  useEffect(() => {
+    // Actualiza selectedSection si location.state.section cambia
+    if (location.state?.section) {
+      setSelectedSection(location.state.section);
+    }
+  }, [location.state?.section]);
 
   const renderContent = () => {
     switch (selectedSection) {
       case "ProfileDetail":
         return <ProfileDetail />;
+        case "ProfilePassword":
+        return <ProfilePassword />;
       case "ProfileAddress":
         return <ProfileAddress />;
       case "ProfileOrders":
         return <ProfileOrders />;
       default:
-        return <AccountData />;
+        return <ProfileDetail />;
     }
   };
 
@@ -120,6 +132,17 @@ function Profile() {
               >
                 {" "}
                 Datos de mi cuenta
+              </div>
+            </Link>
+            <Link to="/perfil">
+              <div
+                className={`${styles["navbar-option"]} ${
+                selectedSection === "ProfilePassword" ? styles["navbar-option-active"] : ""
+              }`}
+                onClick={() => setSelectedSection("ProfilePassword")}
+              >
+                {" "}
+                Cambiar contraseña
               </div>
             </Link>
             <Link to="/perfil">

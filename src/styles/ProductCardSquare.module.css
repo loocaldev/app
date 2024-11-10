@@ -121,11 +121,6 @@
     width: 90%;
 }
 
-.adding-animation .addButton-iconCompra {
-  transition: transform 0.5s ease;
-  transform: translateX(10px); /* Ajusta el desplazamiento según lo necesites */
-}
-
 .product-addButton svg:first-child {
     stroke: #fff;
     padding: 6px 16px;
@@ -152,11 +147,4 @@
 .product-extend span {
     font-size: 12px;
     line-height: 16px;
-}
-
-.option-disabled {
-  color: #999;
-  background-color: #f9f9f9;
-  pointer-events: none;
-  cursor: not-allowed;
 }

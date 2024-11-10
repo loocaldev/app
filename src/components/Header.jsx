@@ -3,6 +3,7 @@ import styles from "../styles/Header.module.css";
 import { FiMenu, FiShoppingCart } from "react-icons/fi";
 import useScreenSize from "../hooks/useScreenSize.js";
 import { MdClose } from "react-icons/md";
+import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import {
   TbRosetteDiscount,
   TbApple,
@@ -23,6 +24,7 @@ function Header() {
   const isMobile = useScreenSize();
 
   const [isNavbarOpen, setIsNavbarOpen] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
   useEffect(() => {
     if (isNavbarOpen) {
@@ -31,6 +33,8 @@ function Header() {
       document.body.style.overflow = "";
     }
   }, [isNavbarOpen]);
+
+  const toggleProfileMenu = () => setIsProfileMenuOpen(!isProfileMenuOpen);
 
   const handleSearch = (query) => {
     setSearchQuery(query);
@@ -63,7 +67,7 @@ function Header() {
           <div className={styles.thirdContent}>
             {isAuthenticated ? (
               <div
-                onClick={() => navigate("/perfil")}
+                onClick={toggleProfileMenu}
                 className={styles["profile-card"]}
               >
                 {userData?.userprofile?.profile_picture ? (
@@ -79,9 +83,31 @@ function Header() {
                     className={styles["profile-picture"]}
                   />
                 )}
-                <div onClick={() => navigate("/perfil")} className={styles["username"]}>
+                <div className={styles["username"]}>
                   <span>{userData?.first_name}</span>
+                  {isProfileMenuOpen ? <IoIosArrowUp /> : <IoIosArrowDown />}
                 </div>
+                {/* Menú desplegable de perfil */}
+                {isProfileMenuOpen && (
+                  <div className={styles["profile-menu"]}>
+
+                    <Link to="/perfil" state={{ section: "ProfileDetail" }}>
+                      <div className={styles["menu-item"]}>Ajustes de mi cuenta</div>
+                    </Link>
+
+                    <Link to="/perfil" state={{ section: "ProfileAddress" }}>
+                      <div className={styles["menu-item"]}>Mis direcciones</div>
+                    </Link>
+
+                    <Link to="/perfil" state={{ section: "ProfileOrders" }}>
+                      <div className={styles["menu-item"]}>Mis pedidos</div>
+                    </Link>
+
+                    <div className={styles["menu-item"]} onClick={handleLogout}>
+                      Cerrar sesión
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <div>

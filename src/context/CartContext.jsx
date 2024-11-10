@@ -71,7 +71,7 @@ const reducer = (state, action) => {
     }
 
     case "CLEAR_CART": {
-      const newState = [];  // No necesita un payload
+      const newState = []; // No necesita un payload
       updateLocalStorage(newState);
       return newState;
     }
@@ -83,6 +83,39 @@ const reducer = (state, action) => {
 
 export function CartProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
+  
+
+  const convertQuantity = (product, quantity) => {
+    
+    // Verifica que product.unit_type y product.unit_quantity existan
+    if (!product.unit_type || !product.unit_quantity) {
+      return `${quantity}`;
+    }
+  
+    // Calcula la cantidad total
+    const totalQuantity = product.unit_quantity * quantity;
+    const unitType = product.unit_type; // Usar directamente como string
+  
+    // Determina la unidad de medida adecuada
+    if (unitType === "Peso") {
+      const result = totalQuantity >= 1000 
+        ? `${(totalQuantity / 1000).toFixed(2)} kilogramos`
+        : `${totalQuantity} gramos`;
+      return result;
+    } else if (unitType === "Volumen") {
+      const result = totalQuantity >= 1000 
+        ? `${(totalQuantity / 1000).toFixed(2)} litros`
+        : `${totalQuantity} mililitros`;
+      return result;
+    } else if (unitType === "Unidad") {
+      const result = `${totalQuantity} unidades`;
+      return result;
+    }
+  
+    // Valor por defecto
+    const result = `${totalQuantity}`;
+    return result;
+  };
 
   const addToCart = (product, variationId = null) => {
     dispatch({
@@ -105,16 +138,16 @@ export function CartProvider({ children }) {
     });
   };
 
-
   const clearCart = () => dispatch({ type: "CLEAR_CART" });
 
   // Cálculo del subtotal
   const subtotal = state.reduce((total, product) => {
     const price = product.variationId
-      ? product.variations.find(v => v.id === product.variationId)?.price
-      : product.price;
-    return total + parseFloat(price) * product.quantity;
-  }, 0);
+        ? product.variations?.find((v) => v.id === product.variationId)?.price || product.price
+        : product.price;
+
+    return total + (parseFloat(price) || 0) * product.quantity;
+}, 0);
 
   return (
     <CartContext.Provider
@@ -125,6 +158,7 @@ export function CartProvider({ children }) {
         decrementQuantity,
         removeFromCart,
         subtotal,
+        convertQuantity,
       }}
     >
       {children}

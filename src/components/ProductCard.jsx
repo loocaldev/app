@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from "react";
 import styles from "../styles/ProductCard.module.css";
 import { FiPlus, FiMinus, FiCheck } from "react-icons/fi";
-import { useCart } from "../hooks/useCart"; 
-import formatPriceToCOP from "../utils/formatPrice";  // Asegúrate de que este import funcione correctamente
+import { useCart } from "../hooks/useCart";
+import formatPriceToCOP from "../utils/formatPrice"; // Asegúrate de que este import funcione correctamente
 
 function ProductCard({ product }) {
   const { cart, addToCart, removeFromCart, decrementQuantity } = useCart();
-  const [selectedVariation, setSelectedVariation] = useState(null);  // Variación seleccionada
-  const [hasLoaded, setHasLoaded] = useState(false);  // Controla la carga inicial
+  const [selectedVariation, setSelectedVariation] = useState(null); // Variación seleccionada
+  const [hasLoaded, setHasLoaded] = useState(false); // Controla la carga inicial
 
   // Verificar si el producto tiene variaciones
   const hasVariations = product.is_variable && product.variations?.length > 0;
 
   // Efecto para cargar la variación seleccionada desde el carrito
   useEffect(() => {
-    console.log("Producto en el carrito:", product);  // Verificar si se recibe el producto correctamente
+    console.log("Producto en el carrito:", product); // Verificar si se recibe el producto correctamente
     if (product.variationId) {
       // Encontrar la variación seleccionada basada en el variationId del carrito
       const variation = product.variations.find(
@@ -23,7 +23,7 @@ function ProductCard({ product }) {
       setSelectedVariation(variation);
       console.log("Variación seleccionada desde el carrito:", variation);
     }
-    setHasLoaded(true);  // Indicar que la carga inicial ha ocurrido
+    setHasLoaded(true); // Indicar que la carga inicial ha ocurrido
   }, [product]);
 
   const handleVariationChange = (event) => {
@@ -37,7 +37,8 @@ function ProductCard({ product }) {
 
   const getProductQuantity = () => {
     const cartProduct = cart.find(
-      (item) => item.id === product.id && item.variationId === product.variationId
+      (item) =>
+        item.id === product.id && item.variationId === product.variationId
     );
     return cartProduct ? cartProduct.quantity : 0;
   };
@@ -65,11 +66,17 @@ function ProductCard({ product }) {
           <p className={styles["product-content-name"]}>{product.name}</p>
           {/* Mostrar variación seleccionada o permitir al usuario seleccionar una variación si no hay ninguna */}
           {hasVariations && !selectedVariation && hasLoaded && (
-            <select onChange={handleVariationChange} value={selectedVariation?.id || ''}>
+            <select
+              onChange={handleVariationChange}
+              value={selectedVariation?.id || ""}
+            >
               <option value="">Selecciona una variación</option>
               {product.variations.map((variation) => (
                 <option key={variation.id} value={variation.id}>
-                  {variation.attribute_options.map((opt) => opt.name).join(", ")} - {formatPriceToCOP(variation.price)}
+                  {variation.attribute_options
+                    .map((opt) => opt.name)
+                    .join(", ")}{" "}
+                  - {formatPriceToCOP(variation.price)}
                 </option>
               ))}
             </select>
@@ -77,15 +84,21 @@ function ProductCard({ product }) {
           {/* Mostrar la variación seleccionada */}
           {selectedVariation && (
             <div className={styles["product-variations"]}>
-              {selectedVariation.attribute_options.map((opt) => (
-                <span key={opt.id}>{opt.name}</span>
-              ))}
+              {Array.isArray(selectedVariation.attribute_options) ? (
+                selectedVariation.attribute_options.map((opt) => (
+                  <span key={opt.id}>{opt.name}</span>
+                ))
+              ) : (
+                <span>No hay opciones disponibles</span>
+              )}
             </div>
           )}
         </div>
         <div className={styles["product-action"]}>
           <div className={styles["product-action-quantity"]}>
-            <button onClick={() => decrementQuantity(product, selectedVariation?.id)}>
+            <button
+              onClick={() => decrementQuantity(product, selectedVariation?.id)}
+            >
               <FiMinus />
             </button>
             <span>{productQuantity} Kg</span>

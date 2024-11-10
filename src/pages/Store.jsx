@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import styles from "../styles/Store.module.css";
 import graphLoocal from "../assets/graphLoccal2024.png";
 import { getAllCategories, getAllProducts } from "../api/products.api";
+import ProductCardSquare from "../components/ProductCardSquare";
 
 function Store() {
   const [categories, setCategories] = useState([]);
@@ -130,6 +131,9 @@ function Store() {
           <div className={styles["content-nav-item"]}>
             <p>Granos y hortalizas</p>
           </div>
+        </div>
+        <div>
+          <ProductCardSquare/>
         </div>
 
         {/* Aquí va todo el Grid de productos distribudos en diferentes secciones por alguna agregación, por ejemplo categoría*/}

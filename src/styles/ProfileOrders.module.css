@@ -1,0 +1,72 @@
+@import "./variables.css";
+
+.order-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+
+.order-box {
+    display: flex;
+    flex-direction: column;
+    background-color: #F6F6F6;
+    border: 1px solid #CECECE;
+    border-radius: 16px;
+    padding: 12px
+}
+
+.order-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.order-resume {
+    display: flex;
+    flex-direction: row;
+}
+
+.order-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-in, padding 0.2s ease-out;
+}
+
+.order-content.expanded {
+    max-height: 500px; /* Ajusta según el contenido típico */
+    padding-top: 12px;
+    padding-bottom: 12px;
+}
+
+.order-action {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.order-item-list {
+    padding: 12px 0px;
+}
+
+.order-item {
+    display: flex;
+    justify-content: space-between;
+}
+
+
+.order-support {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: end;
+}
+
+.order-support a {
+    font-size: 14px;
+}
+
+.order-support svg {
+    width: 24px;
+    height: 24px;
+}
