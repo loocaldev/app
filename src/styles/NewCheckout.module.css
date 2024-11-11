@@ -432,6 +432,11 @@
     display: none;
   }
 
+  .row-two .box:last-child {
+    position: sticky;
+    bottom: 12px;
+  }
+
   body {
     background-color: var(--gray-7);
   }
