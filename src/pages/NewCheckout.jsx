@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import styles from "../styles/NewCheckout.module.css";
+import { FiMail } from "react-icons/fi";
 import Logo from "../assets/logo.svg";
+import UserDataForm from "../components/Forms/UserDataForms.jsx";
+import AddressForm from "../components/Forms/AddressForm";
 import ProductCardSQRead from "../components/ProductCardSQRead";
 import {
   FiChevronLeft,
@@ -21,6 +24,8 @@ import ProductCardHZRead from "../components/ProductCardHZRead.jsx";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { departamentosYMunicipios } from "../data/departamentosYMunicipios"; // Este archivo ya debe estar en tu estructura
+import { indicativos } from "../data/indicativos";
+import FooterLight from "../components/FooterLight.jsx";
 
 const formatPriceToCOP = (price) => {
   const numericPrice = Number(price);
@@ -45,6 +50,7 @@ function NewCheckout() {
     documentType: "CC",
     documentNumber: "",
     phone: "",
+    phoneCode: "+57",
     email: "",
     departament: "",
     town: "",
@@ -92,6 +98,13 @@ function NewCheckout() {
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
+    }));
+  };
+
+  const handlePhoneCodeChange = (e) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      phoneCode: e.target.value,
     }));
   };
 
@@ -217,6 +230,8 @@ function NewCheckout() {
 
   const createOrder = async () => {
     // Crear `orderData` con estructura revisada
+
+    const fullPhoneNumber = `${formData.phoneCode} ${formData.phone}`;
     const orderData = {
       custom_order_id: `ORD${Date.now()}`,
       items: cart.map((item) => ({
@@ -233,7 +248,7 @@ function NewCheckout() {
         street: formData.address,
         city: formData.town || "Ciudad desconocida",
         state: formData.departament || "Departamento desconocido",
-        postal_code: formData.postal_code || "11111",  // Usar un valor predeterminado si no está disponible
+        postal_code: formData.postal_code || "11111", // Usar un valor predeterminado si no está disponible
         country: "Colombia",
       },
       customer: {
@@ -241,21 +256,28 @@ function NewCheckout() {
         lastname: formData.lastname,
         document_type: formData.documentType,
         document_number: formData.documentNumber,
-        phone: formData.phone,
+        phone: fullPhoneNumber,
         email: formData.email,
-      }
+      },
     };
-  
+
     // Imprimir `orderData` para validación antes de enviarlo
-    console.log("Datos enviados a la API (orderData):", JSON.stringify(orderData, null, 2));
-  
+    console.log(
+      "Datos enviados a la API (orderData):",
+      JSON.stringify(orderData, null, 2)
+    );
+
     try {
       // Intento de envío de `orderData` con validación detallada en Axios
-      const response = await axios.post("https://loocal.co/api/orders/order/", orderData, {
-        headers: { "Content-Type": "application/json" },
-        validateStatus: false,  // Asegura que Axios no maneje el error automáticamente
-      });
-  
+      const response = await axios.post(
+        "https://loocal.co/api/orders/order/",
+        orderData,
+        {
+          headers: { "Content-Type": "application/json" },
+          validateStatus: false, // Asegura que Axios no maneje el error automáticamente
+        }
+      );
+
       // Confirmación de éxito
       if (response.status === 200 || response.status === 201) {
         console.log("Orden creada:", response.data);
@@ -263,36 +285,48 @@ function NewCheckout() {
       } else {
         // Muestra mensaje de error específico si se recibe uno
         console.error("Error en la respuesta del servidor:", response.data);
-        throw new Error("Error al crear la orden. " + (response.data?.error || "Detalles no disponibles"));
+        throw new Error(
+          "Error al crear la orden. " +
+            (response.data?.error || "Detalles no disponibles")
+        );
       }
     } catch (error) {
       // Captura error y detalla respuesta
-      console.error("Error al crear la orden:", error.response?.data || error.message);
+      console.error(
+        "Error al crear la orden:",
+        error.response?.data || error.message
+      );
       throw new Error("No se pudo crear la orden.");
     }
   };
 
   const addressData = {
-      street: formData.address,
-      city: "Bogotá",
-      state: "Cundinamarca",
-      postal_code: "00000",
-      country: "Colombia",
-    };
+    street: formData.address,
+    city: "Bogotá",
+    state: "Cundinamarca",
+    postal_code: "00000",
+    country: "Colombia",
+  };
 
   const fetchIntegrityHash = async (orderId, amount) => {
     try {
-      const response = await axios.post("https://loocal.co/api/payments/generate_integrity_hash/", {
-        order: {
-          order_id: orderId,
-          amount: amount,
-          currency: "COP",
-        },
-      });
+      const response = await axios.post(
+        "https://loocal.co/api/payments/generate_integrity_hash/",
+        {
+          order: {
+            order_id: orderId,
+            amount: amount,
+            currency: "COP",
+          },
+        }
+      );
       console.log("Hash de integridad generado:", response.data.hash); // Validación en consola
       return response.data.hash;
     } catch (error) {
-      console.error("Error al generar el hash de integridad:", error.response?.data || error);
+      console.error(
+        "Error al generar el hash de integridad:",
+        error.response?.data || error
+      );
       throw new Error("No se pudo generar el hash de integridad.");
     }
   };
@@ -314,11 +348,11 @@ function NewCheckout() {
         legalIdType: formData.documentType,
       },
     });
-  
+
     checkout.open((result) => {
       const transaction = result.transaction;
       if (transaction && transaction.status === "APPROVED") {
-        const transactionId = transaction.id;  // Asignar `transactionId` devuelto por Wompi
+        const transactionId = transaction.id; // Asignar `transactionId` devuelto por Wompi
         console.log("Transacción aprobada:", transactionId);
         navigate(`/order-status?id=${transactionId}`);
       } else if (transaction) {
@@ -342,31 +376,46 @@ function NewCheckout() {
     const incompleteFields = requiredFields.filter(
       (field) => formData[field] === ""
     );
-  
+
     if (incompleteFields.length > 0) {
       console.log("Campos incompletos:", incompleteFields); // Verifica los campos que faltan
       toast.error("Por favor completa todos los campos.");
       return false;
     }
-  
+
     console.log("Validación de formulario completada con éxito"); // Para confirmar que pasa la validación
     return true;
   };
+
+  const sortedDepartments = Object.keys(departamentosYMunicipios).sort();
+  const sortedMunicipalities =
+    formData.departament && departamentosYMunicipios[formData.departament]
+      ? [...departamentosYMunicipios[formData.departament]].sort()
+      : [];
 
   const handleConfirmOrder = async () => {
     if (validateForm()) {
       try {
         const orderData = await createOrder();
-        
+
         if (formData.paymentPreference === "online") {
-          const hash = await fetchIntegrityHash(orderData.custom_order_id, finalTotal * 100);
+          const hash = await fetchIntegrityHash(
+            orderData.custom_order_id,
+            finalTotal * 100
+          );
           if (hash) {
-            openWompiCheckout(hash, orderData.custom_order_id, finalTotal * 100);
+            openWompiCheckout(
+              hash,
+              orderData.custom_order_id,
+              finalTotal * 100
+            );
           } else {
             throw new Error("No se pudo generar el hash de integridad.");
           }
         } else {
-          navigate("/order-status", { state: { orderId: orderData.custom_order_id } });
+          navigate("/order-status", {
+            state: { orderId: orderData.custom_order_id },
+          });
         }
       } catch (error) {
         console.error("Error al procesar la orden:", error);
@@ -498,74 +547,11 @@ function NewCheckout() {
                     </div>
                   </div>
                   <div className={styles["box-content"]}>
-                    <form
-                      //   onSubmit={handleSubmit}
-                      className={styles["profile-form"]}
-                    >
-                      <div className={styles["form-row"]}>
-                        <div className={styles["form-group"]}>
-                          <label>Nombre</label>
-                          <input
-                            type="text"
-                            name="firstname"
-                            value={formData.firstname}
-                            onChange={handleChange}
-                          />
-                        </div>
-                        <div className={styles["form-group"]}>
-                          <label>Apellido</label>
-                          <input
-                            type="text"
-                            name="lastname"
-                            value={formData.lastname}
-                            onChange={handleChange}
-                          />
-                        </div>
-                      </div>
-                      <div className={styles["form-row"]}>
-                        <div className={styles["form-group"]}>
-                          <label>Tipo de documento</label>
-                          <div className={styles["form-multi-input"]}>
-                            <select
-                              type="text"
-                              name="documentType"
-                              value={formData.documentType}
-                              onChange={handleChange}
-                            >
-                              <option value="CC">Cédula de ciudadania</option>
-                              <option value="CE">Cédula de extranjería</option>
-                              <option value="PP">Pasaporte</option>
-                            </select>
-                            <input
-                              type="text"
-                              name="documentNumber"
-                              value={formData.documentNumber}
-                              onChange={handleChange}
-                            />
-                          </div>
-                        </div>
-                        <div className={styles["form-group"]}>
-                          <label>Número de celular</label>
-                          <input
-                            type="text"
-                            name="phone"
-                            value={formData.phone}
-                            onChange={handleChange}
-                          />
-                        </div>
-                      </div>
-                      <div className={styles["form-row"]}>
-                        <div className={styles["form-group"]}>
-                          <label>Correo electrónico</label>
-                          <input
-                            type="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                          />
-                        </div>
-                      </div>
-                    </form>
+                    <UserDataForm
+                      formData={formData}
+                      onChange={handleChange}
+                      onPhoneCodeChange={handlePhoneCodeChange}
+                    />
                   </div>
                 </div>
                 <div className={styles["box"]}>
@@ -583,67 +569,12 @@ function NewCheckout() {
                     </div>
                   </div>
                   <div className={styles["box-content"]}>
-                    <form
-                      //   onSubmit={handleSubmit}
-                      className={styles["profile-form"]}
-                    >
-                      <div className={styles["form-row"]}>
-                        <div className={styles["form-group"]}>
-                          <label>Departamento</label>
-                          <select
-                            value={formData.departament}
-                            onChange={handleDepartamentoChange}
-                          >
-                            <option value="">Selecciona un departamento</option>
-                            {Object.keys(departamentosYMunicipios).map(
-                              (dep) => (
-                                <option key={dep} value={dep}>
-                                  {dep}
-                                </option>
-                              )
-                            )}
-                          </select>
-
-                          {formData.departament && (
-                            <select
-                              value={formData.town}
-                              onChange={handleMunicipioChange}
-                            >
-                              <option value="">Selecciona un municipio</option>
-                              {(
-                                departamentosYMunicipios[
-                                  formData.departament
-                                ] || []
-                              ).map((city) => (
-                                <option key={city} value={city}>
-                                  {city}
-                                </option>
-                              ))}
-                            </select>
-                          )}
-                        </div>
-                        <div className={styles["form-group"]}>
-                          <label>Ciudad</label>
-                          <select>
-                            <option>Chía</option>
-                            <option>Cajicá</option>
-                            <option>Medellín</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      <div className={styles["form-row"]}>
-                        <div className={styles["form-group"]}>
-                          <label>Dirección de entrega</label>
-                          <input
-                            type="text"
-                            name="address"
-                            value={formData.address}
-                            onChange={handleChange}
-                          />
-                        </div>
-                      </div>
-                    </form>
+                  <AddressForm
+                      formData={formData}
+                      onDepartamentoChange={handleDepartamentoChange}
+                      onMunicipioChange={handleMunicipioChange}
+                      onAddressChange={handleChange}
+                    />
                   </div>
                 </div>
               </div>
@@ -772,7 +703,9 @@ function NewCheckout() {
                       {totalDiscount > 0 && (
                         <>
                           <div className={styles["discount-message"]}>
-                            <span>Descuentos aplicados</span>
+                            <span>
+                              ¡Enhorabuena! Se han aplicado descuentos
+                            </span>
                             <span>{formatPriceToCOP(totalDiscount)}</span>
                           </div>
                           <div className={styles["discount-detail"]}>
@@ -815,6 +748,8 @@ function NewCheckout() {
             </div>
           </div>
         </div>
+        {/*Footer */}
+        <FooterLight/>
       </div>
     </>
   );
