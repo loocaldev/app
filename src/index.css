@@ -90,8 +90,9 @@ form button {
 
 .form-row {
   display: flex;
-  gap: 16px;
+  gap: 0px 16px;
   width: 100%;
+  flex-wrap: wrap;
 }
 
 .form-group {
