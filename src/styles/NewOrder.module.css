@@ -123,7 +123,25 @@
 }
 
 @media screen and (max-width: 768px) {
+  .header-first h1 {
+    font-size: 20px;
+    line-height: 24px;
+  }
+  .header-first {
+    min-height: 50px;
+    border-radius: 16px;
+  }
+  .header-logo img {
+    display: none;
+  } 
+  .buttons-profile {
+    display: none;
+  } 
+  .header-second {
+    display: none;
+  }
   .order-content {
     flex-direction: column;
   }
+  
 }

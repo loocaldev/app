@@ -416,6 +416,19 @@
     font-size: 20px;
     line-height: 24px;
   }
+  .header-first {
+    min-height: 50px;
+    border-radius: 16px;
+  }
+  .header-logo img {
+    display: none;
+  } 
+  .buttons-profile {
+    display: none;
+  } 
+  .header-second {
+    display: none;
+  }
 
   h4 {
     font-size: 16px;
@@ -423,13 +436,6 @@
 
   .row-one, .row-two {
     width: 100%;
-  }
-
-  .header-logo img {
-    display: none;
-  } 
-  .buttons-profile button:last-child {
-    display: none;
   }
 
   .content-multirow {
@@ -441,7 +447,7 @@
 
   .mobile-box-resume {
     position: sticky;
-    bottom: 0;
+    bottom: 6px;
     background-color: #fff;
     border-radius: 16px;
     box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);

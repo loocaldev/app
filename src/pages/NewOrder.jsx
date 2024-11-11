@@ -66,10 +66,10 @@ function NewOrder() {
           <div className={styles["canvas-header"]}>
             <div className={styles["header-first"]}>
               <div className={styles["header-logo"]}>
+              <FiChevronLeft onClick={() => window.history.back()} />
                 <img onClick={() => navigate("/")} src={Logo} alt="Logo" />
               </div>
               <div className={styles["header-title"]}>
-                <FiChevronLeft onClick={() => window.history.back()} />
                 <h1>Resumen de tu compra</h1>
               </div>
               <div className={styles["header-profile"]}>

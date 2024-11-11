@@ -28,10 +28,8 @@ function SliderProducts({ products, searchQuery, sortOrder, scrollRef }) {
       return 0;
     });
 
-  const numProductsPerRow = 6;
-  const visibleProducts = isMobile
-    ? filteredProducts
-    : filteredProducts.slice(0, visibleRows * numProductsPerRow);
+    const numProductsPerRow = isMobile ? 2 : 6; // Solo muestra 2 productos en una fila en móvil
+    const visibleProducts = filteredProducts.slice(0, visibleRows * numProductsPerRow);
 
   return (
     <div className={styles.productsContainer}>

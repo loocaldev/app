@@ -119,22 +119,40 @@ function Store() {
         {/* <SearchBar onSearch={handleSearch} />
         <FilterSelector onFilter={handleFilter} />
         <SortSelector onSort={handleSort} /> */}
-        <div className={styles["content-nav"]}>
-          <div className={styles["content-nav-item"]}>
-            <p>Promociones</p>
+        <div className={styles["button-carousel"]}>
+          <div
+            onClick={() => navigate("/tienda")}
+            className={styles["button-option"]}
+          >
+            <span>Ver toda la tienda</span>
           </div>
-          <div className={styles["content-nav-item"]}>
-            <p>Frutas</p>
+          <div
+            onClick={() => navigate("/tienda")}
+            className={styles["button-option"]}
+          >
+            <span>Frutas</span>
           </div>
-          <div className={styles["content-nav-item"]}>
-            <p>Verduras</p>
+          <div
+            onClick={() => navigate("/tienda")}
+            className={styles["button-option"]}
+          >
+            <span>Verduras</span>
           </div>
-          <div className={styles["content-nav-item"]}>
-            <p>Granos y hortalizas</p>
+          <div
+            onClick={() => navigate("/tienda")}
+            className={styles["button-option"]}
+          >
+            <span>Granos</span>
+          </div>
+          <div
+            onClick={() => navigate("/tienda")}
+            className={styles["button-option"]}
+          >
+            <span>Artesanal</span>
           </div>
         </div>
         <div>
-          <ProductCardSQRead/>
+          <ProductCardSQRead />
         </div>
 
         {/* Aquí va todo el Grid de productos distribudos en diferentes secciones por alguna agregación, por ejemplo categoría*/}
