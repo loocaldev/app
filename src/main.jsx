@@ -16,6 +16,7 @@ import Login from "./pages/Login.jsx";
 import Order from "./pages/Order.jsx";
 import Checkout from "./pages/Checkout.jsx";
 import OrderStatus from "./pages/orderStatus.jsx";
+import NewOrderStatus from "./pages/NewOrderStatus.jsx";
 import CreateAccount from "./pages/CreateAccount.jsx";
 import CreateAccountDetail from "./pages/CreateAccountDetail.jsx";
 import AuthenticatedRoute from "./context/AuthenticatedRoute.jsx";
@@ -40,7 +41,8 @@ const router = createBrowserRouter([
       { path: "/order", element: <NewOrder /> },
       { path: "/checkout", element: <NewCheckout /> },
       { path: "/pago", element: <Payment /> },
-      { path: "/order-status", element: <OrderStatus /> },
+      { path: "/order-statu", element: <OrderStatus /> },
+      { path: "/order-status", element: <NewOrderStatus /> },
       { path: "/login", element: <Login /> },
       { path: "/crear-cuenta", element: <CreateAccount /> },
       { path: "/crear-perfil", element: <CreateProfile /> },

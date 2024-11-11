@@ -97,6 +97,32 @@
   padding: 12px;
 }
 
+.error-box {
+  border: 2px solid #D32F2F; /* Borde rojo para campos faltantes */
+}
+
+.button-disabled {
+  background-color: #ccc; /* Color para el botón deshabilitado */
+  cursor: not-allowed;
+}
+
+.error-messages {
+  margin-top: 8px;
+  background-color: #FBEAEA;
+  border-radius: 16px;
+  padding: 4px 12px;
+}
+
+.error-messages p:first-child {
+  font-weight: 600;
+}
+
+.error-messages p {
+  color: #541313;
+  font-size: 12px;
+  line-height: 16px;
+}
+
 .box-header {
   display: flex;
   justify-content: space-between;
@@ -145,6 +171,152 @@
   color: var(--gray-3);
 }
 
+.date-picker-container, .time-picker-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.scroll-button {
+  cursor: pointer;
+  font-size: 24px;
+  color: var(--gray-3);
+}
+
+.date-picker, .time-picker {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 8px 0;
+  flex-grow: 1;
+}
+
+.date-option, .time-option {
+  min-width: 80px; /* Ajusta según tus necesidades */
+  border: 1px solid var(--gray-5);
+  border-radius: 16px;
+  padding: 12px 16px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.date-option.selected, .time-option.selected {
+  background-color: var(--primary-purple-color);
+  color: white;
+  border-color: var(--primary-purple-color);
+}
+
+.date-option-day, .time-option-hour {
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.date-option-date, .time-option-period {
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.date-picker::-webkit-scrollbar, .time-picker::-webkit-scrollbar {
+  display: none; /* Ocultar scrollbar en navegadores WebKit */
+}
+
+.time-picker-container .scroll-button {
+  font-size: 24px; /* Tamaño de la flecha, ajusta según lo que necesites */
+  width: 40px;      /* Ancho de la flecha */
+  height: 40px;     /* Altura de la flecha */
+  color: var(--primary-color, #000); /* Color de la flecha, ajusta según lo que necesites */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.custom-radio {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  background-color: #f2f2f2; /* Color de fondo cuando no está seleccionado */
+  margin-bottom: 12px;
+}
+
+.custom-radio.selected {
+  background-color: var(--purple-alpha-color); /* Color de fondo púrpura claro cuando está seleccionado */
+}
+
+.radio-circle {
+  width: 24px;
+  height: 24px;
+  border: 1px solid #d3d3d3;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16px;
+}
+
+.custom-radio.selected .radio-circle {
+  border-color: var(--primary-purple-color);
+  background-color: var(--primary-purple-color); /* Color púrpura cuando está seleccionado */
+}
+
+.radio-circle::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--purple-alpha-color);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.custom-radio.selected .radio-circle::before {
+  opacity: 1; /* Muestra el círculo blanco cuando está seleccionado */
+}
+
+.label {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.label-main {
+  display: flex;
+  flex-direction: column;
+}
+
+.label-main span:first-child {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.label-main span:last-child {
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.label-extra {
+  display: flex;
+  justify-content: end;
+  text-align: end;
+}
+
+.label-extra span:first-child {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.label-extra span:last-child {
+  font-size: 12px;
+  font-weight: 400;
+  margin-left: 4px;
+}
+
 .form-one-row {
     display: flex;
     align-items: center;
@@ -159,6 +331,12 @@
     width: auto;
     height: 100%;
     margin: 0px;
+    border-radius: 12px;
+    background-color: var(--purple-alpha-color);
+    color: var(--primary-purple-color);
+    border: 1px solid var(--primary-purple-color);
+    font-weight: 400;
+
 }
 
 .discount-message {
@@ -173,6 +351,34 @@
 .discount-message span {
     font-size: 12px;
     color: var(--gray-3);
+}
+
+.discount-status-message.success {
+  color: #123214;
+  background-color: #EAF2EA;
+  font-weight: 500;
+  font-size: 14px;
+  padding: 2px 12px;
+  border-radius: 16px;
+  margin-top: 8px;
+}
+
+/* Estilo para el mensaje de error con una transición suave al desaparecer */
+.discount-status-message.error {
+  color: #541313;
+  background-color: #FBEAEA;
+  font-weight: 500;
+  font-size: 14px;
+  padding: 2px 12px;
+  margin-top: 8px;
+  opacity: 1;
+  transition: opacity 1s ease; /* Desaparece en 1 segundo */
+  border-radius: 16px;
+}
+
+/* Agrega una clase que oculta el mensaje después de 5 segundos */
+.discount-status-message.error.hidden {
+  opacity: 0;
 }
 
 .discount-detail {

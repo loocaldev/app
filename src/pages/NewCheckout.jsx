@@ -40,6 +40,8 @@ const formatPriceToCOP = (price) => {
 };
 
 function NewCheckout() {
+  const [isMessageHidden, setIsMessageHidden] = useState(false);
+  const [errors, setErrors] = useState([]);
   const { cart, subtotal } = useCart();
   const navigate = useNavigate();
   const { token, isAuthenticated, logout, userData } = useAuth();
@@ -57,7 +59,7 @@ function NewCheckout() {
     address: "",
     delivery_date: "",
     delivery_time: "",
-    paymentPreference: "inPerson",
+    paymentPreference: "online",
     discountCode: "",
   });
   const [availableDates, setAvailableDates] = useState([]);
@@ -67,6 +69,7 @@ function NewCheckout() {
   const [isNavbarOpen, setIsNavbarOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [attemptedSubmit, setAttemptedSubmit] = useState(false);
   const [discountStatusMessage, setDiscountStatusMessage] = useState("");
   const [isDiscountApplied, setIsDiscountApplied] = useState(false);
   const [paymentDiscount, setPaymentDiscount] = useState(0); // Descuento por pagar online
@@ -108,23 +111,24 @@ function NewCheckout() {
     }));
   };
 
+  const trimAndUpperCase = (value) => value.trim().toUpperCase();
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [name]: value }));
+
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: name === "discountCode" ? trimAndUpperCase(value) : value,
+    }));
   };
 
   const handleDateSelect = (dateString) => {
-    const [day, month, year] = dateString.split("/");
-    const formattedDate = new Date(`${year}-${month}-${day}`);
-    if (!isNaN(formattedDate)) {
-      setSelectedDate(formattedDate.toISOString().split("T")[0]);
-      setFormData({
-        ...formData,
-        delivery_date: formattedDate.toISOString().split("T")[0],
-      });
-    } else {
-      toast.error("Fecha inválida, por favor selecciona una fecha correcta.");
-    }
+    const formattedDate = new Date(dateString).toISOString().split("T")[0]; // Formato ISO
+    setSelectedDate(formattedDate);
+    setFormData({
+      ...formData,
+      delivery_date: formattedDate,
+    });
   };
 
   const handleTimeSelect = (hour) => {
@@ -135,20 +139,16 @@ function NewCheckout() {
   const getNextFiveDays = () => {
     const days = [];
     const today = new Date();
-    const currentHour = today.getHours();
-    if (currentHour >= 15) {
-      for (let i = 1; i < 6; i++) {
-        const nextDate = new Date(today);
-        nextDate.setDate(today.getDate() + i);
-        days.push(nextDate.toLocaleDateString());
-      }
-    } else {
-      for (let i = 0; i < 5; i++) {
-        const nextDate = new Date(today);
-        nextDate.setDate(today.getDate() + i);
-        days.push(nextDate.toLocaleDateString());
-      }
+
+    for (let i = 0; i < 5; i++) {
+      const nextDate = new Date(today);
+      nextDate.setDate(today.getDate() + i);
+
+      // Formato ISO YYYY-MM-DD
+      const formattedDate = nextDate.toISOString().split("T")[0];
+      days.push(formattedDate);
     }
+
     return days;
   };
 
@@ -184,45 +184,44 @@ function NewCheckout() {
   const handleDiscountCode = async () => {
     setLoading(true);
     try {
-      console.log("code:", formData.discountCode);
-      console.log("subtotal:", subtotal);
+      const formattedCode = trimAndUpperCase(formData.discountCode); // Formatear antes de enviar
       const response = await axios.post(
         "https://loocal.co/api/orders/apply-discount/",
         {
-          code: formData.discountCode,
-          subtotal: subtotal, // Asegúrate de que subtotal es un número
+          code: formattedCode, // Enviar código ya formateado
+          subtotal: subtotal,
         },
-        {
-          headers: { "Content-Type": "application/json" }, // Asegura el formato JSON
-        }
+        { headers: { "Content-Type": "application/json" } }
       );
 
-      // Verificar si el código es válido y aplicar el descuento
       if (response.data.valid) {
         setDiscountInfo(response.data);
         setIsDiscountApplied(true);
-        setDiscountStatusMessage("Código de descuento aplicado");
-      } else if (response.data.expired) {
-        setDiscountStatusMessage("El código de descuento ha expirado");
-        setDiscountInfo(null);
-        setIsDiscountApplied(false);
+        setDiscountStatusMessage("Código de descuento aplicado exitosamente");
+        setIsMessageHidden(false);
       } else {
-        setDiscountStatusMessage("El código de descuento no es válido");
+        setDiscountStatusMessage(
+          "El código de descuento es inválido o ha expirado"
+        );
         setDiscountInfo(null);
         setIsDiscountApplied(false);
+        setIsMessageHidden(false);
+
+        // Ocultar el mensaje de error después de 2 segundos
+        setTimeout(() => {
+          setIsMessageHidden(true);
+        }, 2000);
       }
     } catch (error) {
-      if (error.response && error.response.data) {
-        console.error("Detalles del error del backend:", error.response.data);
-        setDiscountStatusMessage(
-          error.response.data.error || "Solicitud inválida"
-        );
-      } else {
-        setDiscountStatusMessage(
-          "Error desconocido al verificar el código de descuento"
-        );
-      }
+      console.error("Error al verificar el código:", error);
+      setDiscountStatusMessage("Error al aplicar el código de descuento");
       setDiscountInfo(null);
+      setIsMessageHidden(false);
+
+      // Ocultar el mensaje de error después de 2 segundos
+      setTimeout(() => {
+        setIsMessageHidden(true);
+      }, 2000);
     } finally {
       setLoading(false);
     }
@@ -363,29 +362,39 @@ function NewCheckout() {
     });
   };
 
+  const requiredFields = {
+    firstname: "Nombre",
+    lastname: "Apellido",
+    phone: "Celular",
+    email: "Correo electrónico válido",
+    departament: "Departamento",
+    town: "Ciudad",
+    address: "Dirección",
+    delivery_date: "Fecha de entrega",
+    delivery_time: "Hora de entrega",
+  };
+
+  const isEmailValid = (email) => {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Regex simple para email
+    return emailPattern.test(email);
+  };
+
   const validateForm = () => {
-    const requiredFields = [
-      "firstname",
-      "lastname",
-      "phone",
-      "email",
-      "address",
-      "delivery_date",
-      "delivery_time",
-    ];
-    const incompleteFields = requiredFields.filter(
+    const missingFields = Object.keys(requiredFields).filter(
       (field) => formData[field] === ""
     );
 
-    if (incompleteFields.length > 0) {
-      console.log("Campos incompletos:", incompleteFields); // Verifica los campos que faltan
-      toast.error("Por favor completa todos los campos.");
-      return false;
+    if (formData.email && !isEmailValid(formData.email)) {
+      missingFields.push("email");
     }
 
-    console.log("Validación de formulario completada con éxito"); // Para confirmar que pasa la validación
-    return true;
+    setErrors(missingFields);
+    return missingFields.length === 0;
   };
+
+  useEffect(() => {
+    validateForm();
+  }, [formData]); // Ejecuta la validación cuando hay cambios en formData
 
   const sortedDepartments = Object.keys(departamentosYMunicipios).sort();
   const sortedMunicipalities =
@@ -394,10 +403,12 @@ function NewCheckout() {
       : [];
 
   const handleConfirmOrder = async () => {
+    setAttemptedSubmit(true);
     if (validateForm()) {
       try {
         const orderData = await createOrder();
 
+        // Caso: Pago en línea
         if (formData.paymentPreference === "online") {
           const hash = await fetchIntegrityHash(
             orderData.custom_order_id,
@@ -412,10 +423,11 @@ function NewCheckout() {
           } else {
             throw new Error("No se pudo generar el hash de integridad.");
           }
-        } else {
-          navigate("/order-status", {
-            state: { orderId: orderData.custom_order_id },
-          });
+        }
+
+        // Caso: Pago contra entrega
+        else {
+          navigate(`/order-status?orderId=${orderData.custom_order_id}`);
         }
       } catch (error) {
         console.error("Error al procesar la orden:", error);
@@ -423,6 +435,7 @@ function NewCheckout() {
       }
     }
   };
+
   return (
     <>
       <div className={styles["canvas-container"]}>
@@ -532,7 +545,15 @@ function NewCheckout() {
                   </div>
                   <div className={styles["box-content"]}></div>
                 </div>
-                <div className={styles["box"]}>
+                <div
+                  className={`${styles["box"]} ${
+                    attemptedSubmit &&
+                    (errors.includes("firstname") ||
+                      errors.includes("lastname"))
+                      ? styles["error-box"]
+                      : ""
+                  }`}
+                >
                   <div className={styles["box-header"]}>
                     <div className={styles["box-header-info"]}>
                       <div className={styles["box-header-icon"]}>
@@ -554,7 +575,16 @@ function NewCheckout() {
                     />
                   </div>
                 </div>
-                <div className={styles["box"]}>
+                <div
+                  className={`${styles["box"]} ${
+                    attemptedSubmit &&
+                    (errors.includes("address") ||
+                      errors.includes("department") ||
+                      errors.includes("town"))
+                      ? styles["error-box"]
+                      : ""
+                  }`}
+                >
                   <div className={styles["box-header"]}>
                     <div className={styles["box-header-info"]}>
                       <div className={styles["box-header-icon"]}>
@@ -569,7 +599,7 @@ function NewCheckout() {
                     </div>
                   </div>
                   <div className={styles["box-content"]}>
-                  <AddressForm
+                    <AddressForm
                       formData={formData}
                       onDepartamentoChange={handleDepartamentoChange}
                       onMunicipioChange={handleMunicipioChange}
@@ -579,7 +609,15 @@ function NewCheckout() {
                 </div>
               </div>
               <div className={styles["row-two"]}>
-                <div className={styles["box"]}>
+                <div
+                  className={`${styles["box"]} ${
+                    attemptedSubmit &&
+                    (errors.includes("delivery_date") ||
+                      errors.includes("delivery_time"))
+                      ? styles["error-box"]
+                      : ""
+                  }`}
+                >
                   <div className={styles["box-header"]}>
                     <div className={styles["box-header-info"]}>
                       <div className={styles["box-header-title"]}>
@@ -598,7 +636,7 @@ function NewCheckout() {
                       <DatePicker
                         dates={getNextFiveDays()}
                         onDateSelect={handleDateSelect}
-                        selectedDate={selectedDate} // Pasa la fecha seleccionada aquí
+                        selectedDate={selectedDate} // Pasa la fecha seleccionada aquí en formato YYYY-MM-DD
                       />
                       {selectedDate && (
                         <>
@@ -627,30 +665,56 @@ function NewCheckout() {
                   </div>
                   <div className={styles["box-content"]}>
                     <form>
-                      {" "}
-                      {/* Este form permite seleccionar al usuario una opción de pago. Puede pagar ahora por pasarela Online lo que permitira que cuando el usaurio oprima el boton final de 'Completar compra' se deberá redirgir al proceso de pago en Pasarela. De lo contrario, si el usaurio elige 'Pagar cuando reciba mi pedido', NO deberá pasar a pasarela online sino directamente a confirmar pedido en OrderStatus. Ten en cuenta que si el usuario elige 'Pagar ahora' tiene un 5% de descuento sobre la orden. */}
-                      <div>
-                        <input
-                          type="radio"
-                          id="onlinepayment"
-                          name="paymentPreference"
-                          value="online"
-                          checked={formData.paymentPreference === "online"}
-                          onChange={handleInputChange}
-                        />
-                        <label htmlFor="onlinepayment">Pagar ahora</label>
+                      <div
+                        className={`${styles["custom-radio"]} ${
+                          formData.paymentPreference === "online"
+                            ? styles["selected"]
+                            : ""
+                        }`}
+                        onClick={() =>
+                          setFormData({
+                            ...formData,
+                            paymentPreference: "online",
+                          })
+                        }
+                      >
+                        <div className={styles["radio-circle"]}></div>
+                        <div className={styles["label"]}>
+                          <div className={styles["label-main"]}>
+                            <span>Pagar ahora</span>
+                            <span>
+                              Con tarjeta débito, crédito, nequi o efectivo.
+                            </span>
+                          </div>
+                          <div className={styles["label-extra"]}>
+                            <span>5% </span>
+                            <span> dcto.</span>
+                          </div>
+                        </div>
+                      </div>
 
-                        <input
-                          type="radio"
-                          id="inpersonpayment"
-                          name="paymentPreference"
-                          value="inPerson"
-                          checked={formData.paymentPreference === "inPerson"}
-                          onChange={handleInputChange}
-                        />
-                        <label htmlFor="inpersonpayment">
-                          Pagar cuando reciba mi pedido
-                        </label>
+                      <div
+                        className={`${styles["custom-radio"]} ${
+                          formData.paymentPreference === "inPerson"
+                            ? styles["selected"]
+                            : ""
+                        }`}
+                        onClick={() =>
+                          setFormData({
+                            ...formData,
+                            paymentPreference: "inPerson",
+                          })
+                        }
+                      >
+                        <div className={styles["radio-circle"]}></div>
+                        <div className={styles["label"]}>
+                          <div className={styles["label-main"]}>
+                            <span>Pagar cuando reciba mi pedido</span>
+                            <span>
+                              Con tarjeta débito, crédito, nequi o efectivo.
+                            </span>
+                          </div>
+                        </div>
                       </div>
                     </form>
                   </div>
@@ -686,9 +750,16 @@ function NewCheckout() {
                           {loading ? "Procesando..." : "Redimir"}
                         </button>
                       </div>
-                      {/* Mensaje de estado del código de descuento */}
                       {discountStatusMessage && (
-                        <span className={styles["discount-status-message"]}>
+                        <span
+                          className={`${styles["discount-status-message"]} ${
+                            isDiscountApplied
+                              ? styles["success"]
+                              : `${styles["error"]} ${
+                                  isMessageHidden ? styles.hidden : ""
+                                }`
+                          }`}
+                        >
                           {discountStatusMessage}
                         </span>
                       )}
@@ -737,10 +808,29 @@ function NewCheckout() {
                         <h4>{formatPriceToCOP(finalTotal)}</h4>
                       </div>
                       <div className={styles["box-completed"]}>
-                        <button onClick={handleConfirmOrder}>
+                        <button
+                          onClick={handleConfirmOrder}
+                          className={`${styles["button"]} ${
+                            errors.length > 0 && attemptedSubmit
+                              ? styles["button-disabled"]
+                              : ""
+                          }`}
+                        >
                           Confirmar compra
                         </button>
                       </div>
+                    </div>
+                    <div className={styles["box-resume-error"]}>
+                      {attemptedSubmit && errors.length > 0 && (
+                        <div className={styles["error-messages"]}>
+                          <p>Por favor completa los siguientes campos:</p>
+                          <p>
+                            {errors
+                              .map((error) => requiredFields[error])
+                              .join(", ")}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -749,7 +839,7 @@ function NewCheckout() {
           </div>
         </div>
         {/*Footer */}
-        <FooterLight/>
+        <FooterLight />
       </div>
     </>
   );

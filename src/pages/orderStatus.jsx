@@ -26,79 +26,97 @@ function OrderStatus() {
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const transactionIdParam = searchParams.get("id");
+    const orderIdParam = searchParams.get("orderId");
 
-    if (!transactionIdParam) {
-      setErrorMessage("No se encontró un ID de transacción en la URL.");
-      return;
+    if (transactionIdParam) {
+      setTransactionId(transactionIdParam);
+      fetchOrderStatusWithTransactionId(transactionIdParam);
+    } else if (orderIdParam) {
+      fetchOrderStatusWithOrderId(orderIdParam);
+    } else {
+      setErrorMessage("No se encontró un ID de transacción ni de orden en la URL.");
     }
-
-    setTransactionId(transactionIdParam);
-
-    axios.get(`https://sandbox.wompi.co/v1/transactions/${transactionIdParam}`)
-      .then(async (response) => {
-        const transactionData = response.data?.data;
-
-        if (!transactionData) {
-          setErrorMessage("No se pudieron obtener los datos de la transacción.");
-          return;
-        }
-
-        setTransactionStatus(transactionData.status);
-
-        if (transactionData.status === "APPROVED") {
-          const orderId = transactionData.reference;
-          
-          clearCart();
-
-          try {
-            await axios.patch(`https://loocal.co/api/orders/order/${orderId}/`, {
-              payment_status: "completed",
-            });
-          } catch (error) {
-            console.error("Error al actualizar el estado de pago:", error);
-            setErrorMessage("No se pudo actualizar el estado de pago.");
-            return;
-          }
-
-          try {
-            const orderResponse = await axios.get(`https://loocal.co/api/orders/customid/${orderId}/`);
-            let orderData = orderResponse.data;
-
-            if (Array.isArray(orderData) && orderData.length > 0) {
-              orderData = orderData[0];
-            }
-
-            if (!orderData || !orderData.items) {
-              console.warn("La respuesta de la orden no contiene items:", orderData);
-              setErrorMessage("No se encontraron los detalles de los productos en la orden.");
-              return;
-            }
-
-            const detailedItems = await Promise.all(
-              orderData.items.map(async (item) => {
-                const productData = await fetchProductById(item.product);
-                return {
-                  ...item,
-                  productDetails: productData,
-                  image: item.product_variation?.image || productData?.image || "https://via.placeholder.com/100",
-                };
-              })
-            );
-
-            setOrderDetails({ ...orderData, items: detailedItems });
-          } catch (error) {
-            console.error("Error al obtener los detalles de la orden:", error);
-            setErrorMessage("Error al obtener los detalles de la orden.");
-          }
-        } else {
-          setErrorMessage(`Estado de la transacción en Wompi: ${transactionData.status}`);
-        }
-      })
-      .catch((error) => {
-        setErrorMessage("Error al obtener el estado de la transacción.");
-        console.error("Error al obtener la transacción desde Wompi:", error);
-      });
   }, [location.search]);
+
+  // Caso: Pago en línea, con transactionId
+  const fetchOrderStatusWithTransactionId = async (transactionIdParam) => {
+    try {
+      const response = await axios.get(`https://sandbox.wompi.co/v1/transactions/${transactionIdParam}`);
+      const transactionData = response.data?.data;
+
+      if (!transactionData) {
+        setErrorMessage("No se pudieron obtener los datos de la transacción.");
+        return;
+      }
+
+      setTransactionStatus(transactionData.status);
+
+      if (transactionData.status === "APPROVED") {
+        const orderId = transactionData.reference;
+        clearCart();
+
+        try {
+          await axios.patch(`https://loocal.co/api/orders/order/${orderId}/`, {
+            payment_status: "completed",
+          });
+          fetchOrderDetails(orderId);
+        } catch (error) {
+          console.error("Error al actualizar el estado de pago:", error);
+          setErrorMessage("No se pudo actualizar el estado de pago.");
+        }
+      } else {
+        setErrorMessage(`Estado de la transacción en Wompi: ${transactionData.status}`);
+      }
+    } catch (error) {
+      console.error("Error al obtener la transacción desde Wompi:", error);
+      setErrorMessage("Error al obtener el estado de la transacción.");
+    }
+  };
+
+  // Caso: Pago contra entrega, con orderId
+  const fetchOrderStatusWithOrderId = async (orderIdParam) => {
+    try {
+      clearCart();
+      fetchOrderDetails(orderIdParam);
+    } catch (error) {
+      console.error("Error al recuperar la orden:", error);
+      setErrorMessage("Error al recuperar los detalles de la orden.");
+    }
+  };
+
+  // Función para obtener los detalles de la orden
+  const fetchOrderDetails = async (orderId) => {
+    try {
+      const orderResponse = await axios.get(`https://loocal.co/api/orders/customid/${orderId}/`);
+      let orderData = orderResponse.data;
+
+      if (Array.isArray(orderData) && orderData.length > 0) {
+        orderData = orderData[0];
+      }
+
+      if (!orderData || !orderData.items) {
+        console.warn("La respuesta de la orden no contiene items:", orderData);
+        setErrorMessage("No se encontraron los detalles de los productos en la orden.");
+        return;
+      }
+
+      const detailedItems = await Promise.all(
+        orderData.items.map(async (item) => {
+          const productData = await fetchProductById(item.product);
+          return {
+            ...item,
+            productDetails: productData,
+            image: item.product_variation?.image || productData?.image || "https://via.placeholder.com/100",
+          };
+        })
+      );
+
+      setOrderDetails({ ...orderData, items: detailedItems });
+    } catch (error) {
+      console.error("Error al obtener los detalles de la orden:", error);
+      setErrorMessage("Error al obtener los detalles de la orden.");
+    }
+  };
 
   // Función para mostrar las variantes correctamente
   const formatAttributeData = (attributeData) => {
@@ -120,7 +138,7 @@ function OrderStatus() {
       ) : (
         <>
           <p>ID de la Transacción: {transactionId}</p>
-          <p>Estado de la Transacción: {transactionStatus}</p>
+          <p>Estado de la Transacción: {transactionStatus || 'Pendiente de confirmación'}</p>
 
           {orderDetails && (
             <div className={styles.orderSummary}>

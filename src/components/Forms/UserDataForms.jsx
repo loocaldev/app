@@ -1,8 +1,6 @@
-// src/components/UserDataForm.jsx
-
 import React from "react";
 import { indicativos } from "../../data/indicativos";
-import styles from "../../styles/NewCheckout.module.css"; // Asegúrate de importar el archivo de estilos adecuado
+import styles from "../../styles/NewCheckout.module.css";
 
 const UserDataForm = ({ formData, onChange, onPhoneCodeChange }) => {
   return (
@@ -54,10 +52,13 @@ const UserDataForm = ({ formData, onChange, onPhoneCodeChange }) => {
             <select
               name="phoneCode"
               value={formData.phoneCode}
-              onChange={onPhoneCodeChange}
+              onChange={onPhoneCodeChange} // Cambiado a onPhoneCodeChange
             >
-              {indicativos.map((indicativo) => (
-                <option key={indicativo.code} value={indicativo.code}>
+              {indicativos.map((indicativo, index) => (
+                <option
+                  key={`${indicativo.code}-${index}`} // Combinamos el código con el índice
+                  value={indicativo.code}
+                >
                   {`${indicativo.abbreviation} (${indicativo.code})`}
                 </option>
               ))}

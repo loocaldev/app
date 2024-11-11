@@ -1,0 +1,157 @@
+@import "./variables.css";
+
+.content-order-status {
+  width: auto;
+  margin: 0px auto;
+}
+
+.box-receipt {
+  background-color: #fff;
+  padding: 12px;
+  border-radius: 16px;
+  width: 880px;
+  max-width: 880px;
+}
+
+.receipt-header-row img {
+  margin-top: 0px;
+}
+
+.receipt-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.receipt-header-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0px;
+}
+
+.receipt-header-row:first-child span {
+    font-size: 14px;
+    color: var(--gray-3);
+}
+
+.payment-status {
+  background-color: #eaf2ea;
+  border-radius: 16px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.payment-status svg {
+  stroke: #2f7e33;
+}
+
+.receipt-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.receipt-section-title {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  color: var(--gray-3);
+}
+
+.receipt-section-title span {
+    font-size: 14px;
+}
+
+.receipt-section-title hr {
+  width: 100%;
+  border: none;
+  background: var(--gray-5);
+  height: 1px;
+}
+
+.receipt-section-content {
+    display: flex;
+    flex-direction: row;
+    gap: 4px;
+    padding: 4px 0px;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.receipt-section-content span {
+    color: var(--gray-3);
+    font-size: 14px;
+}
+
+.section-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.section-column:last-child {
+    text-align: end;
+}
+
+.receipt-resume-order {
+    display: flex;
+    flex-direction: row;
+    gap: 4px;
+    border-top: 1px solid;
+    border-color: var(--gray-5);
+    padding: 12px 0px;
+    margin-top: 8px;
+}
+
+.resume-order-column {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    
+}
+
+.resume-order-column:first-child span {
+    font-size: 14px;
+}
+
+.resume-order-column:last-child span {
+    text-align: right;
+    font-size: 12px;
+}
+
+.resume-order-column:last-child span:first-child {
+    color: var(--gray-3);
+    text-decoration: line-through;
+}
+
+.resume-order-column:last-child span:nth-child(2){
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.receipt-items {
+    background-color: var(--gray-5);
+    padding: 2px 12px;
+    border-radius: 16px;
+}
+
+.receipt-items ul {
+    padding: 0px;
+    list-style: none;
+}
+
+.receipt-item {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.item-detail {
+    display: flex;
+    gap: 12px;
+}
