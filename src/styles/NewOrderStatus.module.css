@@ -9,8 +9,7 @@
   background-color: #fff;
   padding: 12px;
   border-radius: 16px;
-  width: 880px;
-  max-width: 880px;
+  max-width: 100%;
 }
 
 .receipt-header-row img {
@@ -144,7 +143,7 @@
     list-style: none;
 }
 
-.receipt-item {
+.receipt-item { 
     display: flex;
     gap: 12px;
     width: 100%;
@@ -154,4 +153,29 @@
 .item-detail {
     display: flex;
     gap: 12px;
+}
+
+@media screen and (max-width: 768px) {
+  .content-multirow {
+    display: flex;
+    flex-direction: column;
+  }
+  .receipt-section {
+    display: flex;
+    flex-direction: column;
+  }
+  .receipt-section-content {
+    display: flex;
+    flex-direction: column;
+  }
+  .section-column:last-child {
+    text-align: start;
+  }
+  .resume-order-column:last-child span {
+    text-align: left;
+  }
+  .receipt-resume-order {
+    display: flex;
+    flex-direction: column;
+  }
 }
