@@ -6,7 +6,7 @@
   flex-direction: column;
   text-align: center;
   flex-wrap: wrap;
-  padding: 130px 1rem 1rem 1rem;
+  padding: 1rem 1rem 1rem 1rem;
   min-height: 70vh;
   text-align: left;
 }
@@ -26,11 +26,14 @@
   .Layout {
     padding: 6rem 1rem;
   }
+  .CanvasPage {
+    padding: 0px;
+  }
 }
 
 @media screen and (min-width: 1920px) {
   .Layout {
-    padding: 0.1rem 1rem;
+    padding: 1rem 1rem;
     max-width: 1580px;
   }
 }

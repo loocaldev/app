@@ -39,7 +39,6 @@
   background-color: var(--organe-alpha-color);
   color: var(--secondary-organge-color);
   border-radius: 16px;
-  padding: 2px 6px;
   top: 0;
   left: 0;
 }
@@ -79,6 +78,10 @@
     display: none;
 }
 
+.product-variable span {
+    font-size: 12   px;
+}
+
 .product-variables select {
   padding: 2px;
 }
@@ -93,6 +96,7 @@
 .product-price {
   display: flex;
   flex-direction: column;
+  
 }
 
 .product-box-second {
@@ -137,6 +141,7 @@
   text-align: right;
   align-items: center;
   gap: 4px;
+  flex-wrap: wrap;
 }
 
 .product-priceMain p {
@@ -160,7 +165,7 @@
   font-weight: 300;
   font-style: italic;
   color: var(--gray-3);
-  font-size: 10px !important;
+  font-size: 12px !important;
   line-height: 16px;
   text-align: right;
 }

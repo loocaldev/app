@@ -5,6 +5,7 @@
   border-radius: 16px;
   padding: 12px;
   min-width: 180px;
+  max-width: 180px;
   background-color: #fff;
 }
 
@@ -190,3 +191,4 @@
   pointer-events: none;
   cursor: not-allowed;
 }
+

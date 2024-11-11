@@ -25,6 +25,8 @@ import Category from "./pages/Category.jsx";
 import Profile from "./pages/Profile.jsx";
 import Payment from "./pages/Payment.jsx";
 import CreateProfile from "./pages/CreateProfile.jsx";
+import NewOrder from "./pages/NewOrder.jsx";
+import NewCheckout from "./pages/NewCheckout.jsx";
 
 const router = createBrowserRouter([
   {
@@ -35,8 +37,8 @@ const router = createBrowserRouter([
       { path: "/tienda", element: <Store /> },
       { path: "/tienda/:categoryName", element: <Category />},
       { path: "/login", element: <Login /> },
-      { path: "/order", element: <Order /> },
-      { path: "/checkout", element: <Checkout /> },
+      { path: "/order", element: <NewOrder /> },
+      { path: "/checkout", element: <NewCheckout /> },
       { path: "/pago", element: <Payment /> },
       { path: "/order-status", element: <OrderStatus /> },
       { path: "/login", element: <Login /> },

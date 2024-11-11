@@ -3,18 +3,19 @@
 .order-header {
   display: flex;
   flex-direction: column;
-  padding: 0px 24px;
+  justify-content: center;
   position: fixed;
   width: 100%;
   box-sizing: border-box;
-  left: 0;
   background-color: white;
-  padding-top: 24px;
+  min-height: 60px;
+  max-height: 60px;
+  border: 1px solid var(--gray-5);
 }
 
 .header-content {
-    display: flex;
-    gap: 12px;
+  display: flex;
+  gap: 12px;
 }
 
 .divider-header {
@@ -24,7 +25,7 @@
 }
 
 .order-content {
-    margin-top: 60px;
+  margin-top: 60px;
   padding: 24px 0px;
   display: flex;
   flex-direction: column;
@@ -46,22 +47,22 @@
 }
 
 .order-subtotal-content {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .order-subtotal-content p {
-    font-weight: 800;
+  font-weight: 800;
 }
 
 .order-subtotal-button {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 6px;
-    color: var(--primay-purple-color);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  color: var(--primay-purple-color);
 }
 
 .order-subtotal-button p {
-    font-weight: 500;
+  font-weight: 500;
 }

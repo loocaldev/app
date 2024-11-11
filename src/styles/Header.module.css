@@ -1,7 +1,7 @@
 @import "./variables.css";
 
 .Header {
-  position: fixed;
+  position: sticky;
   z-index: 50;
   top: 0;
   width: 100%;

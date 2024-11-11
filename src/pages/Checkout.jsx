@@ -7,6 +7,7 @@ import "react-phone-input-2/lib/style.css";
 import toast, { Toaster } from "react-hot-toast";
 import { departamentosYMunicipios } from "../data/departamentosYMunicipios";
 import formatPriceToCOP from "../utils/formatPrice";
+import DatePicker from "../components/DatePicker";
 import TimePicker from "../components/TimePicker";
 import axios from "axios";
 import {
@@ -14,7 +15,7 @@ import {
   formatDateString,
   getAvailableHours,
 } from "../utils/dateTime";
-import DatePicker from "../components/DatePicker";
+
 
 function Checkout() {
   const { cart, subtotal, clearCart } = useCart();

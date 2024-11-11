@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
-import { useCart } from '../hooks/useCart'; 
-import formatPriceToCOP from "../utils/formatPrice"; // Formatear el precio
-import styles from "../styles/OrderStatus.module.css"; // Asegúrate de tener un estilo para OrderStatus
+import { useCart } from '../hooks/useCart';
+import formatPriceToCOP from "../utils/formatPrice";
+import styles from "../styles/OrderStatus.module.css";
 
 function OrderStatus() {
   const location = useLocation();
@@ -13,7 +13,6 @@ function OrderStatus() {
   const [orderDetails, setOrderDetails] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
 
-  // Función para obtener los productos completos desde la API por ID
   const fetchProductById = async (id) => {
     try {
       const response = await axios.get(`https://loocal.co/api/products/api/v1/products/${id}/`);
@@ -35,9 +34,7 @@ function OrderStatus() {
 
     setTransactionId(transactionIdParam);
 
-    // Realizar la solicitud GET al servidor de Wompi para obtener el estado de la transacción
-    axios
-      .get(`https://sandbox.wompi.co/v1/transactions/${transactionIdParam}`)
+    axios.get(`https://sandbox.wompi.co/v1/transactions/${transactionIdParam}`)
       .then(async (response) => {
         const transactionData = response.data?.data;
 
@@ -46,65 +43,74 @@ function OrderStatus() {
           return;
         }
 
-        console.log("Datos de la transacción:", transactionData);
-
-        // Actualizar el estado de la transacción
         setTransactionStatus(transactionData.status);
 
         if (transactionData.status === "APPROVED") {
           const orderId = transactionData.reference;
-          // Limpiar el carrito después de la aprobación de la transacción
-          clearCart(); 
+          
+          clearCart();
 
-          // Actualizar el estado de pago en el backend
-          await axios.patch(`https://loocal.co/api/orders/${orderId}/`, {
-            payment_status: "completed",  // Cambia el estado de pago a "completed"
-          });
-
-          // Obtener los detalles de la orden desde el backend
           try {
-            const orderResponse = await axios.get(`https://loocal.co/api/orders/${orderId}/`);
-            const orderData = orderResponse.data;
+            await axios.patch(`https://loocal.co/api/orders/order/${orderId}/`, {
+              payment_status: "completed",
+            });
+          } catch (error) {
+            console.error("Error al actualizar el estado de pago:", error);
+            setErrorMessage("No se pudo actualizar el estado de pago.");
+            return;
+          }
 
-            // Procesar cada producto de la orden para obtener más detalles
+          try {
+            const orderResponse = await axios.get(`https://loocal.co/api/orders/customid/${orderId}/`);
+            let orderData = orderResponse.data;
+
+            if (Array.isArray(orderData) && orderData.length > 0) {
+              orderData = orderData[0];
+            }
+
+            if (!orderData || !orderData.items) {
+              console.warn("La respuesta de la orden no contiene items:", orderData);
+              setErrorMessage("No se encontraron los detalles de los productos en la orden.");
+              return;
+            }
+
             const detailedItems = await Promise.all(
               orderData.items.map(async (item) => {
                 const productData = await fetchProductById(item.product);
-
-                if (productData) {
-                  // Agregar los detalles del producto al item
-                  return {
-                    ...item,
-                    productDetails: productData,
-                    image: item.product_variation?.image || productData.image, // Imagen del producto o de la variación
-                  };
-                }
-                return item; // En caso de error, devolvemos el item tal cual
+                return {
+                  ...item,
+                  productDetails: productData,
+                  image: item.product_variation?.image || productData?.image || "https://via.placeholder.com/100",
+                };
               })
             );
 
-            // Guardar los detalles completos de la orden
-            setOrderDetails({
-              ...orderData,
-              items: detailedItems, // Actualizamos los items con más detalles
-            });
+            setOrderDetails({ ...orderData, items: detailedItems });
           } catch (error) {
             console.error("Error al obtener los detalles de la orden:", error);
             setErrorMessage("Error al obtener los detalles de la orden.");
           }
         } else {
-          console.log(`Estado de la transacción: ${transactionData.status}`);
+          setErrorMessage(`Estado de la transacción en Wompi: ${transactionData.status}`);
         }
       })
       .catch((error) => {
-        if (error.response && error.response.status === 404) {
-          setErrorMessage("Transacción no encontrada. Verifica el ID.");
-        } else {
-          setErrorMessage("Error al obtener el estado de la transacción.");
-        }
+        setErrorMessage("Error al obtener el estado de la transacción.");
         console.error("Error al obtener la transacción desde Wompi:", error);
       });
   }, [location.search]);
+
+  // Función para mostrar las variantes correctamente
+  const formatAttributeData = (attributeData) => {
+    return Object.entries(attributeData)
+      .map(([attributeName, attributeValues]) => {
+        const values = Array.isArray(attributeValues)
+          ? attributeValues.map((value) => value.name).join(", ")
+          : attributeValues;
+        return `${attributeName}: ${values}`;
+      })
+      .join("; ");
+  };
 
   return (
     <div>
@@ -122,26 +128,25 @@ function OrderStatus() {
               <p><strong>Nombre:</strong> {orderDetails.firstname} {orderDetails.lastname}</p>
               <p><strong>Email:</strong> {orderDetails.email}</p>
               <p><strong>Teléfono:</strong> {orderDetails.phone}</p>
-              <p><strong>Total:</strong> {formatPriceToCOP(orderDetails.subtotal)}</p>
+              <p><strong>Total:</strong> {formatPriceToCOP(orderDetails.total)}</p>
 
-              {/* Mostrar fecha y hora de entrega */}
-              <p><strong>Fecha de Entrega:</strong> {orderDetails.fechaEntrega || 'No seleccionada'}</p>
-              <p><strong>Hora de Entrega:</strong> {orderDetails.horaEntrega || 'No seleccionada'}</p>
+              <p><strong>Fecha de Entrega:</strong> {orderDetails.delivery_date || 'No seleccionada'}</p>
+              <p><strong>Hora de Entrega:</strong> {orderDetails.delivery_time || 'No seleccionada'}</p>
 
               <h3>Productos:</h3>
               <div className={styles.productList}>
-                {orderDetails.items.map((item) => (
+                {orderDetails.items && orderDetails.items.map((item) => (
                   <div key={item.product} className={styles.productItem}>
                     <img
-                      src={item.image || "https://via.placeholder.com/100"} // Mostrar imagen o placeholder si no hay imagen
+                      src={item.image}
                       alt={item.productDetails?.name || "Producto"}
                       className={styles.productImage}
                     />
                     <div>
-                      <p><strong>{item.productDetails?.name}</strong></p>
+                      <p><strong>{item.productDetails?.name || "Producto desconocido"}</strong></p>
                       <p>{item.quantity} x {formatPriceToCOP(item.unit_price)}</p>
-                      {item.product_variation && (
-                        <p>Variante: {item.product_variation.attribute_options.map(opt => opt.name).join(", ")}</p>
+                      {item.product_variation && item.product_variation.attribute_data && (
+                        <p>Variante: {formatAttributeData(item.product_variation.attribute_data)}</p>
                       )}
                     </div>
                   </div>

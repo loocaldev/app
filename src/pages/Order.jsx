@@ -3,6 +3,7 @@ import React from "react";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { useCart } from "../hooks/useCart";
 import ProductCard from "../components/ProductCard";
+import ProductCardHZRead from "../components/ProductCardHZRead";
 import { useNavigate } from "react-router-dom";
 import styles from "../styles/Order.module.css";
 
@@ -34,12 +35,11 @@ function Order() {
           <FiChevronLeft onClick={() => window.history.back()} />
           <h2>Resumen de tu compra</h2>
         </div>
-        <hr className={styles["divider-header"]} />
       </div>
 
       <div className={styles["order-content"]}>
         {cart.map((product) => (
-          <ProductCard key={product.id} product={product} />
+          <ProductCardHZRead key={product.id} product={product} />
         ))}
       </div>
 

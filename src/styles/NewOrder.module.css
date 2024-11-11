@@ -1,0 +1,122 @@
+@import "./variables.css";
+
+.canvas-container {
+  min-height: 100vh;
+  min-width: 100%;
+}
+
+.canvas-box {
+  padding: 0px 12px;
+  position: relative;
+}
+
+.canvas-header {
+  padding: 8px 0px 0px;
+  border-radius: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: transparent;
+  backdrop-filter: blur(10px);
+}
+
+.header-first {
+  padding: 8px 16px;
+  background-color: #fff;
+  border-radius: 16px 16px 0px 0px;
+  display: flex;
+  gap: 4px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-first h1 {
+  font-size: 24px;
+  line-height: 32px;
+}
+
+.header-logo {
+    cursor: pointer;
+}
+
+.header-title {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.buttons-profile {
+  display: flex;
+  gap: 6px;
+}
+
+.header-profile button:first-child {
+  background-color: transparent;
+  color: var(--primary-purple-color);
+  padding: 0px;
+  border: none;
+}
+
+.header-second {
+  display: flex;
+  background-color: var(--purple-alpha-color);
+  border-radius: 0px 0px 16px 16px;
+  justify-content: center;
+}
+
+.canvas-content {
+  padding: 8px 0px;
+}
+
+.order-content {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+}
+
+.canvas-action {
+  position: fixed;
+  bottom: 0;
+  padding: 12px 0px;
+  display: flex;
+  width: calc(100% - 24px);
+}
+
+.order-subtotal {
+  padding: 12px 24px;
+  background-color: #fff;
+  border-radius: 99px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.order-subtotal-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.order-subtotal-content p {
+  font-weight: 800;
+}
+
+.order-subtotal-button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  color: var(--primay-purple-color);
+  cursor: pointer;
+}
+
+.order-subtotal-button:hover {
+    color: var(--primary-purple-color);
+    stroke: var(--primary-purple-color);
+    transform: translateX(8px);
+}
+
+.order-subtotal-button p {
+  font-weight: 500;
+}
