@@ -8,6 +8,7 @@ import { useCart } from "../hooks/useCart";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import useScreenSize from "../hooks/useScreenSize.js";
+import ProductCardHZRead from "../components/ProductCardHZRead.jsx";
 
 const formatPriceToCOP = (price) => {
   const numericPrice = Number(price);
@@ -52,8 +53,6 @@ function NewOrder() {
   const toggleNavbar = () => {
     setIsNavbarOpen(!isNavbarOpen);
   };
-
-  
 
   const handleConfirmOrder = () => {
     // Redirigir al checkout con los datos del carrito y subtotal
@@ -149,29 +148,32 @@ function NewOrder() {
           <div className={styles["canvas-content"]}>
             <div className={styles["order-content"]}>
               {cart &&
-                cart.map((product) => (
-                  <ProductCardSQRead key={product.id} product={product} />
-                ))}
+                cart.map((product) =>
+                  isMobile ? (
+                    <ProductCardHZRead key={product.id} product={product} />
+                  ) : (
+                    <ProductCardSQRead key={product.id} product={product} />
+                  )
+                )}
             </div>
-            
           </div>
           <div className={styles["canvas-action"]}>
-              <div className={styles["order-subtotal"]}>
-                <div className={styles["order-subtotal-content"]}>
-                  <p>{formatPriceToCOP(subtotal)}</p>
-                  <span>
-                    {cart.length} {cart.length === 1 ? "producto" : "productos"}
-                  </span>
-                </div>
-                <div
-                  className={styles["order-subtotal-button"]}
-                  onClick={handleConfirmOrder}
-                >
-                  <p>Confirmar pedido</p>
-                  <FiChevronRight />
-                </div>
+            <div className={styles["order-subtotal"]}>
+              <div className={styles["order-subtotal-content"]}>
+                <p>{formatPriceToCOP(subtotal)}</p>
+                <span>
+                  {cart.length} {cart.length === 1 ? "producto" : "productos"}
+                </span>
+              </div>
+              <div
+                className={styles["order-subtotal-button"]}
+                onClick={handleConfirmOrder}
+              >
+                <p>Confirmar pedido</p>
+                <FiChevronRight />
               </div>
             </div>
+          </div>
         </div>
       </div>
     </>

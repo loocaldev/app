@@ -156,13 +156,17 @@
 }
 
 @media screen and (max-width: 768px) {
-  .content-multirow {
-    display: flex;
-    flex-direction: column;
+  .content-order-status {
+    margin: 0px;
+  }
+  .receipt-header-row {
+    flex-wrap: wrap;
+    row-gap: 8px;
   }
   .receipt-section {
     display: flex;
     flex-direction: column;
+    row-gap: 8px;
   }
   .receipt-section-content {
     display: flex;
@@ -173,6 +177,9 @@
   }
   .resume-order-column:last-child span {
     text-align: left;
+  }
+  .section-column {
+    row-gap: 4px;
   }
   .receipt-resume-order {
     display: flex;

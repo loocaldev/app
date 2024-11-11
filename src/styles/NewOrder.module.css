@@ -72,6 +72,7 @@
   display: flex;
   flex-direction: row;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .canvas-action {
@@ -119,4 +120,10 @@
 
 .order-subtotal-button p {
   font-weight: 500;
+}
+
+@media screen and (max-width: 768px) {
+  .order-content {
+    flex-direction: column;
+  }
 }
