@@ -403,7 +403,7 @@
 }
 
 
-@media screen and (max-width: 576px) {
+@media screen and (max-width: 768px) {
   .canvas-container {
     width: 100vw;
   }
@@ -432,9 +432,21 @@
     display: none;
   }
 
+  .content-multirow {
+    position: relative;
+  }
   .row-two .box:last-child {
+    display: none;
+  }
+
+  .mobile-box-resume {
     position: sticky;
-    bottom: 12px;
+    bottom: 0;
+    background-color: #fff;
+    border-radius: 16px;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+    padding: 12px;
+    z-index: 10;
   }
 
   body {

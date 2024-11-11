@@ -436,6 +436,70 @@ function NewCheckout() {
     }
   };
 
+  const BoxResume = ({
+    totalDiscount,
+    paymentDiscount,
+    discountInfo,
+    finalTotal,
+    handleConfirmOrder,
+    errors,
+    attemptedSubmit,
+    requiredFields,
+  }) => (
+    <div className={styles["box-resume"]}>
+      <div className={styles["box-resume-discount"]}>
+        {totalDiscount > 0 && (
+          <>
+            <div className={styles["discount-message"]}>
+              <span>¡Enhorabuena! Se han aplicado descuentos</span>
+              <span>{formatPriceToCOP(totalDiscount)}</span>
+            </div>
+            <div className={styles["discount-detail"]}>
+              {paymentDiscount > 0 && (
+                <div className={styles["discount-detail-item"]}>
+                  <span>Descuento por pago online</span>
+                  <span>{formatPriceToCOP(paymentDiscount)}</span>
+                </div>
+              )}
+              {discountInfo && (
+                <div className={styles["discount-detail-item"]}>
+                  <span>Descuento por código</span>
+                  <span>{formatPriceToCOP(discountInfo.discount_value)}</span>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+      <div className={styles["box-resume-info"]}>
+        <div className={styles["box-resume-info-value"]}>
+          <span>Subtotal:</span>
+          <h4>{formatPriceToCOP(finalTotal)}</h4>
+        </div>
+        <div className={styles["box-completed"]}>
+          <button
+            onClick={handleConfirmOrder}
+            className={`${styles["button"]} ${
+              errors.length > 0 && attemptedSubmit
+                ? styles["button-disabled"]
+                : ""
+            }`}
+          >
+            Confirmar compra
+          </button>
+        </div>
+      </div>
+      {attemptedSubmit && errors.length > 0 && (
+        <div className={styles["box-resume-error"]}>
+          <div className={styles["error-messages"]}>
+            <p>Por favor completa los siguientes campos:</p>
+            <p>{errors.map((error) => requiredFields[error]).join(", ")}</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <>
       <div className={styles["canvas-container"]}>
@@ -766,75 +830,37 @@ function NewCheckout() {
                     </form>
                   </div>
                 </div>
-
                 <div className={styles["box"]}>
-                  <div className={styles["box-resume"]}>
-                    <div className={styles["box-resume-discount"]}>
-                      {/* Condicional para mostrar mensaje solo si hay descuentos */}
-                      {totalDiscount > 0 && (
-                        <>
-                          <div className={styles["discount-message"]}>
-                            <span>
-                              ¡Enhorabuena! Se han aplicado descuentos
-                            </span>
-                            <span>{formatPriceToCOP(totalDiscount)}</span>
-                          </div>
-                          <div className={styles["discount-detail"]}>
-                            {/* Mostrar descuento por pago online */}
-                            {paymentDiscount > 0 && (
-                              <div className={styles["discount-detail-item"]}>
-                                <span>Descuento por pago online</span>
-                                <span>{formatPriceToCOP(paymentDiscount)}</span>
-                              </div>
-                            )}
-                            {/* Mostrar descuento por código promocional si se aplicó */}
-                            {discountInfo && (
-                              <div className={styles["discount-detail-item"]}>
-                                <span>Descuento por código</span>
-                                <span>
-                                  {formatPriceToCOP(
-                                    discountInfo.discount_value
-                                  )}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        </>
-                      )}
-                    </div>
-                    <div className={styles["box-resume-info"]}>
-                      <div className={styles["box-resume-info-value"]}>
-                        <span>Subtotal:</span>
-                        <h4>{formatPriceToCOP(finalTotal)}</h4>
-                      </div>
-                      <div className={styles["box-completed"]}>
-                        <button
-                          onClick={handleConfirmOrder}
-                          className={`${styles["button"]} ${
-                            errors.length > 0 && attemptedSubmit
-                              ? styles["button-disabled"]
-                              : ""
-                          }`}
-                        >
-                          Confirmar compra
-                        </button>
-                      </div>
-                    </div>
-                    <div className={styles["box-resume-error"]}>
-                      {attemptedSubmit && errors.length > 0 && (
-                        <div className={styles["error-messages"]}>
-                          <p>Por favor completa los siguientes campos:</p>
-                          <p>
-                            {errors
-                              .map((error) => requiredFields[error])
-                              .join(", ")}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                  {!isMobile && (
+                    <BoxResume
+                      totalDiscount={totalDiscount}
+                      paymentDiscount={paymentDiscount}
+                      discountInfo={discountInfo}
+                      finalTotal={finalTotal}
+                      handleConfirmOrder={handleConfirmOrder}
+                      errors={errors}
+                      attemptedSubmit={attemptedSubmit}
+                      requiredFields={requiredFields}
+                    />
+                  )}
                 </div>
               </div>
+
+              {/* Renderiza el BoxResume fuera de row-two si estamos en móvil */}
+              {isMobile && (
+                <div className={styles["mobile-box-resume"]}>
+                  <BoxResume
+                    totalDiscount={totalDiscount}
+                    paymentDiscount={paymentDiscount}
+                    discountInfo={discountInfo}
+                    finalTotal={finalTotal}
+                    handleConfirmOrder={handleConfirmOrder}
+                    errors={errors}
+                    attemptedSubmit={attemptedSubmit}
+                    requiredFields={requiredFields}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>
