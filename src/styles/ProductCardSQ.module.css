@@ -21,9 +21,9 @@
 }
 
 .product-image img {
-  width: 100%;
-  height: auto;
-  object-fit: cover; /* Asegura que las imágenes se ajusten al contenedor */
+  width: 180px;
+  height: 100%;
+  object-fit: cover;
 }
 
 .promo-label {

@@ -43,16 +43,3 @@
 .product-not-found img {
   max-width: 180px;
 }
-
-@media screen and (max-width: 768px) {
-  .bannerProducts {
-    gap: 12px;
-    padding: 0 8px; /* Ajusta el padding en móviles */
-    max-width: 100vw;
-  }
-
-  .bannerProducts > * {
-    flex: 0 0 80%; /* Ajusta el tamaño de los productos en móviles */
-    min-width: 80%; /* Mantén los productos dentro del viewport */
-  }
-}

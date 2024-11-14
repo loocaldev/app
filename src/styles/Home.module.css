@@ -107,7 +107,7 @@
 
 .SecondProducts {
   width: 70%;
-  height: 70%;
+  height: auto;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
