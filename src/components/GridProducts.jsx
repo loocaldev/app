@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import ProductCardSQ from "./ProductCardSQ";
+import ProductCardHZ from "./ProductCardHZ";
 import styles from "../styles/GridProducts.module.css";
 import { useCart } from "../hooks/useCart";
 import character_loocal from "../assets/character_loocal.svg";
@@ -38,14 +39,18 @@ function GridProducts({ products, searchQuery, sortOrder, scrollRef }) {
 
   return (
     <div className={styles.productsContainer}>
-      <div className={styles.bannerProducts} ref={scrollRef}>
+      <div className={isMobile ? styles.mobileProductsList : styles.bannerProducts} ref={scrollRef}>
         {visibleProducts.length > 0 ? (
           visibleProducts.map((product, index) => (
-            <ProductCardSQ
-              key={product.id}
-              product={product}
-              ref={index === 0 ? productRef : null}
-            />
+            isMobile ? (
+              <ProductCardHZ key={product.id} product={product} />
+            ) : (
+              <ProductCardSQ
+                key={product.id}
+                product={product}
+                ref={index === 0 ? productRef : null}
+              />
+            )
           ))
         ) : (
           <div className={styles["product-not-found"]}>

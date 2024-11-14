@@ -76,7 +76,7 @@
 .cart-detailed-content {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 12px;
   overflow-y: auto;
   max-height: 580px;
   max-width: 520px;

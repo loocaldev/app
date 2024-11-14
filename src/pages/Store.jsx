@@ -9,6 +9,7 @@ import graphLoocal from "../assets/graphLoccal2024.png";
 import { getAllCategories, getAllProducts } from "../api/products.api";
 import ProductCardSquare from "../components/ProductCardSquare";
 import ProductCardSQRead from "../components/ProductCardSQRead";
+import GridProducts from '../components/GridProducts.jsx'
 import { useNavigate } from "react-router-dom";
 
 function Store() {
@@ -16,6 +17,7 @@ function Store() {
   const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState("az");
+  const [unitTypeFilter, setUnitTypeFilter] = useState("all");
   const [isScrollable, setIsScrollable] = useState({});
 
   const scrollRefs = useRef([]);
@@ -52,6 +54,31 @@ function Store() {
 
   const handleSort = (order) => {
     setSortOrder(order);
+  };
+
+  const handleSortChange = (order) => {
+    setSortOrder(order);
+  };
+
+  const handleUnitTypeFilterChange = (e) => {
+    setUnitTypeFilter(e.target.value);
+  };
+
+  const getFilteredProducts = () => {
+    let filtered = products;
+
+    if (unitTypeFilter === "weight_volume") {
+      filtered = filtered.filter((p) => p.unit_type === "weight_volume");
+    } else if (unitTypeFilter === "package") {
+      filtered = filtered.filter((p) => p.unit_type === "package");
+    }
+
+    if (sortOrder === "priceAsc") {
+      return filtered.sort((a, b) => a.price - b.price);
+    } else if (sortOrder === "priceDesc") {
+      return filtered.sort((a, b) => b.price - a.price);
+    }
+    return filtered;
   };
 
   // Verificar si hay scroll en el contenedor

@@ -55,6 +55,7 @@
   flex-shrink: 0;
   display: inline-block;
   min-width: 80px;
+  cursor: pointer;
 }
 
 .button-option:hover {

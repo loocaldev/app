@@ -56,6 +56,11 @@
   width: 100%;
 }
 
+.product-variable span {
+  font-size: 14px;
+  color: var(--gray-3);
+}
+
 .product-variables select {
   padding: 2px;
 }
