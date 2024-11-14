@@ -6,7 +6,8 @@ import { FaAngleDown, FaAngleUp } from "react-icons/fa";
 import useScreenSize from "../hooks/useScreenSize";
 import styles from "../styles/Category.module.css";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
-import ProductCardHZ from '../components/ProductCardHZ.jsx'
+import ProductCardHZ from "../components/ProductCardHZ.jsx";
+import useSticky from "../hooks/useSticky.js";
 
 function Category() {
   const { categoryName } = useParams();
@@ -16,6 +17,7 @@ function Category() {
   const [unitTypeFilter, setUnitTypeFilter] = useState("all");
   const [isTopNavOpen, setIsTopNavOpen] = useState(true);
   const isMobile = useScreenSize(); // Detectar si es móvil
+  const isSticky = useSticky();
 
   useEffect(() => {
     if (categoryName) {
@@ -88,7 +90,7 @@ function Category() {
 
   return (
     <div className={styles["container"]}>
-      <div className={styles["container-top"]}>
+      <div className={`${styles['container-top']} ${isSticky ? styles['sticky-active'] : ''}`}>
         <div className={styles["title-search"]}>
           <h2>
             {categoryName.charAt(0).toUpperCase() + categoryName.slice(1)}
@@ -107,7 +109,6 @@ function Category() {
               >
                 {isTopNavOpen ? "Cerrar" : "Filtrar"}
                 {isTopNavOpen ? <IoIosArrowUp /> : <IoIosArrowDown />}{" "}
-                
               </button>
             )}
           </div>
@@ -144,11 +145,13 @@ function Category() {
       </div>
 
       {/* Mostrar productos filtrados */}
-      <GridProducts
-        products={getFilteredProducts()}
-        searchQuery={searchQuery}
-        sortOrder={sortOrder}
-      />
+      <div className={styles["content-category"]}>
+        <GridProducts
+          products={getFilteredProducts()}
+          searchQuery={searchQuery}
+          sortOrder={sortOrder}
+        />
+      </div>
     </div>
   );
 }
