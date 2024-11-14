@@ -9,6 +9,7 @@ import graphLoocal from "../assets/graphLoccal2024.png";
 import { getAllCategories, getAllProducts } from "../api/products.api";
 import ProductCardSquare from "../components/ProductCardSquare";
 import ProductCardSQRead from "../components/ProductCardSQRead";
+import { useNavigate } from "react-router-dom";
 
 function Store() {
   const [categories, setCategories] = useState([]);
@@ -19,6 +20,7 @@ function Store() {
 
   const scrollRefs = useRef([]);
   const productRef = useRef(null);
+  const navigate = useNavigate();
 
   // Cargar productos y categorías desde la API
   useEffect(() => {
@@ -94,9 +96,9 @@ function Store() {
       <div className={styles.sidebar}>
         <div className={styles["sidebar-title"]}>
           <h2>Tienda</h2>
-          {/* <img src={graphLoocal} /> */}
+          <img src={graphLoocal} />
         </div>
-        <div className={styles["sidebar-nav"]}>
+        {/* <div className={styles["sidebar-nav"]}>
           <nav>
             <ul>
               <li>
@@ -113,7 +115,7 @@ function Store() {
               </li>
             </ul>
           </nav>
-        </div>
+        </div> */}
       </div>
       <div className={styles.content}>
         {/* <SearchBar onSearch={handleSearch} />
@@ -124,7 +126,7 @@ function Store() {
             onClick={() => navigate("/tienda")}
             className={styles["button-option"]}
           >
-            <span>Ver toda la tienda</span>
+            <span>Promociones</span>
           </div>
           <div
             onClick={() => navigate("/tienda")}

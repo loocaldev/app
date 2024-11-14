@@ -32,7 +32,7 @@
   display: flex;
   flex-direction: row;
   overflow-x: scroll;
-  gap: 8px;
+  gap: 12px;
   margin: 12px 0px;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
@@ -47,18 +47,59 @@
 }
 
 .button-option {
-  border-radius: 99px;
+  border-radius: 16px;
   background-color: var(--purple-alpha-color);
   color: var(--primary-purple-color);
-  padding: 2px 12px;
+  padding: 48px 12px 8px;
   white-space: nowrap;
   flex-shrink: 0;
   display: inline-block;
+  min-width: 80px;
 }
 
 .button-option:hover {
   background-color: var(--primary-purple-color);
   color: var(--purple-alpha-color);
+}
+
+.button-option:nth-child(1) {
+  background-color: #ede8ef;
+  color: #44175b;
+}
+
+.button-option:nth-child(1):hover {
+  background-color: #44175b;
+  color: #ede8ef;
+}
+
+.button-option:nth-child(2) {
+  background-color: #fef2ec;
+  color: #f27c40;
+}
+
+.button-option:nth-child(2):hover {
+  background-color: #f27c40;
+  color: #fef2ec;
+}
+
+.button-option:nth-child(3) {
+  background-color: #f4f9f3;
+  color: #8cc084;
+}
+
+.button-option:nth-child(3):hover {
+  background-color: #8cc084;
+  color: #f4f9f3;
+}
+
+.button-option:nth-child(4) {
+  background-color: #e7f1f1;
+  color: #0f7173;
+}
+
+.button-option:nth-child(4):hover {
+  background-color: #0f7173;
+  color: #e7f1f1;
 }
 
 .button-option span {
@@ -104,6 +145,7 @@
 
 .content-section {
   display: grid;
+  margin-top: 12px;
 }
 
 .content-section-header {
@@ -127,6 +169,11 @@
   background-color: var(--purple-alpha-color);
 }
 
+a span {
+  color: var(--primary-purple-color);
+}
+
+
 @media screen and (max-width: 768px) {  
   .container {
     flex-direction: column;
@@ -139,6 +186,11 @@
 
   .content {  
     max-width: 100vw;
-    padding: 0 16px;
+    padding: 0 8px;
+    background-color: #f8f8f8;
+  }
+  h3 {
+    font-size: 24px;
+    line-height: 32px;
   }
 }
