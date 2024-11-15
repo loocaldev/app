@@ -181,7 +181,7 @@ export const AuthProvider = ({ children }) => {
           "X-CSRFToken": getCSRFToken(),
         },
       });
-  
+
       if (response.ok) {
         const data = await response.json();
         console.log("Órdenes del usuario:", data);
@@ -206,14 +206,17 @@ export const AuthProvider = ({ children }) => {
           "X-CSRFToken": getCSRFToken(),
         },
       });
-  
+
       if (response.ok) {
         const data = await response.json();
-  
+
         // Ordenar para que la dirección principal esté siempre al inicio
         const sortedAddresses = data.sort((a, b) => (a.is_default ? -1 : 1));
         setAddresses(sortedAddresses);
-        console.log("Direcciones recibidas desde API en AuthContext:", sortedAddresses);
+        console.log(
+          "Direcciones recibidas desde API en AuthContext:",
+          sortedAddresses
+        );
       } else {
         throw new Error("Failed to fetch addresses");
       }
@@ -224,15 +227,18 @@ export const AuthProvider = ({ children }) => {
 
   const updateAddress = async (id, updatedAddress) => {
     try {
-      const response = await fetch(`https://loocal.co/api/update_address/${id}/`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Token ${token}`,
-          "Content-Type": "application/json",
-          "X-CSRFToken": getCSRFToken(),
-        },
-        body: JSON.stringify(updatedAddress),
-      });
+      const response = await fetch(
+        `https://loocal.co/api/update_address/${id}/`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Token ${token}`,
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCSRFToken(),
+          },
+          body: JSON.stringify(updatedAddress),
+        }
+      );
       if (response.ok) {
         const data = await response.json();
         console.log("Dirección actualizada con éxito:", data);
@@ -257,7 +263,7 @@ export const AuthProvider = ({ children }) => {
         },
         body: JSON.stringify({ ...addressData, is_default: isFirstAddress }),
       });
-  
+
       if (response.ok) {
         const data = await response.json();
         console.log("Address added successfully:", data);
@@ -273,28 +279,31 @@ export const AuthProvider = ({ children }) => {
       throw error;
     }
   };
-  
+
   const deleteAddress = async (id) => {
     try {
       const addressToDelete = addresses.find((address) => address.id === id);
-      const response = await fetch(`https://loocal.co/api/delete_address/${id}/`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Token ${token}`,
-          "X-CSRFToken": getCSRFToken(),
-        },
-      });
-  
+      const response = await fetch(
+        `https://loocal.co/api/delete_address/${id}/`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Token ${token}`,
+            "X-CSRFToken": getCSRFToken(),
+          },
+        }
+      );
+
       if (response.ok) {
         // Filtrar la dirección eliminada y verificar si era la predeterminada
         let updatedAddresses = addresses.filter((address) => address.id !== id);
-  
+
         // Si se eliminó la dirección predeterminada, configurar una nueva como predeterminada
         if (addressToDelete.is_default && updatedAddresses.length > 0) {
           const newPrimaryAddressId = updatedAddresses[0].id;
           await setPrimaryAddress(newPrimaryAddressId);
         }
-  
+
         getAddresses(); // Volver a obtener las direcciones para reflejar la lista actualizada y ordenada
       } else {
         throw new Error("Failed to delete address");
@@ -306,16 +315,19 @@ export const AuthProvider = ({ children }) => {
 
   const setPrimaryAddress = async (addressId) => {
     try {
-      const response = await fetch(`https://loocal.co/api/update_address/${addressId}/`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Token ${token}`,
-          "Content-Type": "application/json",
-          "X-CSRFToken": getCSRFToken(),
-        },
-        body: JSON.stringify({ is_default: true }), // Marcar como principal
-      });
-  
+      const response = await fetch(
+        `https://loocal.co/api/update_address/${addressId}/`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Token ${token}`,
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCSRFToken(),
+          },
+          body: JSON.stringify({ is_default: true }), // Marcar como principal
+        }
+      );
+
       if (response.ok) {
         console.log("Address marked as primary successfully.");
         getAddresses(); // Actualiza las direcciones para reflejar el cambio
@@ -336,9 +348,12 @@ export const AuthProvider = ({ children }) => {
           "Content-Type": "application/json",
           "X-CSRFToken": getCSRFToken(),
         },
-        body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
+        body: JSON.stringify({
+          current_password: currentPassword,
+          new_password: newPassword,
+        }),
       });
-  
+
       if (response.ok) {
         console.log("Password changed successfully");
         return true;
@@ -349,6 +364,56 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error("Error changing password:", error);
       return false;
+    }
+  };
+
+  const forgotPassword = async (email) => {
+    try {
+      const response = await fetch("https://loocal.co/api/forgot_password/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return { success: true, message: data.message };
+      } else {
+        const data = await response.json();
+        return {
+          success: false,
+          error: data.error || "Error al procesar la solicitud.",
+        };
+      }
+    } catch (error) {
+      return { success: false, error: "Error de red. Inténtalo más tarde." };
+    }
+  };
+
+  const resetPassword = async (token, newPassword) => {
+    try {
+      const response = await fetch("https://loocal.co/api/reset_password/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ token, new_password: newPassword }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return { success: true, message: data.message };
+      } else {
+        const data = await response.json();
+        return {
+          success: false,
+          error: data.error || "Error al restablecer la contraseña.",
+        };
+      }
+    } catch (error) {
+      return { success: false, error: "Error de red. Inténtalo más tarde." };
     }
   };
 
@@ -387,7 +452,9 @@ export const AuthProvider = ({ children }) => {
         deleteAddress,
         setPrimaryAddress,
         updateAddress,
-        changePassword
+        changePassword,
+        forgotPassword, // Agregado
+        resetPassword
       }}
     >
       {children}

@@ -30,6 +30,8 @@ import NewOrder from "./pages/NewOrder.jsx";
 import NewCheckout from "./pages/NewCheckout.jsx";
 import SearchResults from "./pages/SearchResults.jsx";
 import ForgotPassword from "./pages/ForgotPassword.jsx";
+import ResetPassword from "./pages/ResetPassword.jsx";
+import NotFound from "./pages/NotFound.jsx";
 
 const router = createBrowserRouter([
   {
@@ -50,6 +52,9 @@ const router = createBrowserRouter([
       { path: "/crear-perfil", element: <CreateProfile /> },
       { path: "/resultados", element: <SearchResults/> },
       { path: "/recuperar-contraseña", element: <ForgotPassword/> },
+      { path: "/reset-password", element: <ResetPassword/> },
+      { path: "/404", element: <NotFound/> },
+      { path: "*", element: <NotFound/> },
       { path: "/crear-cuenta/detalles",element: <AuthenticatedRoute component={CreateAccountDetail} />},
       { path: "/crear-cuenta/detalles/direccion",element: <AuthenticatedRoute component={CreateAccountDetailAddress} />},
       { path: "/perfil",element: <AuthenticatedRoute component={Profile} />},
