@@ -1,17 +1,21 @@
-import React, { useState } from 'react';
-import { useSwipeable } from 'react-swipeable'; // Importamos la librería de deslizamiento
-import styles from '../styles/Carousel.module.css';
-import classNames from 'classnames';
+import React, { useState } from "react";
+import { useSwipeable } from "react-swipeable"; // Importamos la librería de deslizamiento
+import styles from "../styles/Carousel.module.css";
+import classNames from "classnames";
+import { useNavigate } from "react-router-dom";
 
 const Carousel = ({ items }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const navigate = useNavigate();
 
   const nextSlide = () => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % items.length);
   };
 
   const prevSlide = () => {
-    setCurrentIndex((prevIndex) => (prevIndex - 1 + items.length) % items.length);
+    setCurrentIndex(
+      (prevIndex) => (prevIndex - 1 + items.length) % items.length
+    );
   };
 
   // Manejo de gestos con swipe
@@ -32,16 +36,22 @@ const Carousel = ({ items }) => {
       >
         {items.map((item, index) => (
           <div className={styles.carouselItem} key={index}>
-            <div className={styles.carouselBg} style={{ backgroundColor: `${item.background}` }}>
-              <div className={styles.carouselText}>
+            <div
+              className={styles.carouselBg}
+              style={{ backgroundColor: `${item.background}` }}
+            >
+              <div className={styles.carouselText} style={{ color: `${item.color}`}}>
                 <h3>{item.title}</h3>
                 <p>{item.subtitle}</p>
-                <button>{item.buttonText}</button>
+                {item.path && (
+                  <button style={{ backgroundColor: `${item.color}` }} onClick={() => navigate(item.path)}>
+                    {item.buttonText}
+                  </button>
+                )}
               </div>
               <div className={styles.carouselImg}>
-              <img src={item.image} alt={item.title} />
+                <img src={item.image} alt={item.title} />
               </div>
-              
             </div>
           </div>
         ))}
@@ -52,7 +62,9 @@ const Carousel = ({ items }) => {
         {items.map((_, index) => (
           <div
             key={index}
-            className={classNames(styles.indicator, { [styles.active]: index === currentIndex })}
+            className={classNames(styles.indicator, {
+              [styles.active]: index === currentIndex,
+            })}
             onClick={() => setCurrentIndex(index)}
           ></div>
         ))}

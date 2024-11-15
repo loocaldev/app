@@ -153,7 +153,7 @@ function Store() {
         <SortSelector onSort={handleSort} /> */}
         <div className={styles["button-carousel"]}>
           <div
-            onClick={() => navigate("/tienda/promociones")}
+            onClick={() => navigate("/tienda/promoción")}
             className={styles["button-option"]}
           >
             <span>Promociones</span>

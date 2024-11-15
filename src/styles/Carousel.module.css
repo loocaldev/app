@@ -51,13 +51,14 @@
   .carouselText h3 {
     font-size: 18px;
     font-weight: bold;
-    line-height: 0.6em;
+    line-height: 1.2em;
   }
   
   .carouselText p {
     font-size: 14px;
+    line-height: 1.2em;
     margin: 10px 0;
-    color: #555;
+    color: #1e1e1e;
   }
   
 .carouselImg {

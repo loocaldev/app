@@ -22,19 +22,22 @@ function Home() {
 
   const items = [
     {
-      title: "Primer envío gratis",
-      subtitle: "Recibe en casa sin costo adicional.",
+      title: "Primera compra con 10% de descuento.",
+      subtitle: "Usa el código PRIMERACOMPRA",
       buttonText: "Comprar ahora",
       image: graphLoocal,
       background: "#EDE8EF",
+      color: "#44175B",
+      path: "/tienda"
     },
     {
-      title: "Martes de promos",
-      subtitle: "Ofertas a mitad de precio.",
+      title: "Productos en oferta todos los días",
+      subtitle: "",
       buttonText: "Ver productos",
-      image:
-        "https://multimedia.wenia.com/790x760/6e9c69b135/adquiere-usdc.png",
+      image: graphLoocal,
+      color: "#F27C40",
       background: "#FEF2EC",
+      path: "/promoción"
     },
     // Agrega más elementos según sea necesario...
   ];
@@ -88,16 +91,16 @@ function Home() {
                 <div onClick={() => navigate("/tienda")} className={styles["button-option"]}>
                   <span>Ver toda la tienda</span>
                 </div>
-                <div onClick={() => navigate("/tienda")} className={styles["button-option"]}>
+                <div onClick={() => navigate("/tienda/frutas")} className={styles["button-option"]}>
                   <span>Frutas</span>
                 </div>
-                <div onClick={() => navigate("/tienda")} className={styles["button-option"]}>
+                <div onClick={() => navigate("/tienda/verduras")} className={styles["button-option"]}>
                   <span>Verduras</span>
                 </div>
-                <div onClick={() => navigate("/tienda")} className={styles["button-option"]}>
+                <div onClick={() => navigate("/tienda/granos")} className={styles["button-option"]}>
                   <span>Granos</span>
                 </div>
-                <div onClick={() => navigate("/tienda")} className={styles["button-option"]}>
+                <div onClick={() => navigate("/tienda/artesanal")} className={styles["button-option"]}>
                   <span>Artesanal</span>
                 </div>
               </div>

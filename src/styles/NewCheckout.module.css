@@ -414,8 +414,10 @@
 
 
 @media screen and (max-width: 768px) {
+
   .canvas-container {
     width: 100vw;
+    background-color: #f6f6f6;
   }
   .content-multirow {
     display: flex;

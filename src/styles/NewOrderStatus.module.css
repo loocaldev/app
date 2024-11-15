@@ -158,6 +158,8 @@
 @media screen and (max-width: 768px) {
   .content-order-status {
     margin: 0px;
+    border-radius: 16px;
+    border: 1px solid var(--gray-5);
   }
   .receipt-header-row {
     flex-wrap: wrap;
