@@ -51,12 +51,12 @@ function Header() {
 
   useEffect(() => {
     const fetchSuggestions = async () => {
+      // Evitar búsqueda si el campo está vacío
       if (searchNavQuery.trim() === "") {
         setSuggestions([]);
         setIsDropdownVisible(false);
         return;
       }
-
       try {
         const response = await getAllProducts();
         const filteredProducts = response.data.filter((product) =>
@@ -68,13 +68,19 @@ function Header() {
         console.error("Error fetching suggestions:", error);
       }
     };
-
     fetchSuggestions();
   }, [searchNavQuery]);
 
   const handleSearchChange = (e) => {
-    setsearchNavQuery(e.target.value);
-    setIsDropdownVisible(true);
+    const value = e.target.value;
+    setsearchNavQuery(value);
+
+    // Solo mostrar el dropdown si el campo tiene texto
+    if (value.trim() !== "") {
+      setIsDropdownVisible(true);
+    } else {
+      setIsDropdownVisible(false);
+    }
   };
 
   const handleSearchSubmit = () => {
@@ -200,7 +206,11 @@ function Header() {
                       placeholder="Buscar en Loocal..."
                       value={searchNavQuery}
                       onChange={handleSearchChange}
-                      onFocus={() => setIsDropdownVisible(true)}
+                      onFocus={() => {
+                        if (searchNavQuery.trim() !== "") {
+                          setIsDropdownVisible(true);
+                        }
+                      }}
                       ref={inputRef} 
                       // onBlur={handleBlur}
                     />
@@ -221,8 +231,12 @@ function Header() {
                       placeholder="Buscar en Loocal..."
                       value={searchNavQuery}
                       onChange={handleSearchChange}
-                      onFocus={() => setIsDropdownVisible(true)}
-                      onBlur={handleBlur}
+                      onFocus={() => {
+                        if (searchNavQuery.trim() !== "") {
+                          setIsDropdownVisible(true);
+                        }
+                      }}
+                      // onBlur={handleBlur}
                     />
                     <button
                       className={styles["searchButtonHeader"]}
