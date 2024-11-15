@@ -14,8 +14,7 @@ const ResetPassword = () => {
   const [isValidToken, setIsValidToken] = useState(true);
 
   useEffect(() => {
-    // Si no hay token en la URL, marcamos como inválido.
-    if (!token) {
+    if (!token || token.trim() === "") {
       setIsValidToken(false);
     }
   }, [token]);

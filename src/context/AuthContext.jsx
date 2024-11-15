@@ -401,7 +401,7 @@ export const AuthProvider = ({ children }) => {
         },
         body: JSON.stringify({ token, new_password: newPassword }),
       });
-
+  
       if (response.ok) {
         const data = await response.json();
         return { success: true, message: data.message };
