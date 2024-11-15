@@ -26,6 +26,7 @@ import toast from "react-hot-toast";
 import { departamentosYMunicipios } from "../data/departamentosYMunicipios"; // Este archivo ya debe estar en tu estructura
 import { indicativos } from "../data/indicativos";
 import FooterLight from "../components/FooterLight.jsx";
+import { formatDateString, getAvailableHours } from '../utils/dateTime.js';
 
 const formatPriceToCOP = (price) => {
   const numericPrice = Number(price);
@@ -140,13 +141,16 @@ function NewCheckout() {
     const days = [];
     const today = new Date();
 
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 8; i++) {
       const nextDate = new Date(today);
       nextDate.setDate(today.getDate() + i);
 
       // Formato ISO YYYY-MM-DD
       const formattedDate = nextDate.toISOString().split("T")[0];
+      // Solo agregar el día si tiene horas disponibles
+    if (getAvailableHours(formattedDate).length > 0) {
       days.push(formattedDate);
+    }
     }
 
     return days;

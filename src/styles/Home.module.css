@@ -217,6 +217,7 @@
     width: 100%;
     padding: 8px 2px;
     justify-content: start;
+    gap: 0px;
   }
 
   .FirstBanner {

@@ -5,7 +5,7 @@
   min-width: 100%;
 }
 
-.canvas-box {
+.canvas-box { 
   padding: 0px 12px;
   position: relative;
 }
@@ -192,6 +192,15 @@
   flex-grow: 1;
 }
 
+.date-time-picker-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.date-time-picker-container label {
+  text-align: left;
+}
+
 .date-option, .time-option {
   min-width: 80px; /* Ajusta según tus necesidades */
   border: 1px solid var(--gray-5);
@@ -288,6 +297,7 @@
 .label-main {
   display: flex;
   flex-direction: column;
+  text-align: left;
 }
 
 .label-main span:first-child {

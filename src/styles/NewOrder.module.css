@@ -36,7 +36,14 @@
 }
 
 .header-logo {
-    cursor: pointer;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.header-logo img {
+  margin-top: 0px;
 }
 
 .header-title {
@@ -114,9 +121,9 @@
 }
 
 .order-subtotal-button:hover {
-    color: var(--primary-purple-color);
-    stroke: var(--primary-purple-color);
-    transform: translateX(8px);
+  color: var(--primary-purple-color);
+  stroke: var(--primary-purple-color);
+  transform: translateX(8px);
 }
 
 .order-subtotal-button p {
@@ -134,15 +141,14 @@
   }
   .header-logo img {
     display: none;
-  } 
+  }
   .buttons-profile {
     display: none;
-  } 
+  }
   .header-second {
     display: none;
   }
   .order-content {
     flex-direction: column;
   }
-  
 }

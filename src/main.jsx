@@ -28,6 +28,7 @@ import Payment from "./pages/Payment.jsx";
 import CreateProfile from "./pages/CreateProfile.jsx";
 import NewOrder from "./pages/NewOrder.jsx";
 import NewCheckout from "./pages/NewCheckout.jsx";
+import SearchResults from "./pages/SearchResults.jsx";
 
 const router = createBrowserRouter([
   {
@@ -46,10 +47,10 @@ const router = createBrowserRouter([
       { path: "/login", element: <Login /> },
       { path: "/crear-cuenta", element: <CreateAccount /> },
       { path: "/crear-perfil", element: <CreateProfile /> },
+      { path: "/resultados", element: <SearchResults/> },
       { path: "/crear-cuenta/detalles",element: <AuthenticatedRoute component={CreateAccountDetail} />},
       { path: "/crear-cuenta/detalles/direccion",element: <AuthenticatedRoute component={CreateAccountDetailAddress} />},
       { path: "/perfil",element: <AuthenticatedRoute component={Profile} />},
-
     ],
   },
 ]);

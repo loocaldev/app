@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import GridProducts from "../components/GridProducts";
 import { getAllProducts } from "../api/products.api";
 import { FaAngleDown, FaAngleUp } from "react-icons/fa";
 import useScreenSize from "../hooks/useScreenSize";
 import styles from "../styles/Category.module.css";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
+import {
+  FiChevronLeft,
+  FiMapPin,
+  FiUser,
+  FiChevronRight,
+  FiShoppingCart,
+} from "react-icons/fi";
 import ProductCardHZ from "../components/ProductCardHZ.jsx";
 import useSticky from "../hooks/useSticky.js";
 
@@ -15,9 +22,10 @@ function Category() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState("az");
   const [unitTypeFilter, setUnitTypeFilter] = useState("all");
-  const [isTopNavOpen, setIsTopNavOpen] = useState(true);
+  const [isTopNavOpen, setIsTopNavOpen] = useState(false);
   const isMobile = useScreenSize(); // Detectar si es móvil
   const isSticky = useSticky();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (categoryName) {
@@ -90,11 +98,19 @@ function Category() {
 
   return (
     <div className={styles["container"]}>
-      <div className={`${styles['container-top']} ${isSticky ? styles['sticky-active'] : ''}`}>
+      <div
+        className={`${styles["container-top"]} ${
+          isSticky ? styles["sticky-active"] : ""
+        }`}
+      >
         <div className={styles["title-search"]}>
-          <h2>
-            {categoryName.charAt(0).toUpperCase() + categoryName.slice(1)}
-          </h2>
+          <div className={styles["title-nav-main"]}>
+            <FiChevronLeft onClick={() => window.history.back()} />
+            <h2>
+              {categoryName.charAt(0).toUpperCase() + categoryName.slice(1)}
+            </h2>
+          </div>
+
           <div className={styles["title-search-control"]}>
             <input
               type="text"

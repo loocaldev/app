@@ -43,3 +43,9 @@
 .product-not-found img {
   max-width: 180px;
 }
+
+@media screen and (max-width: 768px) {
+  .bannerProducts {
+    gap: 12px;
+  }
+}

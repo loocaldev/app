@@ -9,8 +9,9 @@ import graphLoocal from "../assets/graphLoccal2024.png";
 import { getAllCategories, getAllProducts } from "../api/products.api";
 import ProductCardSquare from "../components/ProductCardSquare";
 import ProductCardSQRead from "../components/ProductCardSQRead";
-import GridProducts from '../components/GridProducts.jsx'
+import GridProducts from "../components/GridProducts.jsx";
 import { useNavigate } from "react-router-dom";
+import useScreenSize from "../hooks/useScreenSize.js";
 
 function Store() {
   const [categories, setCategories] = useState([]);
@@ -19,6 +20,7 @@ function Store() {
   const [sortOrder, setSortOrder] = useState("az");
   const [unitTypeFilter, setUnitTypeFilter] = useState("all");
   const [isScrollable, setIsScrollable] = useState({});
+  const isMobile = useScreenSize();
 
   const scrollRefs = useRef([]);
   const productRef = useRef(null);
@@ -122,7 +124,7 @@ function Store() {
     <div className={styles.container}>
       <div className={styles.sidebar}>
         <div className={styles["sidebar-title"]}>
-          <h2>Tienda</h2>
+          {!isMobile && <h2>Tienda</h2>}
           <img src={graphLoocal} />
         </div>
         {/* <div className={styles["sidebar-nav"]}>
@@ -145,36 +147,37 @@ function Store() {
         </div> */}
       </div>
       <div className={styles.content}>
+      {isMobile && <h1>Tienda</h1>}
         {/* <SearchBar onSearch={handleSearch} />
         <FilterSelector onFilter={handleFilter} />
         <SortSelector onSort={handleSort} /> */}
         <div className={styles["button-carousel"]}>
           <div
-            onClick={() => navigate("/tienda")}
+            onClick={() => navigate("/tienda/promociones")}
             className={styles["button-option"]}
           >
             <span>Promociones</span>
           </div>
           <div
-            onClick={() => navigate("/tienda")}
+            onClick={() => navigate("/tienda/frutas")}
             className={styles["button-option"]}
           >
             <span>Frutas</span>
           </div>
           <div
-            onClick={() => navigate("/tienda")}
+            onClick={() => navigate("/tienda/verduras")}
             className={styles["button-option"]}
           >
             <span>Verduras</span>
           </div>
           <div
-            onClick={() => navigate("/tienda")}
+            onClick={() => navigate("/tienda/granos")}
             className={styles["button-option"]}
           >
             <span>Granos</span>
           </div>
           <div
-            onClick={() => navigate("/tienda")}
+            onClick={() => navigate("/tienda/artesanal")}
             className={styles["button-option"]}
           >
             <span>Artesanal</span>
@@ -241,13 +244,13 @@ function Store() {
                       )}
                     </div>
                   </div>
-                  <SliderProducts
-                    products={categoryProducts} // Pasamos los productos filtrados por categoría
-                    searchQuery={searchQuery}
-                    sortOrder={sortOrder}
-                    scrollRef={(el) => (scrollRefs.current[index] = el)} // Asignar referencia
-                  />
-                </div>
+                    <SliderProducts
+                      products={categoryProducts} // Pasamos los productos filtrados por categoría
+                      searchQuery={searchQuery}
+                      sortOrder={sortOrder}
+                      scrollRef={(el) => (scrollRefs.current[index] = el)} // Asignar referencia
+                    />
+                  </div>
               )
             );
           })}

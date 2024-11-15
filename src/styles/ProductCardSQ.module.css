@@ -21,7 +21,7 @@
 }
 
 .product-image img {
-  width: 180px;
+  width: 160px;
   height: 100%;
   object-fit: cover;
 }
@@ -194,5 +194,9 @@
 @media screen and (max-width: 768px) {
   .product-box {
     width: 140px;
+  }
+
+  .product-info label {
+    display: none;
   }
 }

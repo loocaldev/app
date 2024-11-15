@@ -8,7 +8,8 @@
   font-weight: 400;
 
   color: #1e1e1e;
-  background-color: #f6f6f6;
+  /* background-color: #f6f6f6; */
+  background-color: #fff;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -90,9 +91,8 @@ form button {
 
 .form-row {
   display: flex;
-  gap: 0px 16p;
+  gap: 0px 16px;
   width: 100%;
-  flex-wrap: wrap;
 }
 
 .form-group {
@@ -236,6 +236,10 @@ input {
     font-size: 20px;
     line-height: 28px;
     margin: 0px;
+  }
+
+  .form-row {
+    flex-wrap: wrap;
   }
 }
 

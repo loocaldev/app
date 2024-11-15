@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import styles from '../styles/NewCheckout.module.css';
-import { formatDateString } from '../utils/dateTime';
+import { formatDateString, getAvailableHours } from '../utils/dateTime.js';
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 // Función para verificar si un valor es una fecha válida
@@ -26,13 +26,12 @@ const DatePicker = ({ dates, onDateSelect, selectedDate }) => {
       <div className={styles["date-picker"]} ref={datePickerRef}>
         {dates.map((date, index) => {
           const formattedDate = formatISODate(date); // Asegura el formato
-          
-          // Si el formato es inválido, ignora esta fecha
-          if (!formattedDate) {
-            console.warn(`Fecha inválida en dates: ${date}`);
+          const availableHours = getAvailableHours(date);
+
+          // Solo muestra el día si hay horas disponibles
+          if (availableHours.length === 0) {
             return null;
           }
-          
           const { dayOfWeek, month, dayOfMonth } = formatDateString(date);
           
           return (
@@ -55,4 +54,4 @@ const DatePicker = ({ dates, onDateSelect, selectedDate }) => {
   );
 };
 
-export default DatePicker;
+export default DatePicker; 
