@@ -37,7 +37,7 @@ function Home() {
       image: graphLoocal,
       color: "#F27C40",
       background: "#FEF2EC",
-      path: "/promoción"
+      path: "/tienda/promoción"
     },
     // Agrega más elementos según sea necesario...
   ];
