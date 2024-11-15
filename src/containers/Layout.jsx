@@ -8,12 +8,19 @@ import Footer from "../components/Footer";
 
 const Layout = ({ children }) => {
   const location = useLocation();
-  const isCanvasPage =
-    location.pathname === "/login" ||
-    location.pathname === "/order" ||
-    location.pathname === "/checkout" || location.pathname === "/checkout/"||
-    location.pathname === "/crear-cuenta" || location.pathname === "/crear-cuenta/" ||
-    location.pathname === "/crear-cuenta/detalles";
+  // Lista centralizada de rutas que deben ser CanvasPage
+  const canvasPages = [
+    "/login",
+    "/order",
+    "/checkout",
+    "/crear-cuenta",
+    "/crear-cuenta/detalles",
+    "/reset-password",
+    "/recuperar-contraseña",
+  ];
+
+  // Verifica si la ruta actual está en la lista
+  const isCanvasPage = canvasPages.includes(location.pathname);
 
   return (
     <>
