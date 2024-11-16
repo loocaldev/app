@@ -6,94 +6,144 @@ export const useAuth = () => {
   return useContext(AuthContext);
 };
 
-// Obtener el token CSRF de la cookie
-const getCSRFToken = () => {
-  const cookieValue = document.cookie.match(
-    "(^|;)\\s*csrftoken\\s*=\\s*([^;]+)"
-  );
-  return cookieValue ? cookieValue.pop() : "";
-};
 
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [token, setToken] = useState("");
   const [userData, setUserData] = useState(null);
   const [addresses, setAddresses] = useState([]);
+  const [refreshToken, setRefreshToken] = useState("");
 
   useEffect(() => {
     const storedToken = getCookie("authToken");
+    const storedRefreshToken = getCookie("refreshToken");
     const storedUserData = localStorage.getItem("userData");
-
-    if (storedToken) {
+  
+    if (storedToken && storedRefreshToken) {
       setToken(storedToken);
-      setIsAuthenticated(true);
-      if (storedUserData) {
-        setUserData(JSON.parse(storedUserData));
+      setRefreshToken(storedRefreshToken);
+  
+      const tokenPayload = parseJwt(storedToken);
+      const isTokenExpired = tokenPayload.exp * 1000 < Date.now();
+  
+      if (isTokenExpired) {
+        refreshAccessToken();
       } else {
-        getUserDetails(storedToken);
+        setIsAuthenticated(true);
+        if (storedUserData) {
+          setUserData(JSON.parse(storedUserData));
+        } else {
+          getUserDetails(storedToken);
+        }
       }
     }
   }, []);
+  
+  const parseJwt = (token) => {
+    try {
+      return JSON.parse(atob(token.split(".")[1]));
+    } catch (error) {
+      return null;
+    }
+  };
+
+  const refreshAccessToken = async () => {
+    try {
+      const response = await fetch("https://loocal.co/api/token/refresh/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ refresh: refreshToken }),
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        setToken(data.access);
+        setCookie("authToken", data.access);
+      } else {
+        console.warn("Token refresh failed, logging out.");
+        logout();
+      }
+    } catch (error) {
+      console.error("Error refreshing access token:", error);
+      logout();
+    }
+  };
+
+  const handleResponse = async (response, retryCallback) => {
+    if (response.status === 401) {
+      await refreshAccessToken();
+      return retryCallback(); // Reintenta la operación tras refrescar el token.
+    }
+    return response;
+  };
 
   const register = async (username, password) => {
     try {
-      const response = await fetch("https://loocal.co/api/register", {
+      const response = await fetch("https://loocal.co/api/register/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ username, password }),
       });
-
+  
       if (response.ok) {
         const data = await response.json();
-        setCookie("authToken", data.token);
-        setToken(data.token);
+        setCookie("authToken", data.tokens.access);
+        setToken(data.tokens.access);
         setIsAuthenticated(true);
-        getUserDetails(data.token);
+        await getUserDetails(data.tokens.access); // Obtiene detalles del usuario
+        return { success: true }; // Devuelve éxito
       } else {
-        throw new Error("ERROR");
+        const errorData = await response.json(); // Captura la respuesta de error
+        const errorMessage = errorData.username?.[0] || "Error desconocido en el registro.";
+        console.error("Error en registro:", errorData); // Para depuración
+        throw new Error(errorMessage);
       }
     } catch (error) {
-      console.log(error);
+      console.error("Error en registro:", error.message);
+      return { error: error.message };
     }
   };
 
   const login = async (username, password) => {
     try {
-      // Realizar la solicitud de inicio de sesión al backend
-      const response = await fetch("https://loocal.co/api/login", {
+      const response = await fetch("https://loocal.co/api/login/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-CSRFToken": getCSRFToken(), // Incluir el token CSRF en el encabezado
         },
         body: JSON.stringify({ username, password }),
       });
-
+  
       if (response.ok) {
         const data = await response.json();
-        // Establecer el token en una cookie
-        setCookie("authToken", data.token);
-        setToken(data.token);
+        setCookie("authToken", data.tokens.access);
+        setCookie("refreshToken", data.tokens.refresh);
+        setToken(data.tokens.access);
+        setRefreshToken(data.tokens.refresh);
         setIsAuthenticated(true);
-        getUserDetails(data.token);
+        await getUserDetails(data.tokens.access); // Obtiene detalles del usuario
       } else {
-        throw new Error("Login failed");
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Credenciales inválidas."); // Maneja el error
       }
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error en login:", error);
+      throw error; // Propaga el error al componente
     }
   };
 
   const getUserDetails = async (authToken) => {
     try {
-      const response = await fetch("https://loocal.co/api/profile", {
+      const response = await fetch("https://loocal.co/api/profile/", {
         method: "GET",
         headers: {
-          Authorization: `Token ${authToken}`,
+          Authorization: `Bearer ${authToken}`,
           "Content-Type": "application/json",
-          "X-CSRFToken": getCSRFToken(),
+          
         },
       });
 
@@ -111,29 +161,33 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      // Realizar la solicitud de logout al backend
-      const response = await fetch("https://loocal.co/api/logout", {
+      const response = await fetch("https://loocal.co/api/logout/", {
         method: "POST",
         headers: {
-          Authorization: `Token ${token}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
-          "X-CSRFToken": getCSRFToken(), // Incluir el token CSRF en el encabezado
         },
+        body: JSON.stringify({ refresh: refreshToken }),
       });
-
+  
       if (response.ok) {
-        // Eliminar la cookie de token y datos del usuario de localStorage
-        deleteCookie("authToken");
-        localStorage.removeItem("userData");
-        setToken("");
-        setIsAuthenticated(false);
-        setUserData(null); // Limpiar los datos del usuario al cerrar sesión
+        resetAuthState();
       } else {
-        throw new Error("Logout failed");
+        console.error("Logout failed with status:", response.status);
       }
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error logging out:", error);
     }
+  };
+  
+  const resetAuthState = () => {
+    deleteCookie("authToken");
+    deleteCookie("refreshToken");
+    setToken("");
+    setRefreshToken("");
+    setIsAuthenticated(false);
+    setUserData(null);
+    setAddresses([]);
   };
 
   // Nueva función para actualizar los datos del usuario
@@ -142,8 +196,8 @@ export const AuthProvider = ({ children }) => {
     try {
       const isFormData = updatedData instanceof FormData; // Verifica si el objeto es FormData
       const headers = {
-        Authorization: `Token ${token}`,
-        "X-CSRFToken": getCSRFToken(),
+        Authorization: `Bearer ${token}`,
+        
       };
 
       // No incluir "Content-Type" cuando estás enviando FormData, ya que el navegador lo gestiona automáticamente
@@ -176,9 +230,9 @@ export const AuthProvider = ({ children }) => {
       const response = await fetch("https://loocal.co/api/orders/", {
         method: "GET",
         headers: {
-          Authorization: `Token ${token}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
-          "X-CSRFToken": getCSRFToken(),
+          
         },
       });
 
@@ -201,9 +255,9 @@ export const AuthProvider = ({ children }) => {
       const response = await fetch("https://loocal.co/api/get_addresses/", {
         method: "GET",
         headers: {
-          Authorization: `Token ${token}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
-          "X-CSRFToken": getCSRFToken(),
+          
         },
       });
 
@@ -232,9 +286,9 @@ export const AuthProvider = ({ children }) => {
         {
           method: "PATCH",
           headers: {
-            Authorization: `Token ${token}`,
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
-            "X-CSRFToken": getCSRFToken(),
+            
           },
           body: JSON.stringify(updatedAddress),
         }
@@ -257,9 +311,9 @@ export const AuthProvider = ({ children }) => {
       const response = await fetch("https://loocal.co/api/add_address/", {
         method: "POST",
         headers: {
-          Authorization: `Token ${token}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
-          "X-CSRFToken": getCSRFToken(),
+          
         },
         body: JSON.stringify({ ...addressData, is_default: isFirstAddress }),
       });
@@ -288,8 +342,8 @@ export const AuthProvider = ({ children }) => {
         {
           method: "DELETE",
           headers: {
-            Authorization: `Token ${token}`,
-            "X-CSRFToken": getCSRFToken(),
+            Authorization: `Bearer ${token}`,
+            
           },
         }
       );
@@ -320,9 +374,9 @@ export const AuthProvider = ({ children }) => {
         {
           method: "PATCH",
           headers: {
-            Authorization: `Token ${token}`,
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
-            "X-CSRFToken": getCSRFToken(),
+            
           },
           body: JSON.stringify({ is_default: true }), // Marcar como principal
         }
@@ -344,9 +398,9 @@ export const AuthProvider = ({ children }) => {
       const response = await fetch("https://loocal.co/api/change_password/", {
         method: "POST",
         headers: {
-          Authorization: `Token ${token}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
-          "X-CSRFToken": getCSRFToken(),
+          
         },
         body: JSON.stringify({
           current_password: currentPassword,
@@ -401,7 +455,7 @@ export const AuthProvider = ({ children }) => {
         },
         body: JSON.stringify({ token, new_password: newPassword }),
       });
-  
+
       if (response.ok) {
         const data = await response.json();
         return { success: true, message: data.message };
@@ -417,9 +471,48 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const sendVerificationCode = async (phoneNumber) => {
+    try {
+      const response = await fetch("https://loocal.co/api/send_verification_code/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone_number: phoneNumber }),
+      });
+  
+      return await handleResponse(response, () => sendVerificationCode(phoneNumber));
+    } catch (error) {
+      console.error("Error sending verification code:", error);
+      throw error;
+    }
+  };
+  
+  const verifyCode = async (phoneNumber, code) => {
+    try {
+      const response = await fetch("https://loocal.co/api/verify_code/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone_number: phoneNumber, code }),
+      });
+  
+      return await handleResponse(response, () => verifyCode(phoneNumber, code));
+    } catch (error) {
+      console.error("Error verifying code:", error);
+      throw error;
+    }
+  };
+
   // Función para establecer una cookie
-  const setCookie = (name, value) => {
-    document.cookie = `${name}=${value}; path=/`;
+  const setCookie = (name, value, days = 7) => {
+    const date = new Date();
+    date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+    document.cookie = `${name}=${value}; expires=${date.toUTCString()}; path=/; Secure; SameSite=Strict`;
+  };
+  
+  const getCookie = (name) => {
+    const cookieValue = document.cookie.match(
+      "(^|;)\\s*" + name + "\\s*=\\s*([^;]+)"
+    );
+    return cookieValue ? cookieValue.pop() : "";
   };
 
   // Función para eliminar una cookie
@@ -427,13 +520,6 @@ export const AuthProvider = ({ children }) => {
     document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
   };
 
-  // Función para obtener el valor de una cookie
-  const getCookie = (name) => {
-    const cookieValue = document.cookie.match(
-      "(^|;)\\s*" + name + "\\s*=\\s*([^;]+)"
-    );
-    return cookieValue ? cookieValue.pop() : "";
-  };
 
   return (
     <AuthContext.Provider
@@ -454,7 +540,9 @@ export const AuthProvider = ({ children }) => {
         updateAddress,
         changePassword,
         forgotPassword, // Agregado
-        resetPassword
+        resetPassword,
+        sendVerificationCode,
+        verifyCode,
       }}
     >
       {children}

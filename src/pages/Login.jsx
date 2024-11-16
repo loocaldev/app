@@ -23,18 +23,19 @@ function Login() {
   const handleLogin = async () => {
     try {
       setLoading(true);
-      setErrorMessage(""); // Limpiar mensajes de error previos
-      await login(email, password);
-      navigate("/");
+      setErrorMessage(""); // Limpia errores previos
+      await login(email, password); // Intenta iniciar sesión
+      navigate("/"); // Solo redirige si el inicio de sesión es exitoso
     } catch (error) {
-      console.error("Error:", error);
-      if (error.response && error.response.data.error) {
-        setErrorMessage(error.response.data.error); // Mostrar error específico del servidor
+      // Manejo de errores
+      console.error("Error al iniciar sesión:", error);
+      if (error.message) {
+        setErrorMessage(error.message); // Mostrar mensaje específico del servidor
       } else {
-        setErrorMessage("Ocurrió un error inesperado. Inténtalo más tarde.");
+        setErrorMessage("Error inesperado. Inténtalo de nuevo.");
       }
     } finally {
-      setLoading(false);
+      setLoading(false); // Detiene la animación de carga
     }
   };
 
@@ -107,7 +108,7 @@ function Login() {
               </span>
             </div>
             <div className={styles["forget-password"]}>
-              <Link to="/recuperar-contraseña">¿Olvidaste tu contraseña?</Link>
+              <Link to="/recover-password">¿Olvidaste tu contraseña?</Link>
             </div>
           </div>
         </div>

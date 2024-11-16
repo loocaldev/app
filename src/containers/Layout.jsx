@@ -7,6 +7,8 @@ import styles from "../styles/Layout.module.css";
 import Footer from "../components/Footer";
 
 const Layout = ({ children }) => {
+
+  
   const location = useLocation();
   // Lista centralizada de rutas que deben ser CanvasPage
   const canvasPages = [
@@ -16,7 +18,8 @@ const Layout = ({ children }) => {
     "/crear-cuenta",
     "/crear-cuenta/detalles",
     "/reset-password",
-    "/recuperar-contraseña",
+    "/recover-password",
+    "/register",
   ];
 
   // Verifica si la ruta actual está en la lista

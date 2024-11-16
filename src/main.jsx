@@ -32,6 +32,7 @@ import SearchResults from "./pages/SearchResults.jsx";
 import ForgotPassword from "./pages/ForgotPassword.jsx";
 import ResetPassword from "./pages/ResetPassword.jsx";
 import NotFound from "./pages/NotFound.jsx";
+import Register from "./pages/Register.jsx";
 
 const router = createBrowserRouter([
   {
@@ -43,6 +44,7 @@ const router = createBrowserRouter([
       { path: "/tienda/:categoryName", element: <Category />},
       { path: "/login", element: <Login /> },
       { path: "/order", element: <NewOrder /> },
+      { path: "/register", element: <Register /> },
       { path: "/checkout", element: <NewCheckout /> },
       { path: "/pago", element: <Payment /> },
       { path: "/order-statu", element: <OrderStatus /> },
