@@ -50,7 +50,7 @@ const router = createBrowserRouter([
       { path: "/order-statu", element: <OrderStatus /> },
       { path: "/order-status", element: <NewOrderStatus /> },
       { path: "/crear-cuenta", element: <CreateAccount /> },
-      { path: "/crear-perfil", element: <CreateProfile /> },
+      { path: "/create-profile", element: <AuthenticatedRoute component={CreateProfile} />},
       { path: "/resultados", element: <SearchResults/> },
       { path: "/recover-password", element: <ForgotPassword/> },
       { path: "/reset-password", element: <ResetPassword/> },

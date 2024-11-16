@@ -1,5 +1,11 @@
 @import "./variables.css";
 
+.Container {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+}
+
 .box {
   background-color: white;
   padding: 48px;

@@ -91,15 +91,19 @@ export const AuthProvider = ({ children }) => {
   
       if (response.ok) {
         const data = await response.json();
+        // Guardar tokens y establecer estado de autenticación
         setCookie("authToken", data.tokens.access);
+        setCookie("refreshToken", data.tokens.refresh);
         setToken(data.tokens.access);
+        setRefreshToken(data.tokens.refresh);
         setIsAuthenticated(true);
-        await getUserDetails(data.tokens.access); // Obtiene detalles del usuario
-        return { success: true }; // Devuelve éxito
+  
+        // Obtener detalles del usuario después del registro
+        await getUserDetails(data.tokens.access);
+        return { success: true };
       } else {
-        const errorData = await response.json(); // Captura la respuesta de error
+        const errorData = await response.json();
         const errorMessage = errorData.username?.[0] || "Error desconocido en el registro.";
-        console.error("Error en registro:", errorData); // Para depuración
         throw new Error(errorMessage);
       }
     } catch (error) {
@@ -501,6 +505,46 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const sendEmailOtp = async (email) => {
+    try {
+      const response = await fetch("https://loocal.co/api/send_email_verification_code/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Error al enviar el código.");
+      }
+  
+      return { success: true, message: "Código enviado exitosamente." };
+    } catch (error) {
+      console.error("Error sending email OTP:", error.message);
+      return { success: false, error: error.message };
+    }
+  };
+  
+  const verifyEmailOtp = async (email, otpCode) => {
+    try {
+      const response = await fetch("https://loocal.co/api/verify_email_otp/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, otp_code: otpCode }),
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Error al verificar el código.");
+      }
+  
+      return { success: true, message: "Correo verificado exitosamente." };
+    } catch (error) {
+      console.error("Error verifying email OTP:", error.message);
+      return { success: false, error: error.message };
+    }
+  };
+
   // Función para establecer una cookie
   const setCookie = (name, value, days = 7) => {
     const date = new Date();
@@ -543,6 +587,8 @@ export const AuthProvider = ({ children }) => {
         resetPassword,
         sendVerificationCode,
         verifyCode,
+        sendEmailOtp,
+        verifyEmailOtp
       }}
     >
       {children}

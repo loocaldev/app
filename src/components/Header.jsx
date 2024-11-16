@@ -301,7 +301,7 @@ function Header() {
             ) : (
               <div>
                 <button onClick={() => navigate("/login")}>Ingresar</button>
-                <button onClick={() => navigate("/crear-cuenta")}>
+                <button onClick={() => navigate("/register")}>
                   Crear cuenta
                 </button>
               </div>

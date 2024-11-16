@@ -19,7 +19,7 @@ function CreateProfile() {
     documentNumber: "",
     phone: "",
     email: "",
-  });
+  }); 
 
   // Estado para la dirección de entrega
   const [addressInfo, setAddressInfo] = useState({
