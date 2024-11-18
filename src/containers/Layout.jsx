@@ -20,6 +20,7 @@ const Layout = ({ children }) => {
     "/reset-password",
     "/recover-password",
     "/register",
+    "/create-profile",
   ];
 
   // Verifica si la ruta actual está en la lista

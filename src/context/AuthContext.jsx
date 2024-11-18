@@ -498,10 +498,15 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify({ phone_number: phoneNumber, code }),
       });
   
-      return await handleResponse(response, () => verifyCode(phoneNumber, code));
+      const data = await response.json();
+      if (!response.ok) {
+        console.error("Error verifying code:", data.error);
+        throw new Error(data.error || "Error verifying code");
+      }
+      return { success: true };
     } catch (error) {
-      console.error("Error verifying code:", error);
-      throw error;
+      console.error("Error verifying code:", error.message);
+      return { success: false, error: error.message };
     }
   };
 

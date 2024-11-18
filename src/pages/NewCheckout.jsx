@@ -400,11 +400,11 @@ function NewCheckout() {
     validateForm();
   }, [formData]); // Ejecuta la validación cuando hay cambios en formData
 
-  const sortedDepartments = Object.keys(departamentosYMunicipios).sort();
-  const sortedMunicipalities =
-    formData.departament && departamentosYMunicipios[formData.departament]
-      ? [...departamentosYMunicipios[formData.departament]].sort()
-      : [];
+  // const sortedDepartments = Object.keys(departamentosYMunicipios).sort();
+  // const sortedMunicipalities =
+  //   formData.departament && departamentosYMunicipios[formData.departament]
+  //     ? [...departamentosYMunicipios[formData.departament]].sort()
+  //     : [];
 
   const handleConfirmOrder = async () => {
     setAttemptedSubmit(true);

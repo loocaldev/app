@@ -27,7 +27,7 @@ const UserDataForm = ({ formData, onChange, onPhoneCodeChange }) => {
       </div>
       <div className="form-row">
         <div className="form-group">
-          <label>Tipo de documento</label>
+          <label>Tipo de documento</label> 
           <div className="form-multi-input">
             <select
               name="documentType"

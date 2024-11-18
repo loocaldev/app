@@ -211,12 +211,15 @@ function Register() {
       <div className={styles["box"]}>
         <div className={styles["box-content"]}>
           <img src={Logo} alt="Logo" />
-          <h2>Comienza tu registro</h2>
-          <p>Ingresa tu correo electrónico y crea una contraseña</p>
+
           <div className={styles["box-form"]}>
             <form>
               {step === 1 && (
                 <>
+                  <h2>Te damos la bienvenida</h2>
+                  <p>
+                    Crea tu cuenta y accede a todos los beneficios de Loocal.
+                  </p>
                   <div className={styles["element-form"]}>
                     <label htmlFor="email">Correo electrónico</label>
                     <input
@@ -240,24 +243,12 @@ function Register() {
                         rel="noopener noreferrer"
                       >
                         términos y condiciones
-                      </a>
-                    </label>
-                  </div>
-                  <div className={styles["legal-checkbox"]}>
-                    <label>
-                      <input
-                        type="checkbox"
-                        checked={privacyChecked}
-                        onChange={(e) => setPrivacyChecked(e.target.checked)}
-                      />
-                      Acepto la{" "}
-                      <a
-                        href="https://loocal.co/legal/política-de-tratamiento-de-datos"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
+                      </a>{" "}
+                      y la{" "}
+                      <a href="" target="_blank" rel="noopener noreferrer">
                         política de privacidad
-                      </a>
+                      </a>{" "}
+                      de Loocal.
                     </label>
                   </div>
                   {errorMessages.step1 && (
@@ -277,11 +268,10 @@ function Register() {
               )}
               {step === 2 && (
                 <>
-                  <label>Código de verificación</label>
+                  <h2>Revisa tu correo</h2>
                   <p>
-                    Hemos enviado un código de verificación a tu correo.
-                    <br />
-                    El código expirará en: {formattedTime}
+                    Hemos enviado un mensaje de verificación a tu correo que
+                    debes ingresar a continuación.
                   </p>
                   <div className={styles.otpContainer}>
                     {code.map((digit, index) => (
@@ -295,13 +285,15 @@ function Register() {
                         }
                         onPaste={handlePaste}
                         ref={(el) => (inputsRef.current[index] = el)}
-                        className={inputClass(index)}
+                        className={`${styles.input} ${
+                          isOtpValid ? styles.success : ""
+                        }`}
                       />
                     ))}
                   </div>
                   {isOtpValid && (
                     <p className={styles.successMessage}>
-                      Correo verificado correctamente.
+                      ¡Correo verificado correctamente!
                     </p>
                   )}
                   {errorMessages.step2 && (
@@ -309,6 +301,36 @@ function Register() {
                       {errorMessages.step2}
                     </span>
                   )}
+
+                  <div className={styles.buttonsContainer}>
+                    <button
+                      onClick={() => {
+                        setStep(1); // Vuelve al paso de correo electrónico
+                        setCode(["", "", "", ""]); // Limpia los inputs de código
+                      }}
+                      className={styles.backButton}
+                    >
+                      Corregir correo
+                    </button>
+
+                    <button
+                      className={`${styles.resendButton} ${
+                        timeLeft > 0 ? styles.disabled : ""
+                      }`}
+                      onClick={() => {
+                        setCode(["", "", "", ""]); // Limpia los inputs de código
+                        sendEmailOtp(email);
+                        setTimeLeft(300); // Reinicia el temporizador
+                      }}
+                      disabled={timeLeft > 0}
+                    >
+                      {timeLeft > 0
+                        ? `Reenviar código en ${Math.floor(timeLeft / 60)}:${
+                            timeLeft % 60
+                          }`
+                        : "Reenviar código"}
+                    </button>
+                  </div>
                 </>
               )}
               {step === 3 && (

@@ -4,23 +4,23 @@
   height: 100vh;
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 
 .box {
-  background-color: white;
+  background-color: transparent;
   padding: 48px;
   border-radius: 16px;
   min-width: 480px;
   max-width: 480px;
 }
 
-
 .box-content {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  text-align: left;
-  align-items: left;
+  text-align: center;
+  align-items: center;
   align-content: center;
   gap: 16px;
 }
@@ -41,6 +41,12 @@
   min-width: 100%;
 }
 
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .element-form {
   display: flex;
   flex-direction: column;
@@ -54,13 +60,83 @@
 .element-form label {
   font-size: 14px;
   color: var(--black-color);
+  font-weight: 600;
 }
 
 .element-form input {
   border-radius: 16px;
-  border: 1px solid var(--gray-5)!important;
+  border: 1px solid var(--gray-5) !important;
   padding: 12px;
   border: none;
+}
+
+.otpContainer {
+  display: flex;
+  gap: 12px;
+  min-height: 100px;
+}
+
+.otpContainer input {
+  width: 100%;
+  font-size: 32px;
+  text-align: center;
+  color: var(--black-color)
+}
+
+.input {
+  width: 3rem;
+  height: 3rem;
+  font-size: 1.5rem;
+  text-align: center;
+  border: 2px solid var(--gray-3);
+  border-radius: 0.5rem;
+  margin: 0 0.5rem;
+  transition: border-color 0.3s ease;
+}
+
+.input.success {
+  border-color: var(--success-green); /* Verde si el OTP es válido */
+}
+
+.successMessage {
+  color: var(--success-green); /* Verde de éxito */
+  font-weight: 400;
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.buttonsContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.backButton {
+  background: none;
+  border: none;
+  color: var(--primary-purple-color);
+  font-weight: bold;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.backButton:hover {
+  color: var(--primary-purple-hover);
+}
+
+.resendButton {
+  background: none;
+  border: none;
+  color: var(--primary-purple-color);
+  font-weight: bold;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.resendButton.disabled {
+  color: var(--gray-3);
+  cursor: not-allowed;
 }
 
 .element-form-password {
@@ -157,6 +233,16 @@ span.success {
 .form-button:disabled {
   background-color: #ccc; /* Color de fondo gris para el botón deshabilitado */
   cursor: not-allowed; /* Cambiar el cursor a 'no permitido' cuando el botón está deshabilitado */
+}
+
+.legal-checkbox {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  background-color: transparent;
+  border: 1px solid var(--gray-5);
+  border-radius: 16px;
+  padding: 12px;
 }
 
 .legal-checkbox label {

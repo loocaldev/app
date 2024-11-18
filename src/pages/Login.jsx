@@ -104,7 +104,7 @@ function Login() {
             <div className={styles["go-signup"]}>
               <span>
                 ¿Aún no tienes tu cuenta?{" "}
-                <Link to="/crear-cuenta">Registrate aquí</Link>
+                <Link to="/register">Registrate aquí</Link>
               </span>
             </div>
             <div className={styles["forget-password"]}>

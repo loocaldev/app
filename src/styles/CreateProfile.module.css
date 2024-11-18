@@ -1,0 +1,136 @@
+@import "./variables.css";
+
+.Container {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.Stepper {
+  background-color: white;
+  padding: 24px;
+  border-radius: 16px;
+  min-width: 480px;
+  max-width: 480px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.InputGroup {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.FormRow {
+  display: flex;
+  gap: 0px 16px;
+  width: 100%;
+}
+
+.PhoneInput {
+  width: 66%;
+  align-self: center;
+}
+
+.FormButtons {
+  display: flex;
+}
+
+.FormButtons button:first-child {
+  background-color: transparent;
+  color: var(--primary-purple-color);
+}
+
+.ReturnToPhone button {
+  background-color: transparent;
+  color: var(--gray-3);
+  font-weight: 400;
+  font-size: 14px;
+}
+
+.ResendButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: color 0.3s ease;
+  padding: 0.5rem 1rem;
+}
+
+.ResendButton.Enabled {
+  color: var(--primary-purple-color); /* Color habilitado */
+}
+
+.ResendButton.Disabled {
+  color: var(--gray-3); /* Color deshabilitado */
+  cursor: not-allowed;
+}
+
+.OtpContainer {
+  display: flex;
+  gap: 12px;
+  min-height: 100px;
+}
+
+.OtpInput {
+    width: 3rem;
+    height: 3rem;
+    font-size: 1.5rem;
+    text-align: center;
+    border: 2px solid var(--gray-3);
+    border-radius: 0.5rem;
+    margin: 0 0.5rem;
+    transition: border-color 0.3s ease;
+  }
+  
+  .OtpInput.Valid {
+    border-color: var(--success-green); /* Borde verde cuando es válido */
+  }
+
+.OtpContainer input {
+  width: 100%;
+  font-size: 32px;
+  text-align: center;
+  color: var(--black-color);
+}
+
+.SuccessMessage {
+    color: var(--success-green); /* Color verde de éxito */
+    font-weight: 400;
+    font-size: 14px;
+    margin-top: 1rem;
+    text-align: center;
+  }
+
+.ProgressBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 16px 0;
+  width: 100%;
+}
+
+.ProgressBarSegment {
+  flex: 1;
+  height: 6px;
+  background-color: var(--gray-3); /* Color para pasos no completados */
+  margin: 0 4px; /* Espacio entre las barras */
+  border-radius: 16px; /* Bordes redondeados */
+  transition: background-color 0.3s ease; /* Animación suave para el cambio de color */
+}
+
+.ProgressBarSegment.Active {
+  background-color: var(
+    --primary-purple-color
+  ); /* Color para pasos completados */
+}
+
+.Stepper form {
+  width: 100%;
+}
