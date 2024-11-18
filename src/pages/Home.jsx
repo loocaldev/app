@@ -28,7 +28,7 @@ function Home() {
       image: graphLoocal,
       background: "#EDE8EF",
       color: "#44175B",
-      path: "/tienda"
+      path: "/tienda",
     },
     {
       title: "Productos en oferta todos los días",
@@ -37,7 +37,7 @@ function Home() {
       image: graphLoocal,
       color: "#F27C40",
       background: "#FEF2EC",
-      path: "/tienda/promoción"
+      path: "/tienda/promoción",
     },
     // Agrega más elementos según sea necesario...
   ];
@@ -57,7 +57,15 @@ function Home() {
 
       <div className={styles.Banner2}>
         <div className={styles.FirstBanner}>
-          <h1>Encuentra productos frescos de alta calidad</h1>
+          {isAuthenticated && userData ? (
+            <>
+              <h1>{userData.first_name}, encuentra productos frescos de alta calidadx</h1>
+            </>
+          ) : (
+            <>
+              <h1>Encuentra productos frescos de alta calidad</h1>
+            </>
+          )}
           <p>Comprados directamente a productores locales.</p>
 
           <ul className={styles["highlights"]}>
@@ -88,19 +96,34 @@ function Home() {
                 <SearchBar onSearch={handleSearch} />
               </div>
               <div className={styles["button-carousel"]}>
-                <div onClick={() => navigate("/tienda")} className={styles["button-option"]}>
+                <div
+                  onClick={() => navigate("/tienda")}
+                  className={styles["button-option"]}
+                >
                   <span>Ver toda la tienda</span>
                 </div>
-                <div onClick={() => navigate("/tienda/frutas")} className={styles["button-option"]}>
+                <div
+                  onClick={() => navigate("/tienda/frutas")}
+                  className={styles["button-option"]}
+                >
                   <span>Frutas</span>
                 </div>
-                <div onClick={() => navigate("/tienda/verduras")} className={styles["button-option"]}>
+                <div
+                  onClick={() => navigate("/tienda/verduras")}
+                  className={styles["button-option"]}
+                >
                   <span>Verduras</span>
                 </div>
-                <div onClick={() => navigate("/tienda/granos")} className={styles["button-option"]}>
+                <div
+                  onClick={() => navigate("/tienda/granos")}
+                  className={styles["button-option"]}
+                >
                   <span>Granos</span>
                 </div>
-                <div onClick={() => navigate("/tienda/artesanal")} className={styles["button-option"]}>
+                <div
+                  onClick={() => navigate("/tienda/artesanal")}
+                  className={styles["button-option"]}
+                >
                   <span>Artesanal</span>
                 </div>
               </div>

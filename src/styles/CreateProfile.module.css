@@ -79,19 +79,19 @@
 }
 
 .OtpInput {
-    width: 3rem;
-    height: 3rem;
-    font-size: 1.5rem;
-    text-align: center;
-    border: 2px solid var(--gray-3);
-    border-radius: 0.5rem;
-    margin: 0 0.5rem;
-    transition: border-color 0.3s ease;
-  }
-  
-  .OtpInput.Valid {
-    border-color: var(--success-green); /* Borde verde cuando es válido */
-  }
+  width: 3rem;
+  height: 3rem;
+  font-size: 1.5rem;
+  text-align: center;
+  border: 2px solid var(--gray-3);
+  border-radius: 0.5rem;
+  margin: 0 0.5rem;
+  transition: border-color 0.3s ease;
+}
+
+.OtpInput.Valid {
+  border-color: var(--success-green); /* Borde verde cuando es válido */
+}
 
 .OtpContainer input {
   width: 100%;
@@ -101,12 +101,12 @@
 }
 
 .SuccessMessage {
-    color: var(--success-green); /* Color verde de éxito */
-    font-weight: 400;
-    font-size: 14px;
-    margin-top: 1rem;
-    text-align: center;
-  }
+  color: var(--success-green); /* Color verde de éxito */
+  font-weight: 400;
+  font-size: 14px;
+  margin-top: 1rem;
+  text-align: center;
+}
 
 .ProgressBar {
   display: flex;
@@ -114,6 +114,16 @@
   align-items: center;
   margin: 16px 0;
   width: 100%;
+}
+
+.errorMessage {
+  margin-top: 12px;
+  text-align: left;
+  color: #cc4033;
+  border: 1px solid #cc4033;
+  border-radius: 16px;
+  padding: 12px;
+  font-size: 14px;
 }
 
 .ProgressBarSegment {
@@ -133,4 +143,12 @@
 
 .Stepper form {
   width: 100%;
+}
+
+.Welcome {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 12px;
 }

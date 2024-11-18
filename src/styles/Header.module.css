@@ -550,6 +550,9 @@
   .secondContent {
     display: none !important;
   }
+  .profile-card .username {
+    display: none;
+  }
 }
 
 @media screen and (max-width: 576px) {

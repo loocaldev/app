@@ -106,6 +106,17 @@ form button {
   max-width: 100%;
 }
 
+.errorMessage {
+  margin-top: 12px;
+  text-align: left;
+  color: #cc4033;
+  border: 1px solid #cc4033;
+  border-radius: 16px;
+  padding: 12px;
+  font-size: 14px;
+}
+
+
 .form-multi-input {
   display: flex;
   gap: 0px;

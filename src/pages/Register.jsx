@@ -70,6 +70,14 @@ function Register() {
   };
 
   const handleStep1Validation = async () => {
+    if (!termsChecked) {
+      setErrorMessages((prev) => ({
+        ...prev,
+        step1: "Acepta los términos y condiciones para continuar.",
+      }));
+      return;
+    }
+
     if (!validateEmail(email)) {
       setErrorMessages((prev) => ({
         ...prev,
@@ -252,7 +260,7 @@ function Register() {
                     </label>
                   </div>
                   {errorMessages.step1 && (
-                    <span className={styles["error-message"]}>
+                    <span className={styles["errorMessage"]}>
                       {errorMessages.step1}
                     </span>
                   )}

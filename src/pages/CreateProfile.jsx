@@ -284,7 +284,7 @@ function CreateProfile() {
                 </div>
               </div>
               {errorMessages.step1 && (
-                <p className={styles.Error}>{errorMessages.step1}</p>
+                <p className="errorMessage">{errorMessages.step1}</p>
               )}
               <button type="submit" disabled={loading}>
                 {loading ? "Cargando..." : "Siguiente"}
@@ -357,7 +357,7 @@ function CreateProfile() {
                   </p>
                 )}
                 {errorMessages.step2 && (
-                  <p className={styles.Error}>{errorMessages.step2}</p>
+                  <p className={styles.errorMessage}>{errorMessages.step2}</p>
                 )}
                 <div className={styles.ReturnToPhone}>
                   <button onClick={() => setOtpSent(false)}>
@@ -392,7 +392,7 @@ function CreateProfile() {
               onAddressChange={handleAddressChange}
             />
             {errorMessages.step3 && (
-              <p className={styles.Error}>{errorMessages.step3}</p>
+              <p className={styles.errorMessage}>{errorMessages.step3}</p>
             )}
             <button onClick={handleSubmitAddress} disabled={loading}>
               {loading ? "Guardando..." : "Finalizar"}
@@ -401,18 +401,17 @@ function CreateProfile() {
         )}
         {step === 4 && (
           <div className={styles.Welcome}>
-            <h2>¡Bienvenido, {personalInfo.firstname}!</h2>
+            <h2>{personalInfo.firstname}, te damos la bienvenida</h2>
             <p>
-              Nos alegra tenerte en nuestra plataforma. Ahora puedes explorar
-              todos los beneficios.
+              Nos alegra tenerte en nuestra plataforma.
             </p>
             <button
               className={styles.PrimaryButton}
               onClick={() => {
-                window.location.href = "/explorar";
+                window.location.href = "/";
               }}
             >
-              Ir a Explorar
+              Ir a la tienda
             </button>
           </div>
         )}
