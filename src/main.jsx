@@ -33,9 +33,6 @@ import ForgotPassword from "./pages/ForgotPassword.jsx";
 import ResetPassword from "./pages/ResetPassword.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import Register from "./pages/Register.jsx";
-import { AnalyticsProvider } from "@segment/analytics-react";
-
-const analyticsWriteKey = "3oxdJEWqR5n2ejEupwcPCA7R6uDne2lA";
 
 const router = createBrowserRouter([
   {
@@ -77,14 +74,12 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <AnalyticsProvider client={analytics}>
-      <AuthProvider>
-        <CartProvider>
-          <RouterProvider router={router}>
-            <App />
-          </RouterProvider>
-        </CartProvider>
-      </AuthProvider>
-    </AnalyticsProvider>
+    <AuthProvider>
+      <CartProvider>
+        <RouterProvider router={router}>
+          <App />
+        </RouterProvider>
+      </CartProvider>
+    </AuthProvider>
   </React.StrictMode>
 );

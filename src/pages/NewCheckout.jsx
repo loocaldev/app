@@ -239,14 +239,13 @@ function NewCheckout() {
   };
 
   useEffect(() => {
-    // Evento de vista de página
-    analytics.page("Checkout Page", {
-      user_id: isAuthenticated ? userData?.id : null,
+    // Enviar evento cuando se carga la página de checkout
+    analytics.track("Checkout Viewed", {
       cart_size: cart.length,
       subtotal: subtotal,
       currency: "COP",
     });
-  }, [cart.length, subtotal]);
+  }, [cart, subtotal]);
 
 
   const createOrder = async () => {
@@ -436,17 +435,11 @@ function NewCheckout() {
         const userEmail = formData.email || userData?.email;
   
         // Envía el evento de "Checkout Initiated" a Segment
-        analytics.track("Checkout Initiated", {
-          user_id: isAuthenticated ? userData?.id : null,
-          total: subtotal,
-          currency: "COP",
-          items: cart.map(item => ({
-            id: item.id,
-            name: item.name,
-            quantity: item.quantity,
-            price: item.price,
-          })),
+        analytics.track("Checkout Completed", {
+          email: formData.email,
+          subtotal: subtotal,
           payment_method: formData.paymentPreference,
+          discount_code: formData.discountCode || null,
         });
   
         // Caso: Pago en línea
