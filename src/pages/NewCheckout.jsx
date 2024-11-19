@@ -5,6 +5,7 @@ import Logo from "../assets/logo.svg";
 import UserDataForm from "../components/Forms/UserDataForms.jsx";
 import AddressForm from "../components/Forms/AddressForm";
 import ProductCardSQRead from "../components/ProductCardSQRead";
+import analytics from '../analytics';
 import {
   FiChevronLeft,
   FiMapPin,
@@ -68,6 +69,7 @@ function NewCheckout() {
   const [selectedHour, setSelectedHour] = useState("");
   const [discountInfo, setDiscountInfo] = useState(null);
   const [isNavbarOpen, setIsNavbarOpen] = useState(false);
+  const { trackEvent } = analytics();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
@@ -203,6 +205,11 @@ function NewCheckout() {
         setIsDiscountApplied(true);
         setDiscountStatusMessage("Código de descuento aplicado exitosamente");
         setIsMessageHidden(false);
+        trackEvent('Discount Applied', {
+          user_id: isAuthenticated ? userData?.id : null,
+          discount_code: formattedCode,
+          discount_value: response.data.discount_value,
+        });
       } else {
         setDiscountStatusMessage(
           "El código de descuento es inválido o ha expirado"
@@ -230,6 +237,16 @@ function NewCheckout() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    trackEvent('Checkout Viewed', {
+      user_id: isAuthenticated ? userData?.id : null,
+      email: formData.email || userData?.email,
+      cart_size: cart.length,
+      subtotal: subtotal,
+      currency: 'COP',
+    });
+  }, []);
 
   const createOrder = async () => {
     // Crear `orderData` con estructura revisada
@@ -410,25 +427,39 @@ function NewCheckout() {
     setAttemptedSubmit(true);
     if (validateForm()) {
       try {
+        // Crea la orden en el backend
         const orderData = await createOrder();
-
+  
+        // Extrae los datos reales del carrito y usuario
+        const userId = isAuthenticated ? userData?.id : null; // ID del usuario si está autenticado
+        const userEmail = formData.email || userData?.email;
+  
+        // Envía el evento de "Checkout Initiated" a Segment
+        trackEvent('Checkout Initiated', {
+          user_id: userId,
+          email: userEmail,
+          total: finalTotal, // Total después de aplicar descuentos
+          currency: 'COP',
+          items: cart.map((item) => ({
+            id: item.id,
+            name: item.name,
+            quantity: item.quantity,
+            price: item.price,
+          })), // Convierte cada producto en un formato esperado
+          payment_method: formData.paymentPreference === 'online' ? 'Online' : 'In-Person',
+          discount_code: formData.discountCode || null,
+        });
+  
         // Caso: Pago en línea
         if (formData.paymentPreference === "online") {
-          const hash = await fetchIntegrityHash(
-            orderData.custom_order_id,
-            finalTotal * 100
-          );
+          const hash = await fetchIntegrityHash(orderData.custom_order_id, finalTotal * 100);
           if (hash) {
-            openWompiCheckout(
-              hash,
-              orderData.custom_order_id,
-              finalTotal * 100
-            );
+            openWompiCheckout(hash, orderData.custom_order_id, finalTotal * 100);
           } else {
             throw new Error("No se pudo generar el hash de integridad.");
           }
         }
-
+  
         // Caso: Pago contra entrega
         else {
           navigate(`/order-status?orderId=${orderData.custom_order_id}`);
