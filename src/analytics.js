@@ -19,14 +19,22 @@
 
 import { useAnalytics } from '@segment/analytics-react';
 
-const analytics = (eventName, properties) => {
-  const { track } = useAnalytics();
-
-  const trackEvent = (eventName, properties = {}) => {
-    track(eventName, properties);
+const analytics = () => {
+    const { track, page, identify } = useAnalytics();
+  
+    const trackEvent = (eventName, properties) => {
+      track(eventName, properties);
+    };
+  
+    const identifyUser = (userId, traits) => {
+      identify(userId, traits);
+    };
+  
+    const trackPage = (name, properties) => {
+      page(name, properties);
+    };
+  
+    return { trackEvent, identifyUser, trackPage };
   };
-
-  return { trackEvent };
-};
 
 export default analytics;

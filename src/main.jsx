@@ -33,9 +33,9 @@ import ForgotPassword from "./pages/ForgotPassword.jsx";
 import ResetPassword from "./pages/ResetPassword.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import Register from "./pages/Register.jsx";
-import { AnalyticsProvider } from '@segment/analytics-react';
+import { AnalyticsProvider } from "@segment/analytics-react";
 
-const analyticsWriteKey = '3oxdJEWqR5n2ejEupwcPCA7R6uDne2lA';
+const analyticsWriteKey = "3oxdJEWqR5n2ejEupwcPCA7R6uDne2lA";
 
 const router = createBrowserRouter([
   {
@@ -44,7 +44,7 @@ const router = createBrowserRouter([
     children: [
       { path: "/", element: <Home /> },
       { path: "/tienda", element: <Store /> },
-      { path: "/tienda/:categoryName", element: <Category />},
+      { path: "/tienda/:categoryName", element: <Category /> },
       { path: "/login", element: <Login /> },
       { path: "/order", element: <NewOrder /> },
       { path: "/register", element: <Register /> },
@@ -53,29 +53,38 @@ const router = createBrowserRouter([
       { path: "/order-statu", element: <OrderStatus /> },
       { path: "/order-status", element: <NewOrderStatus /> },
       { path: "/crear-cuenta", element: <CreateAccount /> },
-      { path: "/create-profile", element: <AuthenticatedRoute component={CreateProfile} />},
-      { path: "/resultados", element: <SearchResults/> },
-      { path: "/recover-password", element: <ForgotPassword/> },
-      { path: "/reset-password", element: <ResetPassword/> },
-      { path: "/404", element: <NotFound/> },
-      { path: "*", element: <NotFound/> },
-      { path: "/crear-cuenta/detalles",element: <AuthenticatedRoute component={CreateAccountDetail} />},
-      { path: "/crear-cuenta/detalles/direccion",element: <AuthenticatedRoute component={CreateAccountDetailAddress} />},
-      { path: "/perfil",element: <AuthenticatedRoute component={Profile} />},
+      {
+        path: "/create-profile",
+        element: <AuthenticatedRoute component={CreateProfile} />,
+      },
+      { path: "/resultados", element: <SearchResults /> },
+      { path: "/recover-password", element: <ForgotPassword /> },
+      { path: "/reset-password", element: <ResetPassword /> },
+      { path: "/404", element: <NotFound /> },
+      { path: "*", element: <NotFound /> },
+      {
+        path: "/crear-cuenta/detalles",
+        element: <AuthenticatedRoute component={CreateAccountDetail} />,
+      },
+      {
+        path: "/crear-cuenta/detalles/direccion",
+        element: <AuthenticatedRoute component={CreateAccountDetailAddress} />,
+      },
+      { path: "/perfil", element: <AuthenticatedRoute component={Profile} /> },
     ],
   },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <AuthProvider>
-      <CartProvider>
-      <AnalyticsProvider writeKey={analyticsWriteKey}>
-        <RouterProvider router={router}>
-          <App />
-        </RouterProvider>
-        </AnalyticsProvider>
-      </CartProvider>
-    </AuthProvider>
+    <AnalyticsProvider writeKey={analyticsWriteKey}>
+      <AuthProvider>
+        <CartProvider>
+          <RouterProvider router={router}>
+            <App />
+          </RouterProvider>
+        </CartProvider>
+      </AuthProvider>
+    </AnalyticsProvider>
   </React.StrictMode>
 );
