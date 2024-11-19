@@ -69,7 +69,6 @@ function NewCheckout() {
   const [selectedHour, setSelectedHour] = useState("");
   const [discountInfo, setDiscountInfo] = useState(null);
   const [isNavbarOpen, setIsNavbarOpen] = useState(false);
-  const { trackEvent } = analytics();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
