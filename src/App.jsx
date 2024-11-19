@@ -12,10 +12,6 @@ function App() {
   const [title, setTitle] = useState("Loocal");
 
   useEffect(() => {
-    initGA(); // Inicializa Google Analytics al cargar la aplicación
-  }, []);
-
-  useEffect(() => {
     document.title = title;
   }, [title]);
 
