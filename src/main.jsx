@@ -35,7 +35,7 @@ import NotFound from "./pages/NotFound.jsx";
 import Register from "./pages/Register.jsx";
 import { AnalyticsProvider } from '@segment/analytics-react';
 
-const analyticsWriteKey = 'SEBAZoQP8CyZ0k6UJx4lc7T7FBy2AAHg';
+const analyticsWriteKey = '3oxdJEWqR5n2ejEupwcPCA7R6uDne2lA';
 
 const router = createBrowserRouter([
   {
