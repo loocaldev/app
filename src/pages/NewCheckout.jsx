@@ -239,14 +239,15 @@ function NewCheckout() {
   };
 
   useEffect(() => {
-    trackEvent('Checkout Viewed', {
+    // Evento de vista de página
+    analytics.page("Checkout Page", {
       user_id: isAuthenticated ? userData?.id : null,
-      email: formData.email || userData?.email,
       cart_size: cart.length,
       subtotal: subtotal,
-      currency: 'COP',
+      currency: "COP",
     });
-  }, []);
+  }, [cart.length, subtotal]);
+
 
   const createOrder = async () => {
     // Crear `orderData` con estructura revisada
@@ -435,19 +436,17 @@ function NewCheckout() {
         const userEmail = formData.email || userData?.email;
   
         // Envía el evento de "Checkout Initiated" a Segment
-        trackEvent('Checkout Initiated', {
-          user_id: userId,
-          email: userEmail,
-          total: finalTotal, // Total después de aplicar descuentos
-          currency: 'COP',
-          items: cart.map((item) => ({
+        analytics.track("Checkout Initiated", {
+          user_id: isAuthenticated ? userData?.id : null,
+          total: subtotal,
+          currency: "COP",
+          items: cart.map(item => ({
             id: item.id,
             name: item.name,
             quantity: item.quantity,
             price: item.price,
-          })), // Convierte cada producto en un formato esperado
-          payment_method: formData.paymentPreference === 'online' ? 'Online' : 'In-Person',
-          discount_code: formData.discountCode || null,
+          })),
+          payment_method: formData.paymentPreference,
         });
   
         // Caso: Pago en línea

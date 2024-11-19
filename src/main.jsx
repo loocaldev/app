@@ -77,7 +77,7 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <AnalyticsProvider writeKey={analyticsWriteKey}>
+    <AnalyticsProvider client={analytics}>
       <AuthProvider>
         <CartProvider>
           <RouterProvider router={router}>

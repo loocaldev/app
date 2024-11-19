@@ -25,7 +25,6 @@ function App() {
         <script src="https://checkout.bold.co/library/boldPaymentButton.js" />
       </Helmet>
       <ViewportMeta />
-      <AnalyticsHandler />
       <Layout>
         <Outlet />
       </Layout>

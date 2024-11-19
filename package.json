@@ -12,6 +12,7 @@
   "dependencies": {
     "@auth0/auth0-react": "^2.2.4",
     "@mercadopago/sdk-react": "^0.0.19",
+    "@segment/analytics-next": "^1.76.0",
     "@segment/analytics-react": "^1.0.0-rc1",
     "axios": "^1.7.2",
     "helmet": "^7.1.0",
