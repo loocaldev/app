@@ -71,7 +71,7 @@ function Profile() {
       const formData = new FormData();
       formData.append("profile_picture", file);
 
-      await updateUser(formData);
+      const success = await updateUser(formData);
       alert("Foto de perfil actualizada exitosamente.");
     } catch (error) {
       console.error("Error al subir la foto de perfil:", error);

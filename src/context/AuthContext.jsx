@@ -35,6 +35,15 @@ export const AuthProvider = ({ children }) => {
         } else {
           getUserDetails(storedToken);
         }
+  
+        // Verifica la expiración periódicamente
+        const interval = setInterval(() => {
+          const tokenExpired = tokenPayload.exp * 1000 < Date.now();
+          if (tokenExpired) {
+            logout();
+            clearInterval(interval); // Limpia el intervalo
+          }
+        }, 10000); // Verifica cada 10 segundos
       }
     }
   }, []);
@@ -78,6 +87,9 @@ export const AuthProvider = ({ children }) => {
     }
     return response;
   };
+
+  useEffect(() => {
+  }, [userData]);
 
   const register = async (username, password) => {
     try {
@@ -163,6 +175,16 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const getProfilePictureUrl = () => {
+    if (!userData?.userprofile?.profile_picture) {
+      return "/default-placeholder.png"; // Ruta a la imagen por defecto
+    }
+    const baseUrl = userData.userprofile.profile_picture;
+    const timestamp = new Date().getTime(); // Genera un timestamp único
+    return `${baseUrl}?t=${timestamp}`; // Añade el timestamp como parámetro
+  };
+  
+
   const logout = async () => {
     try {
       const response = await fetch("https://loocal.co/api/logout/", {
@@ -190,7 +212,7 @@ export const AuthProvider = ({ children }) => {
     setToken("");
     setRefreshToken("");
     setIsAuthenticated(false);
-    setUserData(null);
+    setUserData(null); // Limpia el estado del usuario
     setAddresses([]);
   };
 
@@ -198,43 +220,34 @@ export const AuthProvider = ({ children }) => {
 
   const updateUser = async (updatedData) => {
     try {
-      const isFormData = updatedData instanceof FormData; // Verifica si el objeto es FormData
-      const headers = {
-        Authorization: `Bearer ${token}`,
-        
-      };
-
-      // No incluir "Content-Type" cuando estás enviando FormData, ya que el navegador lo gestiona automáticamente
+      const isFormData = updatedData instanceof FormData;
+      const headers = { Authorization: `Bearer ${token}` };
+  
       if (!isFormData) {
         headers["Content-Type"] = "application/json";
       }
-
-      if (isFormData) {
-        console.log("FormData contiene:");
-        for (let [key, value] of updatedData.entries()) {
-          console.log(`${key}:`, value instanceof File ? value.name : value);
-        }
-      }
-
+  
       const response = await fetch("https://loocal.co/api/update_user/", {
         method: "PATCH",
         headers: headers,
-        body: isFormData ? updatedData : JSON.stringify(updatedData), // Si es FormData, lo enviamos directamente
+        body: isFormData ? updatedData : JSON.stringify(updatedData),
       });
-
+  
       if (response.ok) {
-        console.log("Update successful.");
-
-        // Realizar una nueva solicitud al backend para obtener los datos actualizados del usuario
         await getUserDetails(token);
+        return true;
       } else {
-        console.log("Update failed:", response.statusText);
+        console.error("Update failed:", response.statusText);
         throw new Error("Update failed");
       }
     } catch (error) {
       console.error("Error updating user:", error);
+      return false;
     }
   };
+  
+  
+  
 
   const getOrders = async () => {
     try {
@@ -249,13 +262,11 @@ export const AuthProvider = ({ children }) => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log("Órdenes del usuario:", data);
         return data; // En lugar de usar setOrders, devolvemos los datos directamente
       } else {
         throw new Error("Failed to fetch orders");
       }
     } catch (error) {
-      console.error("Error fetching orders:", error);
       throw error; // Devolvemos el error para manejarlo en el componente
     }
   };
@@ -278,10 +289,6 @@ export const AuthProvider = ({ children }) => {
         // Ordenar para que la dirección principal esté siempre al inicio
         const sortedAddresses = data.sort((a, b) => (a.is_default ? -1 : 1));
         setAddresses(sortedAddresses);
-        console.log(
-          "Direcciones recibidas desde API en AuthContext:",
-          sortedAddresses
-        );
       } else {
         throw new Error("Failed to fetch addresses");
       }
@@ -306,10 +313,8 @@ export const AuthProvider = ({ children }) => {
       );
       if (response.ok) {
         const data = await response.json();
-        console.log("Dirección actualizada con éxito:", data);
         getAddresses(); // Refrescar la lista de direcciones
       } else {
-        console.log("Fallo al actualizar la dirección:", response.statusText);
       }
     } catch (error) {
       console.error("Error al actualizar dirección:", error);
@@ -331,12 +336,10 @@ export const AuthProvider = ({ children }) => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log("Address added successfully:", data);
         getAddresses(); // Actualiza lista para reflejar cambios
         return data;
       } else {
         const errorData = await response.json();
-        console.log("Failed to add address:", errorData);
         throw new Error("Failed to add address");
       }
     } catch (error) {
@@ -394,7 +397,6 @@ export const AuthProvider = ({ children }) => {
       );
 
       if (response.ok) {
-        console.log("Address marked as primary successfully.");
         getAddresses(); // Actualiza las direcciones para reflejar el cambio
       } else {
         throw new Error("Failed to set primary address");
@@ -420,14 +422,11 @@ export const AuthProvider = ({ children }) => {
       });
 
       if (response.ok) {
-        console.log("Password changed successfully");
         return true;
       } else {
-        console.log("Failed to change password");
         return false;
       }
     } catch (error) {
-      console.error("Error changing password:", error);
       return false;
     }
   };
@@ -600,7 +599,8 @@ export const AuthProvider = ({ children }) => {
         sendVerificationCode,
         verifyCode,
         sendEmailOtp,
-        verifyEmailOtp
+        verifyEmailOtp,
+        getProfilePictureUrl
       }}
     >
       {children}
