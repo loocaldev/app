@@ -5,6 +5,13 @@ import styles from "../styles/Login.module.css";
 import Logo from "../assets/logo.svg";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import {
+  FiChevronLeft,
+  FiMapPin,
+  FiUser,
+  FiChevronRight,
+  FiShoppingCart,
+} from "react-icons/fi";
 
 function Login() {
   const { login, token } = useAuth();
@@ -53,9 +60,12 @@ function Login() {
         </div> */}
         <div className={styles["form-column"]}>
           <div className={styles["title-form"]}>
+            <div className={styles.HeaderTitleForm}>
+              <FiChevronLeft onClick={() => window.history.back()}/>
             <Link to="/">
               <img src={Logo} />
             </Link>
+            </div>
             <h2>Ingresar</h2>
             <p>Ingresa a tu cuenta de Loocal</p>
           </div>
@@ -89,7 +99,7 @@ function Login() {
                 </span>
               </div>
               <div className={styles["forget-password"]}>
-                <span>¿Olvidaste tu contraseña?</span>
+              <Link to="/recover-password"><span>¿Olvidaste tu contraseña?</span></Link>
               </div>
               <button type="button" onClick={handleLogin} disabled={loading}>
                 {" "}
@@ -106,9 +116,6 @@ function Login() {
                 ¿Aún no tienes tu cuenta?{" "}
                 <Link to="/register">Registrate aquí</Link>
               </span>
-            </div>
-            <div className={styles["forget-password"]}>
-              <Link to="/recover-password">¿Olvidaste tu contraseña?</Link>
             </div>
           </div>
         </div>

@@ -102,8 +102,14 @@ form button {
 }
 
 .form-group input {
-  width: 100%;
   max-width: 100%;
+}
+
+input[readonly],
+select:disabled {
+  background-color: #f5f5f5;
+  color: #666;
+  cursor: not-allowed;
 }
 
 .errorMessage {
@@ -257,12 +263,17 @@ input {
   .form-row {
     flex-wrap: wrap;
   }
+
+  .form-group {
+    flex-wrap: wrap;
+  }
 }
 
 @media screen and (max-width: 576px) {
   :root {
     background-color: #fff;
   }
+  
   
   h1 {
     font-size: 24px;
@@ -296,5 +307,13 @@ input {
   }
   button {
     font-size: 14px;
+  }
+
+  .form-row {
+    flex-wrap: wrap;
+  }
+
+  .form-group {
+    flex-wrap: wrap;
   }
 }

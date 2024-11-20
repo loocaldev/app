@@ -5,7 +5,8 @@ import Logo from "../assets/logo.svg";
 import UserDataForm from "../components/Forms/UserDataForms.jsx";
 import AddressForm from "../components/Forms/AddressForm";
 import ProductCardSQRead from "../components/ProductCardSQRead";
-import analytics from '../analytics';
+import ProfileSelect from "../components/ProfileSelect.jsx";
+import analytics from "../analytics";
 import {
   FiChevronLeft,
   FiMapPin,
@@ -27,7 +28,7 @@ import toast from "react-hot-toast";
 import { departamentosYMunicipios } from "../data/departamentosYMunicipios"; // Este archivo ya debe estar en tu estructura
 import { indicativos } from "../data/indicativos";
 import FooterLight from "../components/FooterLight.jsx";
-import { formatDateString, getAvailableHours } from '../utils/dateTime.js';
+import { formatDateString, getAvailableHours } from "../utils/dateTime.js";
 
 const formatPriceToCOP = (price) => {
   const numericPrice = Number(price);
@@ -46,24 +47,46 @@ function NewCheckout() {
   const [errors, setErrors] = useState([]);
   const { cart, subtotal } = useCart();
   const navigate = useNavigate();
-  const { token, isAuthenticated, logout, userData } = useAuth();
+  const { token, isAuthenticated, logout, userData, addresses, getAddresses } = useAuth();
   const isMobile = useScreenSize();
-  const [formData, setFormData] = useState({
-    firstname: "",
-    lastname: "",
-    documentType: "CC",
-    documentNumber: "",
-    phone: "",
-    phoneCode: "+57",
-    email: "",
-    departament: "",
-    town: "",
-    address: "",
-    delivery_date: "",
-    delivery_time: "",
-    paymentPreference: "online",
-    discountCode: "",
-  });
+  const [useProfileData, setUseProfileData] = useState(true);
+  const [formData, setFormData] = useState(() =>
+    isAuthenticated && useProfileData
+      ? {
+          firstname: userData?.first_name || "",
+          lastname: userData?.last_name || "",
+          documentType: userData?.userprofile?.document_type || "CC", // Acceder a userprofile
+          documentNumber: userData?.userprofile?.document_number || "",
+          phoneCode: "+57", // Valor fijo, actualizar si es dinámico
+          phone: userData?.userprofile?.phone_number || "",
+          email: userData?.email || "",
+          addresId: null,
+          departament: "",
+          town: "",
+          address: "",
+          delivery_date: "",
+          delivery_time: "",
+          paymentPreference: "online",
+          discountCode: "",
+        }
+      : {
+          firstname: "",
+          lastname: "",
+          documentType: "CC",
+          documentNumber: "",
+          phone: "",
+          phoneCode: "+57",
+          email: "",
+          addresId: null,
+          departament: "",
+          town: "",
+          address: "",
+          delivery_date: "",
+          delivery_time: "",
+          paymentPreference: "online",
+          discountCode: "",
+        }
+  );
   const [availableDates, setAvailableDates] = useState([]);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedHour, setSelectedHour] = useState("");
@@ -104,6 +127,37 @@ function NewCheckout() {
       ...prevData,
       [name]: value,
     }));
+  };
+
+  const handleProfileSelection = (e) => {
+    const selectedProfile = e.target.value;
+    if (selectedProfile === "profile") {
+      setUseProfileData(true);
+      if (userData) {
+        // Rellena el formulario con los datos del usuario autenticado
+        setFormData((prevData) => ({
+          ...prevData,
+          firstname: userData?.first_name || "",
+          lastname: userData?.last_name || "",
+          documentType: userData?.document_type || "CC",
+          documentNumber: userData?.document_number || "",
+          phone: userData?.phone || "",
+          email: userData?.email || "",
+        }));
+      }
+    } else {
+      setUseProfileData(false);
+      // Limpia el formulario
+      setFormData((prevData) => ({
+        ...prevData,
+        firstname: "",
+        lastname: "",
+        documentType: "CC",
+        documentNumber: "",
+        phone: "",
+        email: "",
+      }));
+    }
   };
 
   const handlePhoneCodeChange = (e) => {
@@ -149,9 +203,9 @@ function NewCheckout() {
       // Formato ISO YYYY-MM-DD
       const formattedDate = nextDate.toISOString().split("T")[0];
       // Solo agregar el día si tiene horas disponibles
-    if (getAvailableHours(formattedDate).length > 0) {
-      days.push(formattedDate);
-    }
+      if (getAvailableHours(formattedDate).length > 0) {
+        days.push(formattedDate);
+      }
     }
 
     return days;
@@ -204,7 +258,7 @@ function NewCheckout() {
         setIsDiscountApplied(true);
         setDiscountStatusMessage("Código de descuento aplicado exitosamente");
         setIsMessageHidden(false);
-        trackEvent('Discount Applied', {
+        trackEvent("Discount Applied", {
           user_id: isAuthenticated ? userData?.id : null,
           discount_code: formattedCode,
           discount_value: response.data.discount_value,
@@ -238,6 +292,11 @@ function NewCheckout() {
   };
 
   useEffect(() => {
+    getAddresses();
+  }, []);
+
+
+  useEffect(() => {
     // Enviar evento cuando se carga la página de checkout
     analytics.track("Checkout Viewed", {
       cart_size: cart.length,
@@ -245,7 +304,6 @@ function NewCheckout() {
       currency: "COP",
     });
   }, [cart, subtotal]);
-
 
   const createOrder = async () => {
     // Crear `orderData` con estructura revisada
@@ -428,11 +486,11 @@ function NewCheckout() {
       try {
         // Crea la orden en el backend
         const orderData = await createOrder();
-  
+
         // Extrae los datos reales del carrito y usuario
         const userId = isAuthenticated ? userData?.id : null; // ID del usuario si está autenticado
         const userEmail = formData.email || userData?.email;
-  
+
         // Envía el evento de "Checkout Initiated" a Segment
         analytics.track("Checkout Completed", {
           email: formData.email,
@@ -440,17 +498,24 @@ function NewCheckout() {
           payment_method: formData.paymentPreference,
           discount_code: formData.discountCode || null,
         });
-  
+
         // Caso: Pago en línea
         if (formData.paymentPreference === "online") {
-          const hash = await fetchIntegrityHash(orderData.custom_order_id, finalTotal * 100);
+          const hash = await fetchIntegrityHash(
+            orderData.custom_order_id,
+            finalTotal * 100
+          );
           if (hash) {
-            openWompiCheckout(hash, orderData.custom_order_id, finalTotal * 100);
+            openWompiCheckout(
+              hash,
+              orderData.custom_order_id,
+              finalTotal * 100
+            );
           } else {
             throw new Error("No se pudo generar el hash de integridad.");
           }
         }
-  
+
         // Caso: Pago contra entrega
         else {
           navigate(`/order-status?orderId=${orderData.custom_order_id}`);
@@ -541,10 +606,7 @@ function NewCheckout() {
               </div>
               <div className={styles["header-profile"]}>
                 {isAuthenticated ? (
-                  <div
-                    onClick={toggleProfileMenu}
-                    className={styles["profile-card"]}
-                  >
+                  <div className={styles["profile-card"]}>
                     {userData?.userprofile?.profile_picture ? (
                       <img
                         src={userData.userprofile.profile_picture}
@@ -560,42 +622,7 @@ function NewCheckout() {
                     )}
                     <div className={styles["username"]}>
                       <span>{userData?.first_name}</span>
-                      {isProfileMenuOpen ? (
-                        <IoIosArrowUp />
-                      ) : (
-                        <IoIosArrowDown />
-                      )}
                     </div>
-                    {/* Menú desplegable de perfil */}
-                    {isProfileMenuOpen && (
-                      <div className={styles["profile-menu"]}>
-                        <Link to="/perfil" state={{ section: "ProfileDetail" }}>
-                          <div className={styles["menu-item"]}>
-                            Ajustes de mi cuenta
-                          </div>
-                        </Link>
-
-                        <Link
-                          to="/perfil"
-                          state={{ section: "ProfileAddress" }}
-                        >
-                          <div className={styles["menu-item"]}>
-                            Mis direcciones
-                          </div>
-                        </Link>
-
-                        <Link to="/perfil" state={{ section: "ProfileOrders" }}>
-                          <div className={styles["menu-item"]}>Mis pedidos</div>
-                        </Link>
-
-                        <div
-                          className={styles["menu-item"]}
-                          onClick={handleLogout}
-                        >
-                          Cerrar sesión
-                        </div>
-                      </div>
-                    )}
                   </div>
                 ) : (
                   <div className={styles["buttons-profile"]}>
@@ -644,24 +671,74 @@ function NewCheckout() {
                       : ""
                   }`}
                 >
-                  <div className={styles["box-header"]}>
-                    <div className={styles["box-header-info"]}>
-                      <div className={styles["box-header-icon"]}>
-                        <FiUser />
+                  {isAuthenticated ? (
+                    <div className={styles["box-header-title-auth"]}>
+                      {/* <label htmlFor="profile-select">Usar perfil:</label>
+                      <select
+                        id="profile-select"
+                        onChange={handleProfileSelection}
+                        value={useProfileData ? "profile" : "empty"}
+                      >
+                        <option value="profile">Perfil Autenticado</option>
+                        <option value="empty">Sin Perfil</option>
+                      </select> */}
+                      <ProfileSelect
+                        userData={userData}
+                        onSelect={(value) => {
+                          if (value === "profile") {
+                            setUseProfileData(true); // Activa el uso de datos prellenados
+                            if (userData) {
+                              setFormData((prevData) => ({
+                                ...prevData,
+                                firstname: userData?.first_name || "",
+                                lastname: userData?.last_name || "",
+                                documentType:
+                                  userData?.userprofile?.document_type || "CC", // Acceder a userprofile
+                                documentNumber:
+                                  userData?.userprofile?.document_number || "",
+                                phoneCode: "+57", // Valor fijo, actualizar si es dinámico
+                                phone:
+                                  userData?.userprofile?.phone_number || "",
+                                email: userData?.email || "",
+                              }));
+                            }
+                          } else {
+                            setUseProfileData(false); // Permite datos editables
+                            setFormData((prevData) => ({
+                              ...prevData,
+                              firstname: "",
+                              lastname: "",
+                              documentType: "CC",
+                              documentNumber: "",
+                              phone: "",
+                              email: "",
+                            }));
+                          }
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div className={styles["box-header"]}>
+                      <div className={styles["box-header-info"]}>
+                        <div className={styles["box-header-icon"]}>
+                          <FiUser />
+                        </div>
+                        <div className={styles["box-header-title"]}>
+                          <h4>Tus datos</h4>
+                        </div>
                       </div>
-                      <div className={styles["box-header-title"]}>
-                        <h4>Tus datos</h4>
+                      <div className={styles["box-header-extend"]}>
+                        <IoIosArrowDown />
                       </div>
                     </div>
-                    <div className={styles["box-header-extend"]}>
-                      <IoIosArrowDown />
-                    </div>
-                  </div>
+                  )}
+
                   <div className={styles["box-content"]}>
                     <UserDataForm
                       formData={formData}
                       onChange={handleChange}
                       onPhoneCodeChange={handlePhoneCodeChange}
+                      isReadOnly={useProfileData} // Bloquea los campos si se usan datos prellenados
                     />
                   </div>
                 </div>
@@ -689,12 +766,86 @@ function NewCheckout() {
                     </div>
                   </div>
                   <div className={styles["box-content"]}>
-                    <AddressForm
-                      formData={formData}
-                      onDepartamentoChange={handleDepartamentoChange}
-                      onMunicipioChange={handleMunicipioChange}
-                      onAddressChange={handleChange}
-                    />
+                    {isAuthenticated ? (
+      <>
+        {/* Selección de direcciones */}
+        <form>
+          <div className={styles["address-list"]}>
+            {(addresses || []).map((address) => (
+              <div
+                key={address.id}
+                className={`${styles["custom-radio"]} ${
+                  formData.addressId === address.id ? styles["selected"] : ""
+                }`}
+                onClick={() => {
+                  setFormData({
+                    ...formData,
+                    addressId: address.id,
+                    departament: address.state,
+                    town: address.city,
+                    address: address.street,
+                  });
+                }}
+              >
+                <div className={styles["radio-circle"]}></div>
+                <div className={styles["label"]}>
+                  <div className={styles["label-main"]}>
+                    <span>{address.street}</span>
+                  </div>
+                  <div className={styles["label-extra"]}>
+                    <span>
+                      {address.city}, {address.state}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {/* Opción para agregar una nueva dirección */}
+            <div
+              className={`${styles["custom-radio"]} ${
+                formData.addressId === "new" ? styles["selected"] : ""
+              }`}
+              onClick={() => {
+                setFormData({
+                  ...formData,
+                  addressId: "new",
+                  departament: "",
+                  town: "",
+                  address: "",
+                });
+              }}
+            >
+              <div className={styles["radio-circle"]}></div>
+              <div className={styles["label"]}>
+                <div className={styles["label-main"]}>
+                  <span>Agregar nueva dirección</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        {/* Mostrar formulario si se selecciona una nueva dirección */}
+        {formData.addressId === "new" && (
+          <AddressForm
+            formData={formData}
+            onDepartamentoChange={handleDepartamentoChange}
+            onMunicipioChange={handleMunicipioChange}
+            onAddressChange={handleChange}
+          />
+        )}
+      </>
+    ) : (
+      <>
+        {/* Formulario de dirección para usuarios no autenticados */}
+        <AddressForm
+          formData={formData}
+          onDepartamentoChange={handleDepartamentoChange}
+          onMunicipioChange={handleMunicipioChange}
+          onAddressChange={handleChange}
+        />
+      </>
+    )}
                   </div>
                 </div>
               </div>

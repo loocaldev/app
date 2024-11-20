@@ -59,7 +59,7 @@ function Home() {
         <div className={styles.FirstBanner}>
           {isAuthenticated && userData ? (
             <>
-              <h1>{userData.first_name}, encuentra productos frescos de alta calidadx</h1>
+              <h1>{userData.first_name}, encuentra productos frescos de alta calidad</h1>
             </>
           ) : (
             <>

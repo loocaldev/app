@@ -2,69 +2,94 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import styles from "../../styles/profileAddress.module.css";
 import { CiTrash, CiBookmarkCheck, CiEdit } from "react-icons/ci";
+import AddressForm from "../Forms/AddressForm"; // Importa AddressForm
 
-function profileAddress() {
-  const { addresses, getAddresses, addAddress, deleteAddress, setPrimaryAddress, updateAddress } = useAuth();
-  const [newAddress, setNewAddress] = useState({
-    street: "",
-    city: "",
-    state: "",
-    postal_code: "",
-    country: "",
-    is_default: false,
+function ProfileAddress() {
+  const {
+    addresses,
+    getAddresses,
+    addAddress,
+    deleteAddress,
+    setPrimaryAddress,
+    updateAddress,
+  } = useAuth();
+
+  const [formData, setFormData] = useState({
+    departament: "",
+    town: "",
+    address: "",
   });
-  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [editAddress, setEditAddress] = useState(null); // Nuevo estado para la dirección en edición
+  const [editAddressId, setEditAddressId] = useState(null); // ID de la dirección en edición
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
   useEffect(() => {
     getAddresses();
   }, []);
 
-  const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setNewAddress({
-      ...newAddress,
-      [name]: type === "checkbox" ? checked : value,
-    });
+  const handleDepartamentoChange = (e) => {
+    setFormData({ ...formData, departament: e.target.value, town: "" });
   };
 
-  const handleEditInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setEditAddress({
-      ...editAddress,
-      [name]: type === "checkbox" ? checked : value,
-    });
+  const handleMunicipioChange = (e) => {
+    setFormData({ ...formData, town: e.target.value });
+  };
+
+  const handleAddressChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
   };
 
   const handleAddAddress = async (e) => {
     e.preventDefault();
+    const newAddress = {
+      street: formData.address,
+      city: formData.town,
+      state: formData.departament,
+      postal_code: "000000", // Puedes añadir campos adicionales si es necesario
+      country: "Colombia", // Valor predeterminado
+      is_default: false,
+    };
+
     const addedAddress = await addAddress(newAddress);
     if (addedAddress) {
-      setNewAddress({
-        street: "",
-        city: "",
-        state: "",
-        postal_code: "",
-        country: "",
-        is_default: false,
-      });
+      setFormData({ departament: "", town: "", address: "" }); // Limpia el formulario
       setIsPopupOpen(false);
-      getAddresses();
+      getAddresses(); // Refresca la lista de direcciones
     }
   };
 
   const handleUpdateAddress = async (e) => {
     e.preventDefault();
-    if (editAddress) {
-      await updateAddress(editAddress.id, editAddress);
-      setEditAddress(null);
+    if (editAddressId) {
+      const updatedAddress = {
+        street: formData.address,
+        city: formData.town,
+        state: formData.departament,
+        postal_code: "", // Puedes añadir campos adicionales si es necesario
+        country: "Colombia",
+      };
+
+      await updateAddress(editAddressId, updatedAddress);
+      setEditAddressId(null);
+      setFormData({ departament: "", town: "", address: "" }); // Limpia el formulario
       getAddresses();
     }
   };
 
-  const startEditAddress = (address) => setEditAddress(address);
-  const cancelEdit = () => setEditAddress(null);
+  const startEditAddress = (address) => {
+    setEditAddressId(address.id);
+    setFormData({
+      departament: address.state,
+      town: address.city,
+      address: address.street,
+    });
+  };
+
+  const cancelEdit = () => {
+    setEditAddressId(null);
+    setFormData({ departament: "", town: "", address: "" }); // Limpia el formulario
+  };
 
   const confirmDelete = (addressId) => setConfirmDeleteId(addressId);
   const cancelDelete = () => setConfirmDeleteId(null);
@@ -81,12 +106,15 @@ function profileAddress() {
           <div
             key={address.id}
             className={styles["address-item"]}
-            style={{ backgroundColor: address.is_default ? "#EDE8EF" : "#FFFFFF" }}
+            style={{
+              backgroundColor: address.is_default ? "#EDE8EF" : "#FFFFFF",
+            }}
           >
             <div className={styles["address-item-content"]}>
               <span>{address.street} </span>
-              <span>{address.city}, {address.state} </span>
-              <span>{address.postal_code} </span>
+              <span>
+                {address.city}, {address.state}{" "}
+              </span>
               <span>{address.country} </span>
             </div>
             <div className={styles["address-item-action"]}>
@@ -104,18 +132,42 @@ function profileAddress() {
                   <span>Marcar como principal</span>
                 </a>
               )}
-              <a href="#" onClick={(e) => { e.preventDefault(); startEditAddress(address); }} className={styles["address-edit"]}>
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  startEditAddress(address);
+                }}
+                className={styles["address-edit"]}
+              >
                 <CiEdit />
                 <span>Editar</span>
               </a>
               {confirmDeleteId === address.id ? (
                 <div className={styles["confirm-delete"]}>
                   <span>¿Estás seguro?</span>
-                  <button onClick={() => handleDelete(address.id)} className={styles["delete-confirm"]}>Sí</button>
-                  <button onClick={cancelDelete} className={styles["delete-cancel"]}>No</button>
+                  <button
+                    onClick={() => handleDelete(address.id)}
+                    className={styles["delete-confirm"]}
+                  >
+                    Sí
+                  </button>
+                  <button
+                    onClick={cancelDelete}
+                    className={styles["delete-cancel"]}
+                  >
+                    No
+                  </button>
                 </div>
               ) : (
-                <a href="#" onClick={(e) => { e.preventDefault(); confirmDelete(address.id); }} className={styles["address-delete"]}>
+                <a
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    confirmDelete(address.id);
+                  }}
+                  className={styles["address-delete"]}
+                >
                   <CiTrash />
                   <span>Eliminar</span>
                 </a>
@@ -125,51 +177,71 @@ function profileAddress() {
         ))}
       </div>
 
-      {/* Formulario para agregar una nueva dirección */}
+      {/* Botón para añadir nueva dirección */}
       <div className={styles["add-address"]}>
-        <button onClick={() => setIsPopupOpen(true)}>Añadir dirección</button>
+        <button
+          onClick={() => {
+            setIsPopupOpen(true);
+            setFormData({ departament: "", town: "", address: "" }); // Limpia el formulario
+          }}
+        >
+          Añadir dirección
+        </button>
       </div>
 
+      {/* Popup para añadir nueva dirección */}
       {isPopupOpen && (
-        <div className={styles["popup-overlay"]} onClick={() => setIsPopupOpen(false)}>
+        <div
+          className={styles["popup-overlay"]}
+          onClick={() => setIsPopupOpen(false)}
+        >
           <div
             className={`${styles["popup-content"]} ${styles["popup-mobile"]}`}
-            onClick={(e) => e.stopPropagation()} // Evitar cerrar el popup al hacer clic dentro de él
+            onClick={(e) => e.stopPropagation()}
           >
             <h3>Agregar Nueva Dirección</h3>
-            <form onSubmit={handleAddAddress} className={styles["address-form"]}>
-              <input type="text" name="street" placeholder="Calle" value={newAddress.street} onChange={handleInputChange} required />
-              <input type="text" name="city" placeholder="Ciudad" value={newAddress.city} onChange={handleInputChange} required />
-              <input type="text" name="state" placeholder="Estado" value={newAddress.state} onChange={handleInputChange} required />
-              <input type="text" name="postal_code" placeholder="Código Postal" value={newAddress.postal_code} onChange={handleInputChange} required />
-              <input type="text" name="country" placeholder="País" value={newAddress.country} onChange={handleInputChange} required />
-              <label>
-                <input type="checkbox" name="is_default" checked={newAddress.is_default} onChange={handleInputChange} />
-                Establecer como dirección predeterminada
-              </label>
-              <button type="submit" className={styles["add-button"]}>Agregar Dirección</button>
-            </form>
+            <AddressForm
+              formData={formData}
+              onDepartamentoChange={handleDepartamentoChange}
+              onMunicipioChange={handleMunicipioChange}
+              onAddressChange={handleAddressChange}
+            />
+            <button
+              onClick={handleAddAddress}
+              className={styles["add-button"]}
+            >
+              Agregar Dirección
+            </button>
           </div>
         </div>
       )}
 
-      {/* Formulario de edición de dirección */}
-      {editAddress && (
+      {/* Popup para editar dirección */}
+      {editAddressId && (
         <div className={styles["popup-overlay"]} onClick={cancelEdit}>
           <div
             className={`${styles["popup-content"]} ${styles["popup-mobile"]}`}
             onClick={(e) => e.stopPropagation()}
           >
             <h3>Editar Dirección</h3>
-            <form onSubmit={handleUpdateAddress} className={styles["address-form"]}>
-              <input type="text" name="street" placeholder="Calle" value={editAddress.street} onChange={handleEditInputChange} required />
-              <input type="text" name="city" placeholder="Ciudad" value={editAddress.city} onChange={handleEditInputChange} required />
-              <input type="text" name="state" placeholder="Estado" value={editAddress.state} onChange={handleEditInputChange} required />
-              <input type="text" name="postal_code" placeholder="Código Postal" value={editAddress.postal_code} onChange={handleEditInputChange} required />
-              <input type="text" name="country" placeholder="País" value={editAddress.country} onChange={handleEditInputChange} required />
-              <button type="submit" className={styles["update-button"]}>Guardar Cambios</button>
-              <button type="button" onClick={cancelEdit} className={styles["cancel-button"]}>Cancelar</button>
-            </form>
+            <AddressForm
+              formData={formData}
+              onDepartamentoChange={handleDepartamentoChange}
+              onMunicipioChange={handleMunicipioChange}
+              onAddressChange={handleAddressChange}
+            />
+            <button
+              onClick={handleUpdateAddress}
+              className={styles["update-button"]}
+            >
+              Guardar Cambios
+            </button>
+            <button
+              onClick={cancelEdit}
+              className={styles["cancel-button"]}
+            >
+              Cancelar
+            </button>
           </div>
         </div>
       )}
@@ -177,4 +249,4 @@ function profileAddress() {
   );
 }
 
-export default profileAddress;
+export default ProfileAddress;

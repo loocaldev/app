@@ -1,34 +1,28 @@
-// Profile.jsx
 import React, { useState, useEffect, useRef } from "react";
 import styles from "../styles/Profile.module.css";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate, Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import ProfileDetail from "../components/Profile/profileDetail";
 import ProfilePassword from "../components/Profile/profileChangePassword";
 import ProfileAddress from "../components/Profile/profileAddress";
 import ProfileOrders from "../components/Profile/profileOrders";
-import { FaCamera } from "react-icons/fa"; // Asegúrate de instalar react-icons
-import {
-  TbRosetteDiscount,
-  TbApple,
-  TbCarrot,
-  TbBuildingStore,
-  TbUserCircle,
-  TbChevronRight,
-} from "react-icons/tb";
+import useScreenSize from "../hooks/useScreenSize";
+import { FaCamera } from "react-icons/fa";
+import { TbChevronLeft } from "react-icons/tb";
 
 function Profile() {
   const { userData, updateUser } = useAuth();
   const location = useLocation();
   const [profilePicture, setProfilePicture] = useState(null);
   const [loading, setLoading] = useState(false);
-  const fileInputRef = useRef(null); // Referencia al input de archivo
+  const fileInputRef = useRef(null);
+  const isMobile = useScreenSize(); // Detecta si estamos en móvil
 
+  const [isNavVisible, setIsNavVisible] = useState(true); // Controla si se muestra la navegación
   const initialSection = location.state?.section || "ProfileDetail";
-  const [selectedSection, setSelectedSection] = useState("ProfileDetail");
+  const [selectedSection, setSelectedSection] = useState(initialSection);
 
   useEffect(() => {
-    // Actualiza selectedSection si location.state.section cambia
     if (location.state?.section) {
       setSelectedSection(location.state.section);
     }
@@ -38,7 +32,7 @@ function Profile() {
     switch (selectedSection) {
       case "ProfileDetail":
         return <ProfileDetail />;
-        case "ProfilePassword":
+      case "ProfilePassword":
         return <ProfilePassword />;
       case "ProfileAddress":
         return <ProfileAddress />;
@@ -49,34 +43,26 @@ function Profile() {
     }
   };
 
-  useEffect(() => {
-    console.log("Profile picture URL:", userData?.userprofile?.profile_picture);
-  }, [userData]);
-
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    const maxSize = 10 * 1024 * 1024; // Tamaño máximo permitido (10 MB)
+    const maxSize = 10 * 1024 * 1024;
 
     if (file && file.size > maxSize) {
-      alert(
-        "El archivo es demasiado grande. El tamaño máximo permitido es de 10 MB."
-      );
+      alert("El archivo es demasiado grande. Tamaño máximo permitido: 10 MB.");
       return;
     }
 
     setProfilePicture(file);
-    handleUpload(file); // Sube la imagen automáticamente al seleccionarla
+    handleUpload(file);
   };
 
-  // Abre el selector de archivos al hacer clic en la imagen
   const handleImageClick = () => {
-    fileInputRef.current.click(); // Activa el input de archivo
+    fileInputRef.current.click();
   };
 
-  // Subir la imagen de perfil
   const handleUpload = async (file) => {
     if (!file) {
-      alert("Por favor selecciona una imagen primero.");
+      alert("Por favor selecciona una imagen.");
       return;
     }
 
@@ -88,22 +74,42 @@ function Profile() {
       await updateUser(formData);
       alert("Foto de perfil actualizada exitosamente.");
     } catch (error) {
-      console.error("Error uploading profile picture:", error);
-      alert("Error actualizando la foto de perfil.");
+      console.error("Error al subir la foto de perfil:", error);
+      alert("Error al actualizar la foto de perfil.");
     } finally {
       setLoading(false);
     }
   };
 
+  const handleNavSelection = (section) => {
+    setSelectedSection(section);
+    if (isMobile) {
+      setIsNavVisible(false); // Oculta navegación en móvil
+    }
+  };
+
+  const goBackToNav = () => {
+    setIsNavVisible(true); // Muestra navegación en móvil
+  };
+
   return (
     <div className={styles["container"]}>
-      <div className={styles["content"]}>
+      <div
+        className={`${styles["content"]} ${
+          isMobile
+            ? isNavVisible
+              ? styles["nav-visible"]
+              : styles["content-visible"]
+            : ""
+        }`}
+      >
+        {/* Primera columna (Navegación) */}
         <div className={styles["first-column"]}>
           <div className={styles["profile-card"]}>
             <div className={styles["photo"]} onClick={handleImageClick}>
               {userData?.userprofile?.profile_picture ? (
                 <img
-                  src={userData.userprofile.profile_picture}
+                  src={userData.userprofile.profile_picture} 
                   alt="Foto de perfil"
                   className={styles["profile-picture"]}
                 />
@@ -123,64 +129,49 @@ function Profile() {
             </div>
           </div>
           <div className={styles["navbar-vertical"]}>
-            <Link to="/perfil">
-              <div
-                className={`${styles["navbar-option"]} ${
-                selectedSection === "ProfileDetail" ? styles["navbar-option-active"] : ""
+            <div
+              className={`${styles["navbar-option"]} ${
+                selectedSection === "ProfileDetail"
+                  ? styles["navbar-option-active"]
+                  : ""
               }`}
-                onClick={() => setSelectedSection("ProfileDetail")}
-              >
-                {" "}
-                Datos de mi cuenta
-              </div>
-            </Link>
-            <Link to="/perfil">
-              <div
-                className={`${styles["navbar-option"]} ${
-                selectedSection === "ProfilePassword" ? styles["navbar-option-active"] : ""
+              onClick={() => handleNavSelection("ProfileDetail")}
+            >
+              Datos de mi cuenta
+            </div>
+            <div
+              className={`${styles["navbar-option"]} ${
+                selectedSection === "ProfilePassword"
+                  ? styles["navbar-option-active"]
+                  : ""
               }`}
-                onClick={() => setSelectedSection("ProfilePassword")}
-              >
-                {" "}
-                Cambiar contraseña
-              </div>
-            </Link>
-            <Link to="/perfil">
-              <div
-                className={`${styles["navbar-option"]} ${
-                selectedSection === "ProfileAddress" ? styles["navbar-option-active"] : ""
+              onClick={() => handleNavSelection("ProfilePassword")}
+            >
+              Cambiar contraseña
+            </div>
+            <div
+              className={`${styles["navbar-option"]} ${
+                selectedSection === "ProfileAddress"
+                  ? styles["navbar-option-active"]
+                  : ""
               }`}
-                onClick={() => setSelectedSection("ProfileAddress")}
-              >
-                {" "}
-                Direcciones
-              </div>
-            </Link>
-            <Link to="/perfil">
-              <div
-                className={`${styles["navbar-option"]} ${
-                selectedSection === "ProfileOrders" ? styles["navbar-option-active"] : ""
+              onClick={() => handleNavSelection("ProfileAddress")}
+            >
+              Direcciones
+            </div>
+            <div
+              className={`${styles["navbar-option"]} ${
+                selectedSection === "ProfileOrders"
+                  ? styles["navbar-option-active"]
+                  : ""
               }`}
-                onClick={() => setSelectedSection("ProfileOrders")}
-              >
-                {" "}
-                Pedidos
-              </div>
-            </Link>
-            <Link to="/perfil">
-              <div
-                className={`${styles["navbar-option"]} ${
-                selectedSection === "accountData" ? styles["navbar-option-active"] : ""
-              }`}
-                onClick={() => setSelectedSection("ProfileDetail")}
-              >
-                Necesito ayuda
-              </div>
-            </Link>
+              onClick={() => handleNavSelection("ProfileOrders")}
+            >
+              Pedidos
+            </div>
           </div>
         </div>
 
-        {/* Input de archivo, oculto */}
         <input
           type="file"
           accept="image/*"
@@ -191,7 +182,15 @@ function Profile() {
 
         {loading && <p>Subiendo...</p>}
 
-        <div className={styles["second-column"]}>{renderContent()}</div>
+        {/* Segunda columna (Contenido) */}
+        <div className={styles["second-column"]}>
+          {isMobile && !isNavVisible && (
+            <button className={styles["back-button"]} onClick={goBackToNav}>
+              <TbChevronLeft /> Volver
+            </button>
+          )}
+          {renderContent()}
+        </div>
       </div>
     </div>
   );

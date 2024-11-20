@@ -209,6 +209,13 @@ export const AuthProvider = ({ children }) => {
         headers["Content-Type"] = "application/json";
       }
 
+      if (isFormData) {
+        console.log("FormData contiene:");
+        for (let [key, value] of updatedData.entries()) {
+          console.log(`${key}:`, value instanceof File ? value.name : value);
+        }
+      }
+
       const response = await fetch("https://loocal.co/api/update_user/", {
         method: "PATCH",
         headers: headers,

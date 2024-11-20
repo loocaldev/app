@@ -55,18 +55,18 @@ function profileDetail() {
     <div className={styles["profile-detail"]}>
       <h2>Datos de mi cuenta</h2>
       <form onSubmit={handleSubmit} className={styles["profile-form"]}>
-        <div className={styles["form-row"]}>
-          <div className={styles["form-group"]}>
+        <div className="form-row">
+          <div className="form-group">
             <label>Nombre</label>
             <input type="text" name="first_name" value={formData.first_name} onChange={handleChange} />
           </div>
-          <div className={styles["form-group"]}>
+          <div className="form-group">
             <label>Apellido</label>
             <input type="text" name="last_name" value={formData.last_name} onChange={handleChange} />
           </div>
         </div>
-        <div className={styles["form-row"]}>
-          <div className={styles["form-group"]}>
+        <div className="form-row">
+          <div className="form-group">
             
             <label>Tipo de documento</label>
             <div className={styles["form-multi-input"]}>
@@ -78,7 +78,7 @@ function profileDetail() {
             <input type="text" name="document_number" value={formData.document_number} onChange={handleChange} />
             </div>
           </div>
-          <div className={styles["form-group"]}>
+          <div className="form-group">
             <label>Número de celular</label>
             <input type="text" name="phone_number" value={formData.phone_number} onChange={handleChange} />
           </div>

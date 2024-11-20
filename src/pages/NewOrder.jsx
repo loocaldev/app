@@ -93,42 +93,7 @@ function NewOrder() {
                     )}
                     <div className={styles["username"]}>
                       <span>{userData?.first_name}</span>
-                      {isProfileMenuOpen ? (
-                        <IoIosArrowUp />
-                      ) : (
-                        <IoIosArrowDown />
-                      )}
                     </div>
-                    {/* Menú desplegable de perfil */}
-                    {isProfileMenuOpen && (
-                      <div className={styles["profile-menu"]}>
-                        <Link to="/perfil" state={{ section: "ProfileDetail" }}>
-                          <div className={styles["menu-item"]}>
-                            Ajustes de mi cuenta
-                          </div>
-                        </Link>
-
-                        <Link
-                          to="/perfil"
-                          state={{ section: "ProfileAddress" }}
-                        >
-                          <div className={styles["menu-item"]}>
-                            Mis direcciones
-                          </div>
-                        </Link>
-
-                        <Link to="/perfil" state={{ section: "ProfileOrders" }}>
-                          <div className={styles["menu-item"]}>Mis pedidos</div>
-                        </Link>
-
-                        <div
-                          className={styles["menu-item"]}
-                          onClick={handleLogout}
-                        >
-                          Cerrar sesión
-                        </div>
-                      </div>
-                    )}
                   </div>
                 ) : (
                   <div className={styles["buttons-profile"]}>

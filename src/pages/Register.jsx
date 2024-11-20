@@ -401,7 +401,7 @@ function Register() {
                         </li>
                         <li
                           className={getPasswordRequirementClass(
-                            /[!@#$%^&*]/.test(password)
+                            /[!@#$%^&*.]/.test(password)
                           )}
                         >
                           <FiCheckCircle />

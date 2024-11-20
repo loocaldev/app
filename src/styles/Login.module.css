@@ -5,6 +5,9 @@
   flex-direction: column;
   justify-content: center;
   height: 100vh;
+  max-width: 100vw;
+  width: 100vw;
+  align-items: center;
 }
 
 .box-form {
@@ -14,6 +17,8 @@
   padding: 32px 16px;
   align-items: center;
   align-content: center;
+  box-sizing: border-box;
+  max-width: 100%;
 }
 
 .errorMessage {
@@ -40,6 +45,8 @@
   padding: 24px;
   height: 100%;
   align-content: center;
+  max-width: 100vw;
+  box-sizing: border-box;
 }
 
 .title-form {
@@ -60,6 +67,11 @@
   flex-direction: column;
   gap: 20px;
   width: 480px;
+  max-width: 100vw;
+}
+
+.content-form form {
+  max-width: 100%;
 }
 
 .element-form {
@@ -73,7 +85,7 @@
 }
 
 .element-form:first-child {
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 .element-form label {
@@ -86,6 +98,12 @@
   border: 1px solid var(--gray-5)!important;
   padding: 12px;
   border: none;
+}
+
+.HeaderTitleForm {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .password-toggle {
@@ -130,8 +148,28 @@
 }
 
 @media screen and (max-width: 576px) {
+  .Container {
+    justify-content: flex-start;
+  }
+  .HeaderTitleForm {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
   .box-form {
     display: flex;
     flex-direction: column-reverse;
+  }
+  .content-form {
+    width: auto;
+  }
+
+  .form-column {
+    padding: 0px;
+    width: 100%;
+  }
+  h2 {
+    font-size: 32px;
+    line-height: 48px;
   }
 }
