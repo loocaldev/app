@@ -1,4 +1,5 @@
 import { createContext, useReducer } from "react";
+import { getAllProducts } from "../api/products.api";
 
 export const CartContext = createContext();
 
@@ -76,6 +77,12 @@ const reducer = (state, action) => {
       return newState;
     }
 
+    case "SET_CART": {
+      const newState = actionPayload; // Reemplaza el estado del carrito
+      updateLocalStorage(newState);
+      return newState;
+    }
+
     default:
       return state;
   }
@@ -83,6 +90,30 @@ const reducer = (state, action) => {
 
 export function CartProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
+
+  const validateCart = async () => {
+    try {
+      // Obtén todos los productos disponibles
+      const response = await getAllProducts();
+      const availableProducts = response.data;
+
+      // Filtra los productos del carrito para verificar su existencia
+      const validatedCart = state.filter((item) =>
+        availableProducts.some((product) => product.id === item.id)
+      );
+
+      // Si el carrito cambia, actualiza el estado
+      if (validatedCart.length !== state.length) {
+        dispatch({ type: "SET_CART", payload: validatedCart });
+      }
+    } catch (error) {
+      console.error("Error validando el carrito:", error);
+    }
+  };
+
+  useEffect(() => {
+    validateCart(); // Valida el carrito al montar el componente
+  }, []);
 
   const convertQuantity = (item, quantity) => {
     const unitQuantity = parseFloat(item.unit_quantity || item.product.unit_quantity || 1);
