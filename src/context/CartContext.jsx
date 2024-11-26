@@ -1,4 +1,4 @@
-import { createContext, useReducer } from "react";
+import { createContext, useEffect, useReducer } from "react";
 import { getAllProducts } from "../api/products.api";
 
 export const CartContext = createContext();
