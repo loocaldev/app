@@ -1,4 +1,5 @@
 import React, { useState, useEffect, forwardRef } from "react";
+import DOMPurify from "dompurify";
 import styles from "../styles/ProductCardHZ.module.css";
 import {
   FiShoppingCart,
@@ -11,7 +12,7 @@ import { useCart } from "../hooks/useCart";
 import formatPriceToCOP from "../utils/formatPrice";
 import classNames from "classnames";
 
-const ProductCardHZ = forwardRef(({ product }, ref) => {
+const ProductCardHZ = forwardRef(({ product, highlightedName  }, ref) => {
   const {
     cart,
     addToCart,
@@ -191,6 +192,15 @@ const ProductCardHZ = forwardRef(({ product }, ref) => {
       ? `${Math.round((1 - priceWithPromotion / unitPrice) * 100)}%`
       : null;
 
+  // Render del nombre con resaltado si `highlightedName` está disponible
+  const renderProductName = () => {
+    if (highlightedName) {
+      const sanitizedHTML = DOMPurify.sanitize(highlightedName);
+      return <span dangerouslySetInnerHTML={{ __html: sanitizedHTML }} />;
+    }
+    return <span>{product.name}</span>;
+  };
+
   return (
     <div className={styles["product-box"]} ref={ref}>
       <div className={styles["product-box-content"]}>
@@ -214,7 +224,7 @@ const ProductCardHZ = forwardRef(({ product }, ref) => {
           </div>
 
           <div className={styles["product-info"]}>
-            <p>{product.name}</p>
+            <p>{renderProductName()}</p>
             <div className={styles["product-pricePum"]}>
               <span>
                 {convertQuantity(product, 1)} a {formatPriceToCOP(unitPrice)}

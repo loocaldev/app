@@ -1,11 +1,12 @@
 import React, { useState, useEffect, forwardRef } from "react";
 import styles from "../styles/ProductCardSQ.module.css";
+import DOMPurify from "dompurify";
 import { FiShoppingCart, FiPlus, FiMinus, FiChevronDown, FiChevronUp } from "react-icons/fi";
 import { useCart } from "../hooks/useCart";
 import formatPriceToCOP from "../utils/formatPrice";
 import classNames from 'classnames';
 
-const ProductCardSQ = forwardRef(({ product }, ref) => {
+const ProductCardSQ = forwardRef(({ product, highlightedName }, ref) => {
   const { cart, addToCart, decrementQuantity, removeFromCart, convertQuantity } = useCart();
 
   const [selectedAttributes, setSelectedAttributes] = useState({});
@@ -125,6 +126,15 @@ const ProductCardSQ = forwardRef(({ product }, ref) => {
     return cartProduct ? cartProduct.quantity : 1;
   };
 
+  // Render del nombre con resaltado si `highlightedName` está disponible
+  const renderProductName = () => {
+    if (highlightedName) {
+      const sanitizedHTML = DOMPurify.sanitize(highlightedName);
+      return <span dangerouslySetInnerHTML={{ __html: sanitizedHTML }} />;
+    }
+    return <span>{product.name}</span>;
+  };
+
   const productQuantity = getProductQuantity();
   const displayQuantity = convertQuantity(selectedVariation || product, productQuantity);
 
@@ -177,7 +187,7 @@ const ProductCardSQ = forwardRef(({ product }, ref) => {
         </div>
         
         <div className={styles["product-info"]}>
-          <p>{product.name}</p>
+          <p>{renderProductName()}</p>
           {hasVariations && (
             <div className={styles["product-variables"]}>
               {Object.keys(availableOptions).map((attributeName) => (

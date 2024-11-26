@@ -1,25 +1,26 @@
 import React, { useState, useEffect } from "react";
 import { getAllProducts } from "../api/products.api";
-import ProductCard from "./ProductCard";
+import ProductCardHZ from "./ProductCardHZ";
+import CharecterLoocal from "../assets/character_loocal.svg"
 import styles from "../styles/ListProducts.module.css";
-import { useCart } from "../hooks/useCart";
-import character_loocal from "../assets/character_loocal.svg"
-import ProductCardSQRead from "./ProductCardSQRead";
-import ProductCardSQ from "./ProductCardSQ";
-import ProductCardHZ from "./ProductCardHZ"
+import { useAdvancedSearch } from "../hooks/useAdvancedSearch";
+import SkeletonLoader from "./SkeletonLoader";
 
 function ListProducts({ searchQuery }) {
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true); // Estado de carga
   const [numOfProducts, setNumOfProducts] = useState(5);
 
-  const { cart } = useCart();
+  const filteredProducts = useAdvancedSearch(products, searchQuery);
 
   useEffect(() => {
-    async function loadProducts() {
+    async function fetchProducts() {
+      setLoading(true);
       const res = await getAllProducts();
       setProducts(res.data);
+      setLoading(false); // Finalizar carga
     }
-    loadProducts();
+    fetchProducts();
   }, []);
 
   useEffect(() => {
@@ -30,27 +31,36 @@ function ListProducts({ searchQuery }) {
         setNumOfProducts(3);
       }
     }
-    handleResize(); // Check initial width
+    handleResize();
     window.addEventListener("resize", handleResize);
     return () => {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
 
-  const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   return (
     <div className={styles.bannerProducts}>
-      {filteredProducts.length > 0 ? (
-        filteredProducts
-          .slice(0, numOfProducts)
-          .map((product) => <ProductCardHZ key={product.id} product={product} />)
+      {loading ? (
+        // Mostrar loaders mientras se cargan los productos
+        Array.from({ length: numOfProducts }).map((_, index) => (
+          <SkeletonLoader key={index} type="card" />
+        ))
+      ) : filteredProducts.length > 0 ? (
+        filteredProducts.slice(0, numOfProducts).map((product) => (
+          <ProductCardHZ
+            key={product.id}
+            product={product}
+            highlightedName={product.highlightedName || product.name}
+          />
+        ))
       ) : (
         <div className={styles["product-not-found"]}>
-          <span>Patroncit@<br/>Aún no tenemos este producto</span>
-          <img src={character_loocal}/>
+          <img src={CharecterLoocal}/>
+          <span>
+            Patroncit@
+            <br />
+            Aún no tenemos este producto
+          </span>
         </div>
       )}
     </div>

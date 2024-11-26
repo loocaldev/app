@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import styles from "../styles/Header.module.css";
+import { useAdvancedSearch } from "../hooks/useAdvancedSearch";
 import {
   FiMapPin,
   FiMenu,
@@ -29,6 +30,7 @@ import Logo from "../assets/logo.svg";
 import LogoIso from "../assets/logoiso.svg";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import Fuse from "fuse.js";
 
 function Header() {
   const [searchNavQuery, setsearchNavQuery] = useState("");
@@ -43,7 +45,7 @@ function Header() {
     addAddress,
   } = useAuth();
   const [searchResults, setSearchResults] = useState([]);
-  const [suggestions, setSuggestions] = useState([]);
+  
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const navigate = useNavigate();
   const isMobile = useScreenSize();
@@ -55,11 +57,13 @@ function Header() {
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [products, setProducts] = useState([]);
   const [tempAddress, setTempAddress] = useState(() => {
     const savedTempAddress = JSON.parse(localStorage.getItem("tempAddress"));
     return savedTempAddress || { departament: "", town: "", address: "" };
   });
   const [isCityValid, setIsCityValid] = useState(true);
+  
 
   const validateCity = (city) => {
     const isValid = AVAILABLE_CITIES.includes(city.toUpperCase());
@@ -97,6 +101,7 @@ function Header() {
       getAddresses();
     }
   }, [isAuthenticated]);
+  
   useEffect(() => {
     if (!isAuthenticated) {
       const savedAddress = localStorage.getItem("tempAddress");
@@ -151,26 +156,99 @@ function Header() {
   }, [isPopupOpen]);
 
   useEffect(() => {
-    const fetchSuggestions = async () => {
-      // Evitar búsqueda si el campo está vacío
-      if (searchNavQuery.trim() === "") {
-        setSuggestions([]);
-        setIsDropdownVisible(false);
-        return;
-      }
-      try {
-        const response = await getAllProducts();
-        const filteredProducts = response.data.filter((product) =>
-          product.name.toLowerCase().includes(searchNavQuery.toLowerCase())
-        );
-        setSuggestions(filteredProducts);
-        setIsDropdownVisible(true);
-      } catch (error) {
-        console.error("Error fetching suggestions:", error);
-      }
-    };
-    fetchSuggestions();
-  }, [searchNavQuery]);
+    async function fetchProducts() {
+      const res = await getAllProducts();
+      setProducts(res.data);
+    }
+    fetchProducts();
+  }, []);
+  // En el useEffect de búsqueda avanzada
+  const suggestions = useAdvancedSearch(products, searchNavQuery);
+useEffect(() => {
+  const fetchSuggestions = async () => {
+    if (searchNavQuery.trim() === "") {
+      setSuggestions([]);
+      setIsDropdownVisible(false);
+      return;
+    }
+
+    try {
+      const response = await getAllProducts();
+
+      const fuse = new Fuse(response.data, {
+        keys: ["name"],
+        threshold: 0.3,
+        distance: 100,
+        includeMatches: true, // Incluye información sobre las coincidencias
+        ignoreLocation: true,
+      });
+
+      const normalizeText = (text) => 
+        text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+      const results = fuse.search(normalizeText(searchNavQuery));
+      
+      const highlightedResults = results.map((result) => {
+        const { item, matches } = result;
+      
+        let highlightedName = item.name;
+      
+        if (matches) {
+          matches.forEach((match) => {
+            if (match.key === "name") {
+              const originalName = item.name; // Guarda el nombre original
+              const normalizedOriginal = normalizeText(originalName); // Normalizado
+              const normalizedQuery = normalizeText(searchNavQuery); // Normalizado
+      
+              const highlightedParts = [];
+              let lastIndex = 0;
+      
+              // Encuentra coincidencias basadas en los índices del texto normalizado
+              match.indices.forEach(([start, end]) => {
+                // Obtén los índices correspondientes en el texto original
+                const originalStart = normalizedOriginal
+                  .slice(0, start)
+                  .length; // Mapear inicio
+                const originalEnd = normalizedOriginal
+                  .slice(0, end + 1)
+                  .length; // Mapear final
+      
+                // Agrega la parte no resaltada
+                highlightedParts.push(originalName.slice(lastIndex, originalStart));
+      
+                // Agrega la parte resaltada
+                highlightedParts.push(
+                  `<mark>${originalName.slice(originalStart, originalEnd)}</mark>`
+                );
+      
+                // Actualiza el índice
+                lastIndex = originalEnd;
+              });
+      
+              // Agrega la parte restante del texto
+              highlightedParts.push(originalName.slice(lastIndex));
+      
+              // Une las partes resaltadas
+              highlightedName = highlightedParts.join("");
+            }
+          });
+        }
+      
+        return {
+          ...item,
+          highlightedName: highlightedName || item.name,
+        };
+      });
+
+      setSuggestions(highlightedResults);
+      setIsDropdownVisible(true);
+    } catch (error) {
+      console.error("Error fetching suggestions:", error);
+    }
+  };
+
+  fetchSuggestions();
+}, [searchNavQuery]);
 
   const handleSearchChange = (e) => {
     const value = e.target.value;
@@ -323,12 +401,13 @@ function Header() {
                 {isMobile ? (
                   <>
                     {suggestions.length > 0 ? (
-                      suggestions.map((product) => (
-                        <ProductCardHZ
-                          key={product.id}
-                          product={product}
-                          onClick={(e) => e.stopPropagation()}
-                        />
+                        suggestions.map((product) => (
+                          <ProductCardHZ
+                            key={product.id}
+                            product={product}
+                            onClick={(e) => e.stopPropagation()}
+                            highlightedName={product.highlightedName || product.name} // Pasa el nombre resaltado
+                          />
                       ))
                     ) : (
                       <div className={styles["dropdown-no-results"]}>
@@ -344,6 +423,7 @@ function Header() {
                           key={product.id}
                           product={product}
                           onClick={(e) => e.stopPropagation()}
+                          highlightedName={product.highlightedName || product.name}
                         />
                       ))
                     ) : (

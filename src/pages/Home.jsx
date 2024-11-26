@@ -39,11 +39,10 @@ function Home() {
       background: "#FEF2EC",
       path: "/tienda/promoción",
     },
-    // Agrega más elementos según sea necesario...
   ];
 
   const handleSearch = (query) => {
-    setSearchQuery(query);
+    if (query !== searchQuery) setSearchQuery(query); // Solo actualiza si hay un cambio real
   };
 
   return (

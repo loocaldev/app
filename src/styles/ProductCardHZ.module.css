@@ -15,6 +15,12 @@
   width: 100%;
 }
 
+mark {
+  background-color: var(--organe-alpha-color);
+  color: black;
+  font-weight: bold;
+}
+
 .product-box-first {
   display: flex;
   position: relative;

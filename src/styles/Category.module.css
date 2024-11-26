@@ -16,6 +16,11 @@
   border-bottom: 1px solid var(--gray-5);
 }
 
+.top-nav {
+  transition: all 0.3s ease-in-out;
+  overflow: hidden;
+}
+
 .title-search {
   display: flex;
   flex-direction: row;

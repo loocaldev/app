@@ -1,60 +1,66 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import GridProducts from "../components/GridProducts";
 import { getAllProducts } from "../api/products.api";
-import { FaAngleDown, FaAngleUp } from "react-icons/fa";
-import useScreenSize from "../hooks/useScreenSize";
+import { useAdvancedSearch } from "../hooks/useAdvancedSearch";
+import SkeletonLoader from "../components/SkeletonLoader";
 import styles from "../styles/Category.module.css";
-import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
+import { Link } from "react-router-dom";
 import {
   FiChevronLeft,
-  FiMapPin,
-  FiUser,
-  FiChevronRight,
-  FiShoppingCart,
+  FiChevronDown,
+  FiChevronUp,
 } from "react-icons/fi";
-import ProductCardHZ from "../components/ProductCardHZ.jsx";
 import useSticky from "../hooks/useSticky.js";
+import useScreenSize from "../hooks/useScreenSize"; // Hook para detectar el tamaño de pantalla
 
 function Category() {
   const { categoryName } = useParams();
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true); // Estado de carga
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState("az");
   const [unitTypeFilter, setUnitTypeFilter] = useState("all");
-  const [isTopNavOpen, setIsTopNavOpen] = useState(false);
-  const isMobile = useScreenSize(); // Detectar si es móvil
+  const [isFiltersVisible, setIsFiltersVisible] = useState(true); // Control de visibilidad de filtros
   const isSticky = useSticky();
-  const navigate = useNavigate();
+  const isMobile = useScreenSize(); // Detectar si es mobile
 
+  // Filtrar productos basados en búsqueda y filtros
+  const filteredProducts = useAdvancedSearch(products, searchQuery);
+
+  // Cargar productos al montar el componente
   useEffect(() => {
-    if (categoryName) {
-      async function loadProducts() {
-        try {
-          const res = await getAllProducts();
-          const filteredProducts = res.data.filter((product) =>
-            product.categories.some(
-              (category) =>
-                category.name.toLowerCase() === categoryName.toLowerCase()
-            )
-          );
-          setProducts(filteredProducts);
-        } catch (error) {
-          console.error("Error al cargar productos:", error);
-        }
+    async function fetchProducts() {
+      try {
+        setLoading(true); // Activar el estado de carga
+        const res = await getAllProducts();
+        const filtered = res.data.filter((product) =>
+          product.categories.some(
+            (category) =>
+              category.name.toLowerCase() === categoryName.toLowerCase()
+          )
+        );
+        setProducts(filtered);
+      } catch (error) {
+        console.error("Error al cargar productos:", error);
+      } finally {
+        setLoading(false); // Desactivar el estado de carga
       }
-      loadProducts();
     }
+    fetchProducts();
   }, [categoryName]);
 
-  const handleSearch = (query) => setSearchQuery(query);
-  const handleSortChange = (order) => setSortOrder(order);
-  const handleUnitTypeFilterChange = (e) => setUnitTypeFilter(e.target.value);
+  // Cambiar visibilidad de filtros solo en dispositivos móviles
+  useEffect(() => {
+    if (!isMobile) {
+      setIsFiltersVisible(true); // Siempre visible en desktop
+    }
+  }, [isMobile]);
 
+  // Ordenar productos
   const getFilteredProducts = () => {
-    let filtered = products;
+    let filtered = [...filteredProducts];
 
-    // Filtrar por unit_type
     if (unitTypeFilter === "weight_volume") {
       filtered = filtered.filter(
         (product) =>
@@ -75,18 +81,10 @@ function Category() {
       );
     }
 
-    // Ordenar por precio
     if (sortOrder === "priceAsc") {
-      filtered = filtered.sort((a, b) => a.price - b.price);
+      filtered.sort((a, b) => a.price - b.price);
     } else if (sortOrder === "priceDesc") {
-      filtered = filtered.sort((a, b) => b.price - a.price);
-    }
-
-    // Filtrar por búsqueda
-    if (searchQuery) {
-      filtered = filtered.filter((product) =>
-        product.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+      filtered.sort((a, b) => b.price - a.price);
     }
 
     return filtered;
@@ -116,40 +114,39 @@ function Category() {
               type="text"
               placeholder="Buscar..."
               value={searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
             {isMobile && (
               <button
-                className={styles["toggle-nav-btn"]}
-                onClick={() => setIsTopNavOpen(!isTopNavOpen)}
+                className={styles["toggle-filters"]}
+                onClick={() => setIsFiltersVisible(!isFiltersVisible)}
               >
-                {isTopNavOpen ? "Cerrar" : "Filtrar"}
-                {isTopNavOpen ? <IoIosArrowUp /> : <IoIosArrowDown />}{" "}
+                {isFiltersVisible ? "Ocultar" : "Filtrar"}
+                {isFiltersVisible ? <FiChevronUp /> : <FiChevronDown />}
               </button>
             )}
           </div>
         </div>
 
-        {/* Botón para mostrar/ocultar el top-nav en mobile */}
-        {/* Controles de búsqueda, orden y filtro */}
-        {(isTopNavOpen || !isMobile) && (
+        {/* Contenedor de filtros */}
+        {isFiltersVisible && (
           <div className={styles["top-nav"]}>
-            <div className={styles["control"]}>
+            {/* <div className={styles["control"]}>
               <label>Ordenar</label>
               <select
                 value={sortOrder}
-                onChange={(e) => handleSortChange(e.target.value)}
+                onChange={(e) => setSortOrder(e.target.value)}
               >
                 <option value="az">A-Z</option>
                 <option value="priceAsc">Precio: Menor a Mayor</option>
                 <option value="priceDesc">Precio: Mayor a Menor</option>
               </select>
-            </div>
+            </div> */}
             <div className={styles["control"]}>
               <label>Vendido por</label>
               <select
                 value={unitTypeFilter}
-                onChange={handleUnitTypeFilterChange}
+                onChange={(e) => setUnitTypeFilter(e.target.value)}
               >
                 <option value="all">Ver todo</option>
                 <option value="weight_volume">Peso o volumen</option>
@@ -160,13 +157,19 @@ function Category() {
         )}
       </div>
 
-      {/* Mostrar productos filtrados */}
       <div className={styles["content-category"]}>
-        <GridProducts
-          products={getFilteredProducts()}
-          searchQuery={searchQuery}
-          sortOrder={sortOrder}
-        />
+        {loading ? (
+          Array.from({ length: 4 }).map((_, index) => (
+            <SkeletonLoader key={index} type="card" />
+          ))
+        ) : filteredProducts.length > 0 ? (
+          <GridProducts products={getFilteredProducts()} />
+        ) : (
+          <div className={styles["no-products"]}>
+            No encontramos el producto que buscas en esta categoría. Explora{" "}
+            <Link to="/tienda">toda la tienda aquí</Link>.
+          </div>
+        )}
       </div>
     </div>
   );

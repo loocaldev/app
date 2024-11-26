@@ -16,6 +16,12 @@
   height: 100%;
 }
 
+mark {
+  background-color: var(--organe-alpha-color);
+  color: black;
+  font-weight: bold;
+}
+
 .product-image {
   position: relative;
 }
