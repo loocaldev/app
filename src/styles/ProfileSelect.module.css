@@ -34,6 +34,43 @@ img.profile-picture {
   background-color: transparent;
 }
 
+/* Contenedor principal para los radios */
+.user-type-selector {
+  display: flex;
+  gap: 1rem; /* Separación entre opciones */
+}
+
+/* Estilo base para las etiquetas */
+.user-type-selector label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 120px; /* Ancho del botón */
+  height: 40px; /* Altura del botón */
+  border-radius: 8px;
+  cursor: pointer;
+  background: transparent; /* Fondo por defecto */
+  color: var(--gray-5); /* Texto por defecto */
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+/* Ocultar los radios nativos */
+.user-type-selector input[type="radio"] {
+  display: none;
+}
+
+/* Estilo para la opción seleccionada */
+.user-type-selector label.selected {
+  background: var(--purple-alpha-color); /* Fondo seleccionado */
+  color: var(--primary-purple-color); /* Texto seleccionado */
+  border: 2px solid var(--primary-purple-color); /* Borde seleccionado */
+}
+
+
 .header-profile-option {
   background-color: white;
   min-height: 70px;

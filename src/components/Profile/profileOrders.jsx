@@ -4,22 +4,92 @@ import { FaAngleDown, FaAngleUp, FaHeadset } from "react-icons/fa6";
 import formatPriceToCOP from "../../utils/formatPrice";
 import { useAuth } from "../../context/AuthContext";
 
-function profileOrders() {
+function ProfileOrders() {
   const { getOrders } = useAuth(); // Asegúrate de tener un método en AuthContext para obtener las órdenes
-  const [orders, setOrders] = useState([]); // Inicializa orders como un arreglo vacío
+  const [orders, setOrders] = useState([]);
   const [expandedOrders, setExpandedOrders] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchOrders = async () => {
+      setLoading(true);
+      setError(null);
+
       try {
-        const response = await getOrders(); // Llama al método que obtiene las órdenes del backend
-        setOrders(response || []); // Asegura que siempre sea un arreglo
-      } catch (error) {
-        console.error("Error al obtener las órdenes:", error);
+        const response = await getOrders();
+        console.log("Datos recibidos del backend:", response);
+        if (Array.isArray(response)) {
+          const validatedOrders = response.filter((order) =>
+            validateOrderStructure(order)
+          );
+          setOrders(validatedOrders);
+        } else {
+          throw new Error("El servidor devolvió datos no válidos");
+        }
+      } catch (err) {
+        console.error("Error al obtener las órdenes:", err);
+        setError("No pudimos obtener tus órdenes. Intenta más tarde.");
+      } finally {
+        setLoading(false);
       }
     };
+
     fetchOrders();
   }, []);
+
+  const fetchOrders = async () => {
+    setLoading(true);
+    setError(null);
+  
+    try {
+      const response = await getOrders();
+      console.log("Datos recibidos del backend:", response);
+      if (Array.isArray(response)) {
+        const validatedOrders = response
+          .filter((order) => validateOrderStructure(order))
+          .map((order) => ({
+            ...order,
+            subtotal: parseFloat(order.subtotal), // Convierte subtotal a número
+            total: parseFloat(order.total), // Convierte total a número
+            items: order.items.map((item) => ({
+              ...item,
+              subtotal: parseFloat(item.subtotal), // Convierte subtotales en los ítems
+              quantity: parseInt(item.quantity, 10), // Asegura que quantity sea un entero
+            })),
+          }));
+        setOrders(validatedOrders);
+      } else {
+        throw new Error("El servidor devolvió datos no válidos");
+      }
+    } catch (err) {
+      console.error("Error al obtener las órdenes:", err);
+      setError("No pudimos obtener tus órdenes. Intenta más tarde.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+
+  const validateOrderStructure = (order) => {
+    return (
+      order &&
+      typeof order.custom_order_id === "string" &&
+      Array.isArray(order.items) &&
+      !isNaN(parseFloat(order.subtotal)) // Permite subtotales como cadenas numéricas
+    );
+  };
+
+  const validateOrderItem = (item) => {
+    return (
+      item &&
+      typeof item.quantity === "number" &&
+      !isNaN(parseFloat(item.subtotal)) && // Permite subtotales como cadenas numéricas
+      item.product_name &&
+      typeof item.product_name === "string"
+    );
+  };
+  
 
   const toggleOrderContent = (orderId) => {
     setExpandedOrders((prev) => ({
@@ -28,7 +98,15 @@ function profileOrders() {
     }));
   };
 
-  if (!orders.length) {
+  if (loading) {
+    return <div>Cargando tus órdenes...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
+
+  if (!orders || !Array.isArray(orders) || orders.length === 0) {
     return <div>Aún no tienes órdenes</div>;
   }
 
@@ -50,7 +128,13 @@ function profileOrders() {
                 className={styles["order-action"]}
                 onClick={() => toggleOrderContent(order.custom_order_id)}
               >
-                <span>{new Date(order.created_at).toLocaleDateString()}</span>
+                <span>
+                  {new Date(order.created_at).toLocaleDateString("es-CO", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </span>
                 {expandedOrders[order.custom_order_id] ? (
                   <FaAngleUp />
                 ) : (
@@ -64,22 +148,28 @@ function profileOrders() {
               }`}
             >
               <div className={styles["order-item-list"]}>
-                {order.items.map((item) => (
-                  <div key={item.product.id} className={styles["order-item"]}>
-                    <div className={styles["order-item-product"]}>
-                    <span>
-                        {item.product_name}
-                        {item.product_variation
-                          ? ` - ${item.product_variation.attribute_options[0].name}`
-                          : ""}
-                      </span>
+                {order.items.map((item, index) =>
+                  validateOrderItem(item) ? (
+                    <div key={index} className={styles["order-item"]}>
+                      <div className={styles["order-item-product"]}>
+                        <span>
+                          {item.product_name}
+                          {item.product_variation
+                            ? ` - ${item.product_variation.attribute_options[0].name}`
+                            : ""}
+                        </span>
+                      </div>
+                      <div className={styles["order-item-cantprice"]}>
+                        <span>x{item.quantity} &nbsp;</span>
+                        <span>{formatPriceToCOP(item.subtotal)}</span>
+                      </div>
                     </div>
-                    <div className={styles["order-item-cantprice"]}>
-                      <span>x{item.quantity} &nbsp;</span>
-                      <span>{formatPriceToCOP(item.subtotal)}</span>
+                  ) : (
+                    <div key={index} className={styles["order-item-error"]}>
+                      <span>Producto inválido</span>
                     </div>
-                  </div>
-                ))}
+                  )
+                )}
               </div>
               <div className={styles["order-support"]}>
                 <FaHeadset />
@@ -93,4 +183,4 @@ function profileOrders() {
   );
 }
 
-export default profileOrders;
+export default ProfileOrders;

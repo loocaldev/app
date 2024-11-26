@@ -1,3 +1,4 @@
+export const AVAILABLE_CITIES = ["BOGOTÁ ZONA NORTE", "CHÍA", "CAJICÁ", "SOPÓ"];
 export const departamentosYMunicipios = {
   ANTIOQUIA: [
     "ZARAGOZA",
@@ -151,7 +152,7 @@ export const departamentosYMunicipios = {
     "TUBARA",
     "USIACURI",
   ],
-  "BOGOTÁ D.C.": ["BOGOTA, D.C."],
+  "BOGOTÁ D.C.": ["BOGOTÁ ZONA NORTE", "BOGOTÁ ZONA CENTRO", "BOGOTÁ ZONA SUR"],
   BOLIVAR: [
     "CARTAGENA",
     "ACHI",
@@ -575,12 +576,12 @@ export const departamentosYMunicipios = {
     "CHOCONTA",
     "CHOACHI",
     "CHIPAQUE",
-    "CHIA",
+    "CHÍA",
     "CHAGUANI",
     "CARMEN DE CARUPA",
     "CAQUEZA",
     "CAPARRAPI",
-    "CAJICA",
+    "CAJICÁ",
     "CACHIPAY",
     "CABRERA",
     "BOJACA",

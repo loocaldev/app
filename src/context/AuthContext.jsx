@@ -251,7 +251,7 @@ export const AuthProvider = ({ children }) => {
 
   const getOrders = async () => {
     try {
-      const response = await fetch("https://loocal.co/api/orders/", {
+      const response = await fetch("https://loocal.co/api/orders/order/", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,

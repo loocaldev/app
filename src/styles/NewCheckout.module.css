@@ -2,7 +2,7 @@
 
 .canvas-container {
   min-height: 100vh;
-  min-width: 100%;
+  min-width: 100%; 
 }
 
 .canvas-box {
@@ -63,6 +63,8 @@
   padding: 0px;
   border: none;
 }
+
+
 
 .profile-card {
   display: flex;
@@ -217,6 +219,7 @@
   display: flex;
   justify-content: space-between;
   width: 100%;
+  margin-bottom: 8px;
 }
 
 .box-header-info {
@@ -224,6 +227,9 @@
   flex-direction: row;
   gap: 8px;
   width: 100%;
+}
+.box-header-extend {
+  width: 20%;;
 }
 
 .box-header-icon svg {
@@ -510,11 +516,29 @@
   font-size: 12px;
 }
 
+.box-resume-discount {
+  margin-bottom: 8px;
+}
+
 .box-resume-info {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
+}
+.box.transport {
+  display: flex;
+  justify-content: space-between;
+}
+
+.box.transport span {
+  font-size: 14px;
+}
+
+.label-transport {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 @media screen and (max-width: 768px) {

@@ -6,6 +6,7 @@ import UserDataForm from "../components/Forms/UserDataForms.jsx";
 import AddressForm from "../components/Forms/AddressForm";
 import ProductCardSQRead from "../components/ProductCardSQRead";
 import ProfileSelect from "../components/ProfileSelect.jsx";
+import { AVAILABLE_CITIES } from "../data/departamentosYMunicipios.js";
 import analytics from "../analytics";
 import {
   FiChevronLeft,
@@ -13,9 +14,10 @@ import {
   FiUser,
   FiChevronRight,
   FiShoppingCart,
+  FiTruck,
 } from "react-icons/fi";
 import { IoIosArrowDown } from "react-icons/io";
-import { CiUser } from "react-icons/ci";
+import { CiUser, CiDeliveryTruck } from "react-icons/ci";
 import { useCart } from "../hooks/useCart";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -29,6 +31,7 @@ import { departamentosYMunicipios } from "../data/departamentosYMunicipios"; // 
 import { indicativos } from "../data/indicativos";
 import FooterLight from "../components/FooterLight.jsx";
 import { formatDateString, getAvailableHours } from "../utils/dateTime.js";
+import useTransportCost from "../hooks/transportCost.js";
 
 const formatPriceToCOP = (price) => {
   const numericPrice = Number(price);
@@ -44,49 +47,63 @@ const formatPriceToCOP = (price) => {
 
 function NewCheckout() {
   const [isMessageHidden, setIsMessageHidden] = useState(false);
+  const [isCityValid, setIsCityValid] = useState(true);
   const [errors, setErrors] = useState([]);
   const { cart, subtotal } = useCart();
   const navigate = useNavigate();
-  const { token, isAuthenticated, logout, userData, addresses, getAddresses } = useAuth();
+  const { token, isAuthenticated, logout, userData, addresses, getAddresses } =
+    useAuth();
   const isMobile = useScreenSize();
   const [useProfileData, setUseProfileData] = useState(true);
-  const [formData, setFormData] = useState(() =>
-    isAuthenticated && useProfileData
-      ? {
-          firstname: userData?.first_name || "",
-          lastname: userData?.last_name || "",
-          documentType: userData?.userprofile?.document_type || "CC", // Acceder a userprofile
-          documentNumber: userData?.userprofile?.document_number || "",
-          phoneCode: "+57", // Valor fijo, actualizar si es dinámico
-          phone: userData?.userprofile?.phone_number || "",
-          email: userData?.email || "",
-          addresId: null,
-          departament: "",
-          town: "",
-          address: "",
-          delivery_date: "",
-          delivery_time: "",
-          paymentPreference: "online",
-          discountCode: "",
-        }
-      : {
-          firstname: "",
-          lastname: "",
-          documentType: "CC",
-          documentNumber: "",
-          phone: "",
-          phoneCode: "+57",
-          email: "",
-          addresId: null,
-          departament: "",
-          town: "",
-          address: "",
-          delivery_date: "",
-          delivery_time: "",
-          paymentPreference: "online",
-          discountCode: "",
-        }
-  );
+  const [finalTotal, setFinalTotal] = useState([]);
+  const [formData, setFormData] = useState(() => {
+    const tempAddress = JSON.parse(localStorage.getItem("tempAddress")) || {}; // Obtén dirección temporal del localStorage
+
+    if (isAuthenticated && useProfileData) {
+      // Datos del usuario autenticado
+      return {
+        firstname: userData?.first_name || "",
+        lastname: userData?.last_name || "",
+        documentType: userData?.userprofile?.document_type || "CC", // Accede a userprofile
+        documentNumber: userData?.userprofile?.document_number || "",
+        phoneCode: "+57", // Valor fijo, actualizar si es dinámico
+        phone: userData?.userprofile?.phone_number || "",
+        email: userData?.email || "",
+        addressId: null,
+        departament: "",
+        town: "",
+        address: "",
+        delivery_date: "",
+        delivery_time: "",
+        transportCost: 0,
+        transportDiscount: 0,
+        paymentPreference: "online",
+        discountCode: "",
+      };
+    } else {
+      // Datos para usuarios no autenticados o sin perfil cargado
+      return {
+        firstname: "",
+        lastname: "",
+        documentType: "CC",
+        documentNumber: "",
+        phone: "",
+        phoneCode: "+57",
+        email: "",
+        addressId: tempAddress.address ? "temp" : null, // Usa "temp" si hay una dirección temporal
+        departament: tempAddress.departament || "",
+        town: tempAddress.town || "",
+        address: tempAddress.address || "",
+        delivery_date: "",
+        delivery_time: "",
+        transportCost: 0,
+        transportDiscount: 0,
+        paymentPreference: "online",
+        discountCode: "",
+      };
+    }
+  });
+
   const [availableDates, setAvailableDates] = useState([]);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedHour, setSelectedHour] = useState("");
@@ -98,6 +115,105 @@ function NewCheckout() {
   const [discountStatusMessage, setDiscountStatusMessage] = useState("");
   const [isDiscountApplied, setIsDiscountApplied] = useState(false);
   const [paymentDiscount, setPaymentDiscount] = useState(0); // Descuento por pagar online
+  const [orderData, setOrderData] = useState(null); // Guarda los datos de la orden creada
+  const [showUserTypeSelector, setShowUserTypeSelector] = useState(false);
+
+  const [tempAddress, setTempAddress] = useState({
+    departament: "",
+    town: "",
+    address: "",
+  });
+
+  const [userType, setUserType] = useState("persona"); // Default: Persona}
+
+  // const [loadingTransportCost, setLoadingTransportCost] = useState(false);
+  const [transportError, setTransportError] = useState(null);
+  const { transportCost, loading: loadingTransportCost } = useTransportCost(
+    formData.town
+  );
+
+  // const fetchTransportCost = async (town) => {
+  //   if (!town) return;
+
+  //   setLoadingTransportCost(true);
+  //   setTransportError(null); // Resetear errores previos
+
+  //   try {
+  //     const response = await axios.get(
+  //       `https://loocal.co/api/orders/transport-cost?city=${encodeURIComponent(
+  //         town
+  //       )}`
+  //     );
+  //     // console.log(response.request.response)
+  //     console.log(
+  //       `/api/orders/transport-cost?city=${encodeURIComponent(town)}`
+  //     );
+  //     console.log(response);
+
+  //     const cost = response.data.cost;
+  //     setFormData((prev) => ({ ...prev, transportCost: cost }));
+  //     console.log(response.data.cost);
+  //   } catch (error) {
+  //     console.error("Error al obtener el costo de transporte:", error);
+  //     setTransportError(
+  //       "No se pudo calcular el costo de transporte. Por favor, revisa la dirección."
+  //     );
+  //     setFormData((prev) => ({ ...prev, transportCost: 0 })); // Reinicia el costo si falla
+  //   } finally {
+  //     setLoadingTransportCost(false);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   fetchTransportCost(formData.town);
+  // }, [formData.town]);
+
+  useEffect(() => {
+    setFormData((prev) => ({ ...prev, transportCost }));
+  }, [transportCost]);
+
+  useEffect(() => {
+    setFormData((prevData) => ({
+      ...prevData,
+      lastname: userType === "empresa" ? "" : prevData.lastname,
+      documentType: userType === "empresa" ? "NIT" : "CC",
+    }));
+  }, [userType]);
+
+  const handleUserTypeChange = (e) => {
+    const newUserType = e.target.value;
+    setUserType(newUserType);
+
+    // Actualiza `formData` según el tipo de usuario
+    setFormData((prevData) => ({
+      ...prevData,
+      firstname: "", // Reinicia el nombre para evitar inconsistencias
+      lastname: newUserType === "empresa" ? "" : prevData.lastname, // Quita apellido si es empresa
+      documentType: newUserType === "empresa" ? "NIT" : "CC", // Tipo de documento predeterminado
+      documentNumber: "", // Limpia el número de documento
+    }));
+  };
+
+  useEffect(() => {
+    console.log(
+      "Temp Address en localStorage:",
+      localStorage.getItem("tempAddress")
+    );
+  }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      getAddresses();
+    } else {
+      // Si no está autenticado, asignar la dirección temporal
+      setFormData((prevData) => ({
+        ...prevData,
+        departament: tempAddress.departament,
+        town: tempAddress.town,
+        address: tempAddress.address,
+      }));
+    }
+  }, [isAuthenticated, tempAddress]);
 
   useEffect(() => {
     // Si el usuario selecciona "Pagar ahora", aplicar un 5% de descuento
@@ -108,14 +224,37 @@ function NewCheckout() {
     }
   }, [formData.paymentPreference, subtotal]);
 
+  useEffect(() => {
+    // Calcular el total de descuentos
+    const discountAmount =
+      (formData.paymentPreference === "online" ? 0.05 * subtotal : 0) + // Descuento por pago online
+      (discountInfo?.discount_value || 0) + // Descuento en subtotal
+      (discountInfo?.transport_discount || 0); // Descuento en transporte
+
+    // Calcular el total final
+    const calculatedTotal = subtotal + formData.transportCost - discountAmount;
+
+    // Evitar valores negativos
+    setFinalTotal(Math.max(calculatedTotal, 0));
+  }, [
+    subtotal,
+    formData.transportCost,
+    formData.paymentPreference,
+    discountInfo,
+  ]);
+
   // Calcular el subtotal final después de los descuentos
   const totalDiscount =
-    paymentDiscount + (discountInfo ? discountInfo.discount_value : 0);
-  const finalTotal = subtotal - totalDiscount;
+    paymentDiscount +
+    (discountInfo ? discountInfo.discount_value : 0) +
+    formData.transportDiscount;
+
+  //  const finalTotal = subtotal + formData.transportCost - totalDiscount;
 
   useEffect(() => {
     if (isNavbarOpen) {
       document.body.style.overflow = "hidden";
+      console.log(finalTotal);
     } else {
       document.body.style.overflow = "";
     }
@@ -131,23 +270,22 @@ function NewCheckout() {
 
   const handleProfileSelection = (e) => {
     const selectedProfile = e.target.value;
+
     if (selectedProfile === "profile") {
       setUseProfileData(true);
       if (userData) {
-        // Rellena el formulario con los datos del usuario autenticado
         setFormData((prevData) => ({
           ...prevData,
           firstname: userData?.first_name || "",
           lastname: userData?.last_name || "",
-          documentType: userData?.document_type || "CC",
-          documentNumber: userData?.document_number || "",
-          phone: userData?.phone || "",
+          documentType: userData?.userprofile?.document_type || "CC",
+          documentNumber: userData?.userprofile?.document_number || "",
+          phone: userData?.userprofile?.phone_number || "",
           email: userData?.email || "",
         }));
       }
     } else {
       setUseProfileData(false);
-      // Limpia el formulario
       setFormData((prevData) => ({
         ...prevData,
         firstname: "",
@@ -237,7 +375,46 @@ function NewCheckout() {
   };
 
   const handleMunicipioChange = (e) => {
-    setFormData({ ...formData, town: e.target.value });
+    const selectedCity = e.target.value;
+    setFormData((prevData) => ({ ...prevData, town: selectedCity }));
+
+    // Validar si la ciudad está en la lista de ciudades disponibles
+    const cityIsValid = AVAILABLE_CITIES.includes(selectedCity.toUpperCase());
+    setIsCityValid(cityIsValid);
+
+    // Actualizar errores en tiempo real si la ciudad es inválida
+    if (!cityIsValid) {
+      setErrors((prevErrors) =>
+        prevErrors.includes("cityUnavailable")
+          ? prevErrors
+          : [...prevErrors, "cityUnavailable"]
+      );
+    } else {
+      setErrors((prevErrors) =>
+        prevErrors.filter((err) => err !== "cityUnavailable")
+      );
+    }
+  };
+
+  const handleAddressChange = (e) => {
+    const value = e.target.value;
+    setFormData((prevData) => ({
+      ...prevData,
+      address: value,
+    }));
+
+    // Validar longitud mínima de la dirección
+    if (value.length < 15) {
+      setErrors((prevErrors) =>
+        prevErrors.includes("addressTooShort")
+          ? prevErrors
+          : [...prevErrors, "addressTooShort"]
+      );
+    } else {
+      setErrors((prevErrors) =>
+        prevErrors.filter((error) => error !== "addressTooShort")
+      );
+    }
   };
 
   const handleDiscountCode = async () => {
@@ -247,42 +424,41 @@ function NewCheckout() {
       const response = await axios.post(
         "https://loocal.co/api/orders/apply-discount/",
         {
-          code: formattedCode, // Enviar código ya formateado
+          code: formattedCode,
           subtotal: subtotal,
+          city: formData.town, // Agregar la ciudad
         },
         { headers: { "Content-Type": "application/json" } }
       );
 
       if (response.data.valid) {
-        setDiscountInfo(response.data);
+        const { discount_value, applies_to_transport, transport_discount } =
+          response.data;
+
+        // Actualizar el estado con base en la respuesta
+        setFormData((prev) => ({
+          ...prev,
+          transportDiscount: applies_to_transport
+            ? Math.min(transport_discount, prev.transportCost || 0)
+            : 0,
+        }));
+        setDiscountInfo({
+          discount_value: applies_to_transport ? 0 : discount_value, // Descuento en subtotal
+          transport_discount: applies_to_transport ? transport_discount : 0, // Descuento en transporte
+          applies_to_transport,
+        });
         setIsDiscountApplied(true);
         setDiscountStatusMessage("Código de descuento aplicado exitosamente");
         setIsMessageHidden(false);
-        trackEvent("Discount Applied", {
-          user_id: isAuthenticated ? userData?.id : null,
-          discount_code: formattedCode,
-          discount_value: response.data.discount_value,
-        });
       } else {
-        setDiscountStatusMessage(
-          "El código de descuento es inválido o ha expirado"
-        );
-        setDiscountInfo(null);
-        setIsDiscountApplied(false);
-        setIsMessageHidden(false);
-
-        // Ocultar el mensaje de error después de 2 segundos
-        setTimeout(() => {
-          setIsMessageHidden(true);
-        }, 2000);
+        throw new Error("Código inválido o expirado");
       }
     } catch (error) {
       console.error("Error al verificar el código:", error);
       setDiscountStatusMessage("Error al aplicar el código de descuento");
       setDiscountInfo(null);
+      setIsDiscountApplied(false);
       setIsMessageHidden(false);
-
-      // Ocultar el mensaje de error después de 2 segundos
       setTimeout(() => {
         setIsMessageHidden(true);
       }, 2000);
@@ -295,7 +471,6 @@ function NewCheckout() {
     getAddresses();
   }, []);
 
-
   useEffect(() => {
     // Enviar evento cuando se carga la página de checkout
     analytics.track("Checkout Viewed", {
@@ -306,10 +481,13 @@ function NewCheckout() {
   }, [cart, subtotal]);
 
   const createOrder = async () => {
-    // Crear `orderData` con estructura revisada
+    if (orderData) {
+      console.log("Reutilizando orden existente:", orderData);
+      return orderData;
+    }
 
     const fullPhoneNumber = `${formData.phoneCode} ${formData.phone}`;
-    const orderData = {
+    const newOrderData = {
       custom_order_id: `ORD${Date.now()}`,
       items: cart.map((item) => ({
         product_id: item.id,
@@ -320,12 +498,11 @@ function NewCheckout() {
       discount_code: formData.discountCode,
       delivery_date: formData.delivery_date,
       delivery_time: formData.delivery_time,
-      // Estructura revisada para `address`
       address: {
         street: formData.address,
         city: formData.town || "Ciudad desconocida",
         state: formData.departament || "Departamento desconocido",
-        postal_code: formData.postal_code || "11111", // Usar un valor predeterminado si no está disponible
+        postal_code: formData.postal_code || "11111",
         country: "Colombia",
       },
       customer: {
@@ -336,44 +513,33 @@ function NewCheckout() {
         phone: fullPhoneNumber,
         email: formData.email,
       },
+      payment_method: formData.paymentPreference,
+      status: "pending",
     };
 
-    // Imprimir `orderData` para validación antes de enviarlo
     console.log(
-      "Datos enviados a la API (orderData):",
-      JSON.stringify(orderData, null, 2)
+      "Datos enviados a la API (newOrderData):",
+      JSON.stringify(newOrderData, null, 2)
     );
 
     try {
-      // Intento de envío de `orderData` con validación detallada en Axios
       const response = await axios.post(
         "https://loocal.co/api/orders/order/",
-        orderData,
-        {
-          headers: { "Content-Type": "application/json" },
-          validateStatus: false, // Asegura que Axios no maneje el error automáticamente
-        }
+        newOrderData,
+        { headers: { "Content-Type": "application/json" } }
       );
 
-      // Confirmación de éxito
       if (response.status === 200 || response.status === 201) {
         console.log("Orden creada:", response.data);
+        setOrderData(response.data); // Guardar la orden creada
         return response.data;
       } else {
-        // Muestra mensaje de error específico si se recibe uno
-        console.error("Error en la respuesta del servidor:", response.data);
-        throw new Error(
-          "Error al crear la orden. " +
-            (response.data?.error || "Detalles no disponibles")
-        );
+        console.error("Error al crear la orden:", response.data);
+        throw new Error("Error al crear la orden. " + response.data?.error);
       }
     } catch (error) {
-      // Captura error y detalla respuesta
-      console.error(
-        "Error al crear la orden:",
-        error.response?.data || error.message
-      );
-      throw new Error("No se pudo crear la orden.");
+      console.error("Error al crear la orden:", error);
+      throw error;
     }
   };
 
@@ -442,7 +608,6 @@ function NewCheckout() {
 
   const requiredFields = {
     firstname: "Nombre",
-    lastname: "Apellido",
     phone: "Celular",
     email: "Correo electrónico válido",
     departament: "Departamento",
@@ -465,10 +630,52 @@ function NewCheckout() {
     if (formData.email && !isEmailValid(formData.email)) {
       missingFields.push("email");
     }
+    if (formData.transportCost <= 0) {
+      missingFields.push("transportCost");
+    }
+    if (!isCityValid) {
+      missingFields.push("cityUnavailable");
+    }
+    if (formData.address && formData.address.length < 15) {
+      missingFields.push("addressTooShort");
+    }
 
     setErrors(missingFields);
     return missingFields.length === 0;
   };
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      const tempAddress = JSON.parse(localStorage.getItem("tempAddress")) || {
+        departament: "",
+        town: "",
+        address: "",
+      };
+      setFormData((prevData) => ({
+        ...prevData,
+        departament: tempAddress.departament,
+        town: tempAddress.town,
+        address: tempAddress.address,
+        addressId: tempAddress.address ? "temp" : null,
+      }));
+    }
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (isAuthenticated && addresses.length > 0) {
+      const primaryAddress = addresses.find((address) => address.is_default);
+
+      if (primaryAddress) {
+        setFormData((prevData) => ({
+          ...prevData,
+          addressId: primaryAddress.id,
+          departament: primaryAddress.state,
+          town: primaryAddress.city,
+          address: primaryAddress.street,
+        }));
+      }
+    }
+  }, [isAuthenticated, addresses]);
 
   useEffect(() => {
     validateForm();
@@ -481,44 +688,34 @@ function NewCheckout() {
   //     : [];
 
   const handleConfirmOrder = async () => {
+    if (!isCityValid) {
+      toast.error("La ciudad seleccionada no está disponible para entregas.");
+      return;
+    }
     setAttemptedSubmit(true);
     if (validateForm()) {
       try {
-        // Crea la orden en el backend
-        const orderData = await createOrder();
+        // 1. Crea la orden solo si no existe una previamente creada
+        const currentOrder = await createOrder();
 
-        // Extrae los datos reales del carrito y usuario
-        const userId = isAuthenticated ? userData?.id : null; // ID del usuario si está autenticado
-        const userEmail = formData.email || userData?.email;
-
-        // Envía el evento de "Checkout Initiated" a Segment
-        analytics.track("Checkout Completed", {
-          email: formData.email,
-          subtotal: subtotal,
-          payment_method: formData.paymentPreference,
-          discount_code: formData.discountCode || null,
-        });
-
-        // Caso: Pago en línea
+        // 2. Maneja el flujo de pago según la preferencia
         if (formData.paymentPreference === "online") {
           const hash = await fetchIntegrityHash(
-            orderData.custom_order_id,
+            currentOrder.custom_order_id,
             finalTotal * 100
           );
           if (hash) {
             openWompiCheckout(
               hash,
-              orderData.custom_order_id,
+              currentOrder.custom_order_id,
               finalTotal * 100
             );
           } else {
             throw new Error("No se pudo generar el hash de integridad.");
           }
-        }
-
-        // Caso: Pago contra entrega
-        else {
-          navigate(`/order-status?orderId=${orderData.custom_order_id}`);
+        } else {
+          navigate(`/order-status?orderId=${currentOrder.custom_order_id}`);
+          toast.success("Pedido confirmado. Pagarás al recibir.");
         }
       } catch (error) {
         console.error("Error al procesar la orden:", error);
@@ -528,9 +725,12 @@ function NewCheckout() {
   };
 
   const BoxResume = ({
-    totalDiscount,
+    subtotal,
+    transportCost,
+    transportDiscount,
     paymentDiscount,
     discountInfo,
+    totalDiscount,
     finalTotal,
     handleConfirmOrder,
     errors,
@@ -538,54 +738,75 @@ function NewCheckout() {
     requiredFields,
   }) => (
     <div className={styles["box-resume"]}>
+      {/* Detalle de descuentos */}
       <div className={styles["box-resume-discount"]}>
         {totalDiscount > 0 && (
           <>
             <div className={styles["discount-message"]}>
-              <span>¡Enhorabuena! Se han aplicado descuentos</span>
-              <span>{formatPriceToCOP(totalDiscount)}</span>
+              <span>¡Descuentos aplicados!</span>
+              <span>-{formatPriceToCOP(totalDiscount)}</span>
             </div>
             <div className={styles["discount-detail"]}>
+              {/* Descuento por pago online */}
               {paymentDiscount > 0 && (
                 <div className={styles["discount-detail-item"]}>
                   <span>Descuento por pago online</span>
                   <span>{formatPriceToCOP(paymentDiscount)}</span>
                 </div>
               )}
-              {discountInfo && (
+              {/* Descuento aplicado por código */}
+              {discountInfo && discountInfo.discount_value > 0 && (
                 <div className={styles["discount-detail-item"]}>
-                  <span>Descuento por código</span>
+                  <span>Descuento en subtotal</span>
                   <span>{formatPriceToCOP(discountInfo.discount_value)}</span>
+                </div>
+              )}
+              {/* Descuento en transporte */}
+              {transportDiscount > 0 && (
+                <div className={styles["discount-detail-item"]}>
+                  <span>Descuento en transporte</span>
+                  <span>-{formatPriceToCOP(transportDiscount)}</span>
                 </div>
               )}
             </div>
           </>
         )}
       </div>
+
+      {/* Subtotal y total */}
       <div className={styles["box-resume-info"]}>
+        {/* Mostrar mensaje si la ciudad no es válida */}
         <div className={styles["box-resume-info-value"]}>
-          <span>Subtotal:</span>
+          <span>Total:</span>
           <h4>{formatPriceToCOP(finalTotal)}</h4>
         </div>
-        <div className={styles["box-completed"]}>
-          <button
-            onClick={handleConfirmOrder}
-            className={`${styles["button"]} ${
-              errors.length > 0 && attemptedSubmit
-                ? styles["button-disabled"]
-                : ""
-            }`}
-          >
-            Confirmar compra
-          </button>
-        </div>
+        <button
+          onClick={handleConfirmOrder}
+          className={`${styles["button"]} ${
+            errors.length > 0 && attemptedSubmit
+              ? styles["button-disabled"]
+              : ""
+          }`}
+        >
+          Confirmar compra
+        </button>
       </div>
+
+      {/* Mensaje de errores */}
       {attemptedSubmit && errors.length > 0 && (
-        <div className={styles["box-resume-error"]}>
-          <div className={styles["error-messages"]}>
-            <p>Por favor completa los siguientes campos:</p>
-            <p>{errors.map((error) => requiredFields[error]).join(", ")}</p>
-          </div>
+        <div className="errorMessage">
+          <p>Por favor completa los siguientes campos:</p>
+          <ul>
+            {errors.map((error) => (
+              <li key={error}>
+                {error === "cityUnavailable"
+                  ? "La ciudad no está disponible para entrega."
+                  : error === "addressTooShort"
+                  ? "Asegúrate de agregar una dirección válida."
+                  : requiredFields[error]}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </div>
@@ -635,7 +856,7 @@ function NewCheckout() {
               </div>
             </div>
             <div className={styles["header-second"]}>
-              <span>Dirección</span>
+              <span>&nbsp;</span>
             </div>
           </div>
 
@@ -656,9 +877,7 @@ function NewCheckout() {
                         </span>
                       </div>
                     </div>
-                    <div className={styles["box-header-extend"]}>
-                      <IoIosArrowDown />
-                    </div>
+                    <div className={styles["box-header-extend"]}></div>
                   </div>
                   <div className={styles["box-content"]}></div>
                 </div>
@@ -666,7 +885,9 @@ function NewCheckout() {
                   className={`${styles["box"]} ${
                     attemptedSubmit &&
                     (errors.includes("firstname") ||
-                      errors.includes("lastname"))
+                      errors.includes("lastname") ||
+                      errors.includes("phone") ||
+                      errors.includes("email"))
                       ? styles["error-box"]
                       : ""
                   }`}
@@ -685,37 +906,50 @@ function NewCheckout() {
                       <ProfileSelect
                         userData={userData}
                         onSelect={(value) => {
+                          console.log(
+                            `[NewCheckout] Selección del perfil: ${value}`
+                          );
                           if (value === "profile") {
-                            setUseProfileData(true); // Activa el uso de datos prellenados
-                            if (userData) {
-                              setFormData((prevData) => ({
-                                ...prevData,
-                                firstname: userData?.first_name || "",
-                                lastname: userData?.last_name || "",
-                                documentType:
-                                  userData?.userprofile?.document_type || "CC", // Acceder a userprofile
-                                documentNumber:
-                                  userData?.userprofile?.document_number || "",
-                                phoneCode: "+57", // Valor fijo, actualizar si es dinámico
-                                phone:
-                                  userData?.userprofile?.phone_number || "",
-                                email: userData?.email || "",
-                              }));
-                            }
+                            setUseProfileData(true);
+                            setUserType("persona");
+
+                            setFormData({
+                              firstname: userData?.first_name || "",
+                              lastname: userData?.last_name || "",
+                              documentType: "CC",
+                              documentNumber:
+                                userData?.userprofile?.document_number || "",
+                              phoneCode: "+57",
+                              phone: userData?.userprofile?.phone_number || "",
+                              email: userData?.email || "",
+                            });
                           } else {
-                            setUseProfileData(false); // Permite datos editables
-                            setFormData((prevData) => ({
-                              ...prevData,
+                            setUseProfileData(false);
+                            setFormData({
                               firstname: "",
                               lastname: "",
                               documentType: "CC",
                               documentNumber: "",
                               phone: "",
                               email: "",
-                            }));
+                            });
                           }
                         }}
+                        onUserTypeChange={(value) => {
+                          console.log(
+                            `[NewCheckout] userType actualizado a: ${value}`
+                          );
+                          setUserType(value);
+                          setFormData((prevData) => ({
+                            ...prevData,
+                            lastname:
+                              value === "empresa" ? "" : prevData.lastname,
+                            documentType: value === "empresa" ? "NIT" : "CC",
+                          }));
+                        }}
+                        setShowUserTypeSelector={setShowUserTypeSelector}
                       />
+                      ;
                     </div>
                   ) : (
                     <div className={styles["box-header"]}>
@@ -727,9 +961,7 @@ function NewCheckout() {
                           <h4>Tus datos</h4>
                         </div>
                       </div>
-                      <div className={styles["box-header-extend"]}>
-                        <IoIosArrowDown />
-                      </div>
+                      <div className={styles["box-header-extend"]}></div>
                     </div>
                   )}
 
@@ -737,8 +969,13 @@ function NewCheckout() {
                     <UserDataForm
                       formData={formData}
                       onChange={handleChange}
-                      onPhoneCodeChange={handlePhoneCodeChange}
-                      isReadOnly={useProfileData} // Bloquea los campos si se usan datos prellenados
+                      isReadOnly={isAuthenticated && useProfileData}
+                      defaultUserType={userType}
+                      showUserTypeSelector={
+                        !isAuthenticated ||
+                        !useProfileData ||
+                        showUserTypeSelector
+                      }
                     />
                   </div>
                 </div>
@@ -761,91 +998,210 @@ function NewCheckout() {
                         <h4>Dirección</h4>
                       </div>
                     </div>
-                    <div className={styles["box-header-extend"]}>
-                      <IoIosArrowDown />
-                    </div>
+                    <div className={styles["box-header-extend"]}></div>
                   </div>
                   <div className={styles["box-content"]}>
                     {isAuthenticated ? (
-      <>
-        {/* Selección de direcciones */}
-        <form>
-          <div className={styles["address-list"]}>
-            {(addresses || []).map((address) => (
-              <div
-                key={address.id}
-                className={`${styles["custom-radio"]} ${
-                  formData.addressId === address.id ? styles["selected"] : ""
-                }`}
-                onClick={() => {
-                  setFormData({
-                    ...formData,
-                    addressId: address.id,
-                    departament: address.state,
-                    town: address.city,
-                    address: address.street,
-                  });
-                }}
-              >
-                <div className={styles["radio-circle"]}></div>
-                <div className={styles["label"]}>
-                  <div className={styles["label-main"]}>
-                    <span>{address.street}</span>
-                  </div>
-                  <div className={styles["label-extra"]}>
-                    <span>
-                      {address.city}, {address.state}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
-            {/* Opción para agregar una nueva dirección */}
-            <div
-              className={`${styles["custom-radio"]} ${
-                formData.addressId === "new" ? styles["selected"] : ""
-              }`}
-              onClick={() => {
-                setFormData({
-                  ...formData,
-                  addressId: "new",
-                  departament: "",
-                  town: "",
-                  address: "",
-                });
-              }}
-            >
-              <div className={styles["radio-circle"]}></div>
-              <div className={styles["label"]}>
-                <div className={styles["label-main"]}>
-                  <span>Agregar nueva dirección</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </form>
+                      <>
+                        {/* Selección de direcciones para usuarios autenticados */}
+                        <form>
+                          <div className={styles["address-list"]}>
+                            {(addresses || []).map((address) => (
+                              <div
+                                key={address.id}
+                                className={`${styles["custom-radio"]} ${
+                                  formData.addressId === address.id
+                                    ? styles["selected"]
+                                    : ""
+                                }`}
+                                onClick={() => {
+                                  setFormData({
+                                    ...formData,
+                                    addressId: address.id,
+                                    departament: address.state,
+                                    town: address.city,
+                                    address: address.street,
+                                  });
+                                }}
+                              >
+                                <div className={styles["radio-circle"]}></div>
+                                <div className={styles["label"]}>
+                                  <div className={styles["label-main"]}>
+                                    <span>{address.street}</span>
+                                  </div>
+                                  <div className={styles["label-extra"]}>
+                                    <span>
+                                      {address.city}, {address.state}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                            {/* Opción para agregar una nueva dirección */}
+                            <div
+                              className={`${styles["custom-radio"]} ${
+                                formData.addressId === "new"
+                                  ? styles["selected"]
+                                  : ""
+                              }`}
+                              onClick={() => {
+                                setFormData({
+                                  ...formData,
+                                  addressId: "new",
+                                  departament: "",
+                                  town: "",
+                                  address: "",
+                                });
+                              }}
+                            >
+                              <div className={styles["radio-circle"]}></div>
+                              <div className={styles["label"]}>
+                                <div className={styles["label-main"]}>
+                                  <span>Agregar nueva dirección</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </form>
 
-        {/* Mostrar formulario si se selecciona una nueva dirección */}
-        {formData.addressId === "new" && (
-          <AddressForm
-            formData={formData}
-            onDepartamentoChange={handleDepartamentoChange}
-            onMunicipioChange={handleMunicipioChange}
-            onAddressChange={handleChange}
-          />
-        )}
-      </>
-    ) : (
-      <>
-        {/* Formulario de dirección para usuarios no autenticados */}
-        <AddressForm
-          formData={formData}
-          onDepartamentoChange={handleDepartamentoChange}
-          onMunicipioChange={handleMunicipioChange}
-          onAddressChange={handleChange}
-        />
-      </>
-    )}
+                        {/* Mostrar formulario si se selecciona una nueva dirección */}
+                        {formData.addressId === "new" && (
+                          <>
+                            <AddressForm
+                              formData={formData}
+                              onDepartamentoChange={handleDepartamentoChange}
+                              onMunicipioChange={(e) => {
+                                handleMunicipioChange(e);
+                              }}
+                              onAddressChange={handleAddressChange}
+                            />
+                            {errors.includes("addressTooShort") && (
+                              <span className="errorMessage">
+                                Asegúrate de agregar una dirección válida.
+                              </span>
+                            )}
+                          </>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        {/* Si el usuario no está autenticado, pero tiene una dirección temporal */}
+                        {localStorage.getItem("tempAddress") ? (
+                          <>
+                            <form>
+                              <div className={styles["address-list"]}>
+                                {/* Cargar dirección temporal como opción */}
+                                <div
+                                  className={`${styles["custom-radio"]} ${
+                                    formData.addressId === "temp"
+                                      ? styles["selected"]
+                                      : ""
+                                  }`}
+                                  onClick={() => {
+                                    const tempAddress = JSON.parse(
+                                      localStorage.getItem("tempAddress")
+                                    );
+                                    setFormData({
+                                      ...formData,
+                                      addressId: "temp",
+                                      departament: tempAddress.departament,
+                                      town: tempAddress.town,
+                                      address: tempAddress.address,
+                                    });
+                                  }}
+                                >
+                                  <div className={styles["radio-circle"]}></div>
+                                  <div className={styles["label"]}>
+                                    <div className={styles["label-main"]}>
+                                      <span>
+                                        {
+                                          JSON.parse(
+                                            localStorage.getItem("tempAddress")
+                                          ).address
+                                        }
+                                      </span>
+                                    </div>
+                                    <div className={styles["label-extra"]}>
+                                      <span>
+                                        {
+                                          JSON.parse(
+                                            localStorage.getItem("tempAddress")
+                                          ).town
+                                        }
+                                        ,{" "}
+                                        {
+                                          JSON.parse(
+                                            localStorage.getItem("tempAddress")
+                                          ).departament
+                                        }
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                                {/* Opción para agregar otra dirección */}
+                                <div
+                                  className={`${styles["custom-radio"]} ${
+                                    formData.addressId === "new"
+                                      ? styles["selected"]
+                                      : ""
+                                  }`}
+                                  onClick={() => {
+                                    setFormData({
+                                      ...formData,
+                                      addressId: "new",
+                                      departament: "",
+                                      town: "",
+                                      address: "",
+                                    });
+                                  }}
+                                >
+                                  <div className={styles["radio-circle"]}></div>
+                                  <div className={styles["label"]}>
+                                    <div className={styles["label-main"]}>
+                                      <span>Agregar nueva dirección</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </form>
+
+                            {/* Mostrar formulario si se selecciona una nueva dirección */}
+                            {formData.addressId === "new" && (
+                              <>
+                                <AddressForm
+                                  formData={formData}
+                                  onDepartamentoChange={
+                                    handleDepartamentoChange
+                                  }
+                                  onMunicipioChange={handleMunicipioChange}
+                                  onAddressChange={handleAddressChange}
+                                />
+                                {errors.includes("addressTooShort") && (
+                                  <span className="errorMessage2">
+                                    Asegúrate de agregar una dirección válida.
+                                  </span>
+                                )}
+                              </>
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            {/* Formulario de dirección para usuarios no autenticados sin dirección previa */}
+                            <AddressForm
+                              formData={formData}
+                              onDepartamentoChange={handleDepartamentoChange}
+                              onMunicipioChange={handleMunicipioChange}
+                              onAddressChange={handleChange}
+                            />
+                            {errors.includes("addressTooShort") && (
+                              <span className="errorMessage">
+                                Asegúrate de agregar una dirección válida.
+                              </span>
+                            )}
+                          </>
+                        )}
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
@@ -865,9 +1221,7 @@ function NewCheckout() {
                         <h4>¿Cuándo recibiras tu pedido?</h4>
                       </div>
                     </div>
-                    <div className={styles["box-header-extend"]}>
-                      <IoIosArrowDown />
-                    </div>
+                    <div className={styles["box-header-extend"]}></div>
                   </div>
                   <div className={styles["box-content"]}>
                     <div className={styles["date-time-picker-container"]}>
@@ -900,9 +1254,7 @@ function NewCheckout() {
                         <h4>¿Cómo prefieres hacer el pago?</h4>
                       </div>
                     </div>
-                    <div className={styles["box-header-extend"]}>
-                      <IoIosArrowDown />
-                    </div>
+                    <div className={styles["box-header-extend"]}></div>
                   </div>
                   <div className={styles["box-content"]}>
                     <form>
@@ -968,9 +1320,7 @@ function NewCheckout() {
                         <h4>¿Tienes algún código de descuento?</h4>
                       </div>
                     </div>
-                    <div className={styles["box-header-extend"]}>
-                      <IoIosArrowDown />
-                    </div>
+                    <div className={styles["box-header-extend"]}></div>
                   </div>
                   <div className={styles["box-content"]}>
                     <form>
@@ -1007,12 +1357,41 @@ function NewCheckout() {
                     </form>
                   </div>
                 </div>
+                {formData.town && (
+                  <div className={`${styles["box"]} ${styles["transport"]}`}>
+                    {isCityValid ? (
+                      <>
+                        {/* Mostrar información del costo de transporte si la ciudad es válida */}
+                        <div className={styles["label-transport"]}>
+                          <FiTruck />
+                          <span>
+                            Envío a {formData.town}, {formData.departament}
+                            &nbsp;
+                          </span>
+                        </div>
+                        <span>{formatPriceToCOP(formData.transportCost)}</span>
+                      </>
+                    ) : (
+                      <>
+                        {/* Mostrar mensaje de error si la ciudad no es válida */}
+                        <div className="errorMessage">
+                          Actualmente solo entregamos en:{" "}
+                          {AVAILABLE_CITIES.join(", ")}.
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+
                 <div className={styles["box"]}>
                   {!isMobile && (
                     <BoxResume
-                      totalDiscount={totalDiscount}
+                      subtotal={subtotal}
+                      transportCost={formData.transportCost}
+                      transportDiscount={formData.transportDiscount}
                       paymentDiscount={paymentDiscount}
                       discountInfo={discountInfo}
+                      totalDiscount={totalDiscount}
                       finalTotal={finalTotal}
                       handleConfirmOrder={handleConfirmOrder}
                       errors={errors}
@@ -1027,9 +1406,12 @@ function NewCheckout() {
               {isMobile && (
                 <div className={styles["mobile-box-resume"]}>
                   <BoxResume
-                    totalDiscount={totalDiscount}
+                    subtotal={subtotal}
+                    transportCost={formData.transportCost}
+                    transportDiscount={formData.transportDiscount}
                     paymentDiscount={paymentDiscount}
                     discountInfo={discountInfo}
+                    totalDiscount={totalDiscount}
                     finalTotal={finalTotal}
                     handleConfirmOrder={handleConfirmOrder}
                     errors={errors}

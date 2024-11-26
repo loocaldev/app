@@ -3,19 +3,30 @@ import { FiUser } from "react-icons/fi";
 import { IoIosArrowDown } from "react-icons/io";
 import styles from "../styles/ProfileSelect.module.css";
 
-const ProfileSelect = ({ userData, onSelect }) => {
-  const [isOpen, setIsOpen] = useState(false); // Controla el menú desplegable
-  const [selectedOption, setSelectedOption] = useState("profile"); // Controla la opción seleccionada
+const ProfileSelect = ({
+  userData,
+  onSelect,
+  onUserTypeChange,
+  setShowUserTypeSelector,
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedOption, setSelectedOption] = useState("profile");
 
   const handleOptionClick = (value) => {
     setSelectedOption(value);
-    setIsOpen(false); // Cierra el menú desplegable
-    onSelect(value); // Notifica al componente padre
+    setIsOpen(false);
+    onSelect(value);
+
+    if (value === "profile") {
+      setShowUserTypeSelector(false); // Oculta el selector
+      onUserTypeChange("persona"); // Fuerza a "persona"
+    } else {
+      setShowUserTypeSelector(true); // Muestra el selector
+    }
   };
 
   return (
     <div className={styles["select-profile-container"]}>
-      {/* Contenedor principal del select */}
       <div
         className={styles["select-profile"]}
         onClick={() => setIsOpen(!isOpen)}
@@ -42,7 +53,6 @@ const ProfileSelect = ({ userData, onSelect }) => {
             </div>
           </div>
         )}
-        {/* Icono para desplegar */}
         <IoIosArrowDown />
       </div>
 

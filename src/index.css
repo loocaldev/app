@@ -122,6 +122,49 @@ select:disabled {
   font-size: 14px;
 }
 
+.errorMessage2 {
+  color: #cc4033;
+  font-size: 14px;
+  border-radius: 16px;
+}
+
+/* Contenedor principal para los radios */
+.user-type-selector {
+  display: flex;
+  gap: 8px; /* Separación entre opciones */
+  padding-bottom: 0px;
+  margin-bottom: 12px
+}
+
+/* Estilo base para las etiquetas */
+.user-type-selector label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 2px;
+  cursor: pointer;
+  background: transparent; /* Fondo por defecto */
+  color: var(--gray-3); /* Texto por defecto */
+  font-size: 14px;
+  font-weight: 400;
+  text-align: center;
+  transition: all 0.3s ease;
+  width: 100%;
+  margin-bottom: 0px;
+  border-radius: 16px;
+}
+
+/* Ocultar los radios nativos */
+.user-type-selector input[type="radio"] {
+  display: none;
+}
+
+/* Estilo para la opción seleccionada */
+.user-type-selector label.selected {
+  background: var(--purple-alpha-color); /* Fondo seleccionado */
+  color: var(--primary-purple-color); /* Texto seleccionado */
+  border-radius: 16px;
+}
 
 .form-multi-input {
   display: flex;

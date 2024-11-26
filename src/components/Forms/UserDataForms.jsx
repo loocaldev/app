@@ -1,13 +1,55 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { indicativos } from "../../data/indicativos";
 import styles from "../../styles/NewCheckout.module.css";
 
-const UserDataForm = ({ formData, onChange, onPhoneCodeChange, isReadOnly  }) => {
+const UserDataForm = ({
+  formData,
+  onChange,
+  onPhoneCodeChange,
+  isReadOnly,
+  defaultUserType = "persona", // Tipo de usuario por defecto
+  showUserTypeSelector = true,
+}) => {
+  const [userType, setUserType] = useState(defaultUserType);
+
+  useEffect(() => {
+    console.log(
+      `[UserDataForm] defaultUserType actualizado: ${defaultUserType}`
+    );
+    setUserType(defaultUserType);
+  }, [defaultUserType]);
+
+  const handleUserTypeChange = (type) => {
+    console.log(`[UserDataForm] userType cambiado a: ${type}`);
+    setUserType(type);
+    onChange({ target: { name: "userType", value: type } });
+  };
+
   return (
     <form>
+      {/* Selector de tipo de usuario */}
+      {showUserTypeSelector && (
+        <div className="user-type-selector">
+          <label
+            className={userType === "persona" ? "selected" : ""}
+            onClick={() => handleUserTypeChange("persona")}
+          >
+            Persona
+          </label>
+          <label
+            className={userType === "empresa" ? "selected" : ""}
+            onClick={() => handleUserTypeChange("empresa")}
+          >
+            Empresa
+          </label>
+        </div>
+      )}
+      {/* Campos del formulario */}
       <div className="form-row">
         <div className="form-group">
-          <label>Nombre</label>
+          <label>
+            {userType === "empresa" ? "Nombre o razón social" : "Nombre"}
+          </label>
           <input
             type="text"
             name="firstname"
@@ -16,16 +58,18 @@ const UserDataForm = ({ formData, onChange, onPhoneCodeChange, isReadOnly  }) =>
             readOnly={isReadOnly}
           />
         </div>
-        <div className="form-group">
-          <label>Apellido</label>
-          <input
-            type="text"
-            name="lastname"
-            value={formData.lastname}
-            onChange={onChange}
-            readOnly={isReadOnly}
-          />
-        </div>
+        {userType !== "empresa" && (
+          <div className="form-group">
+            <label>Apellido</label>
+            <input
+              type="text"
+              name="lastname"
+              value={formData.lastname}
+              onChange={onChange}
+              readOnly={isReadOnly}
+            />
+          </div>
+        )}
       </div>
       <div className="form-row">
         <div className="form-group">
@@ -35,11 +79,17 @@ const UserDataForm = ({ formData, onChange, onPhoneCodeChange, isReadOnly  }) =>
               name="documentType"
               value={formData.documentType}
               onChange={onChange}
-              disabled={isReadOnly}
+              disabled={isReadOnly || userType === "empresa"} // Bloqueado si es "empresa"
             >
-              <option value="CC">C.C.</option>
-              <option value="CE">C.E.</option>
-              <option value="PP">Pasaporte</option>
+              {userType === "empresa" ? (
+                <option value="NIT">NIT</option>
+              ) : (
+                <>
+                  <option value="CC">C.C.</option>
+                  <option value="CE">C.E.</option>
+                  <option value="PP">Pasaporte</option>
+                </>
+              )}
             </select>
             <input
               type="text"
@@ -56,12 +106,12 @@ const UserDataForm = ({ formData, onChange, onPhoneCodeChange, isReadOnly  }) =>
             <select
               name="phoneCode"
               value={formData.phoneCode}
-              onChange={onPhoneCodeChange} // Cambiado a onPhoneCodeChange
+              onChange={onPhoneCodeChange}
               disabled={isReadOnly}
             >
               {indicativos.map((indicativo, index) => (
                 <option
-                  key={`${indicativo.code}-${index}`} // Combinamos el código con el índice
+                  key={`${indicativo.code}-${index}`}
                   value={indicativo.code}
                 >
                   {`${indicativo.abbreviation} (${indicativo.code})`}

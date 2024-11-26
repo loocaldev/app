@@ -1,12 +1,20 @@
 import React, { useState, useEffect, useRef } from "react";
 import styles from "../styles/Header.module.css";
-import { FiMenu, FiShoppingCart } from "react-icons/fi";
+import {
+  FiMapPin,
+  FiMenu,
+  FiShoppingCart,
+  FiChevronDown,
+  FiChevronUp,
+} from "react-icons/fi";
 import useScreenSize from "../hooks/useScreenSize.js";
 import { MdClose } from "react-icons/md";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { getAllProducts } from "../api/products.api";
 import ProductCardHZ from "./ProductCardHZ.jsx";
 import ProductCardSQ from "./ProductCardSQ.jsx";
+import AddressForm from "./Forms/AddressForm";
+import { AVAILABLE_CITIES } from "../data/departamentosYMunicipios";
 import {
   TbRosetteDiscount,
   TbApple,
@@ -24,7 +32,16 @@ import { useAuth } from "../context/AuthContext";
 
 function Header() {
   const [searchNavQuery, setsearchNavQuery] = useState("");
-  const { token, isAuthenticated, logout, userData } = useAuth();
+  const {
+    token,
+    isAuthenticated,
+    logout,
+    userData,
+    addresses,
+    getAddresses,
+    setPrimaryAddress,
+    addAddress,
+  } = useAuth();
   const [searchResults, setSearchResults] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
@@ -35,6 +52,38 @@ function Header() {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isDebugMode, setIsDebugMode] = useState(false); // Estado de depuración
 
+  const [selectedAddress, setSelectedAddress] = useState(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [tempAddress, setTempAddress] = useState(() => {
+    const savedTempAddress = JSON.parse(localStorage.getItem("tempAddress"));
+    return savedTempAddress || { departament: "", town: "", address: "" };
+  });
+  const [isCityValid, setIsCityValid] = useState(true);
+
+  const validateCity = (city) => {
+    const isValid = AVAILABLE_CITIES.includes(city.toUpperCase());
+    setIsCityValid(isValid);
+    return isValid;
+  };
+
+  const dropdownMenuRef = useRef(null);
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        dropdownMenuRef.current &&
+        !dropdownMenuRef.current.contains(event.target)
+      ) {
+        setIsDropdownOpen(false); // Cierra el menú
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   useEffect(() => {
     if (isNavbarOpen) {
       document.body.style.overflow = "hidden";
@@ -43,11 +92,63 @@ function Header() {
     }
   }, [isNavbarOpen]);
 
+  useEffect(() => {
+    if (isAuthenticated) {
+      getAddresses();
+    }
+  }, [isAuthenticated]);
+  useEffect(() => {
+    if (!isAuthenticated) {
+      const savedAddress = localStorage.getItem("tempAddress");
+      if (savedAddress) {
+        setSelectedAddress(JSON.parse(savedAddress));
+      }
+    }
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      const savedAddress = localStorage.getItem("tempAddress");
+      if (savedAddress) {
+        setSelectedAddress(JSON.parse(savedAddress)); // Carga la dirección desde localStorage
+      }
+    }
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (isAuthenticated && addresses.length > 0) {
+      const defaultAddress = addresses.find((address) => address.is_default);
+      setSelectedAddress(defaultAddress || addresses[0]);
+    }
+  }, [addresses]);
+
   const toggleProfileMenu = () => setIsProfileMenuOpen(!isProfileMenuOpen);
   const toggleDebugMode = () => setIsDebugMode(!isDebugMode);
 
   const inputRef = useRef(null);
   const dropdownRef = useRef(null);
+
+  const handleOpenPopup = () => {
+    const savedTempAddress = JSON.parse(localStorage.getItem("tempAddress")) || {
+      departament: "",
+      town: "",
+      address: "",
+    };
+    setTempAddress(savedTempAddress); // Sincroniza el estado con el `localStorage`
+    setIsPopupOpen(true); // Abre el popup
+  };
+
+  useEffect(() => {
+    if (isPopupOpen) {
+      // Sincroniza tempAddress con localStorage cada vez que se abre el popup
+      const savedTempAddress = JSON.parse(localStorage.getItem("tempAddress")) || {
+        departament: "",
+        town: "",
+        address: "",
+      };
+      setTempAddress(savedTempAddress);
+    }
+  }, [isPopupOpen]);
 
   useEffect(() => {
     const fetchSuggestions = async () => {
@@ -117,6 +218,74 @@ function Header() {
     setIsDropdownVisible(false);
   };
 
+  const handleAddressSelect = (address) => {
+    setSelectedAddress(address);
+    setPrimaryAddress(address.id); // Cambia la dirección principal en el backend
+    setIsDropdownOpen(false);
+  };
+
+  const handleAddTempAddress = (e) => {
+    e.preventDefault();
+    setSelectedAddress(tempAddress); // Guarda la dirección temporal
+    setIsPopupOpen(false);
+    if (tempAddress.address.length < 15) {
+      console.error("La dirección debe tener al menos 15 caracteres.");
+      return; // Detener el flujo si la dirección no es válida
+    }
+  };
+
+  const handleMunicipioChange = (e) => {
+    const selectedCity = e.target.value; // Obtén el valor de la ciudad seleccionada
+    setTempAddress((prev) => ({ ...prev, town: selectedCity })); // Actualiza la ciudad en el estado temporal de dirección
+
+    // Validar si la ciudad seleccionada está en las ciudades disponibles
+    const isValid = validateCity(selectedCity);
+    setIsCityValid(isValid); // Actualiza el estado de la validación
+  };
+
+  const handleAddAddress = async (e) => {
+    e.preventDefault();
+
+    if (!tempAddress.address || !tempAddress.town || !tempAddress.departament) {
+      console.error("Todos los campos son obligatorios");
+      return;
+    }
+
+    if (isAuthenticated) {
+      const isDefault = addresses.length === 0;
+
+      const newAddress = {
+        street: tempAddress.address,
+        city: tempAddress.town,
+        state: tempAddress.departament,
+        postal_code: "000000",
+        country: "Colombia",
+        is_default: isDefault,
+      };
+
+      try {
+        const addedAddress = await addAddress(newAddress);
+        if (addedAddress) {
+          setIsPopupOpen(false);
+          setTempAddress({ departament: "", town: "", address: "" });
+          getAddresses();
+
+          if (isDefault) {
+            setPrimaryAddress(addedAddress.id);
+          }
+        }
+      } catch (error) {
+        console.error("Error al guardar la dirección:", error);
+      }
+    } else {
+      // Para usuarios no autenticados
+      localStorage.setItem("tempAddress", JSON.stringify(tempAddress));
+      setSelectedAddress(tempAddress); // Asegura la actualización inmediata
+      setTempAddress({ departament: "", town: "", address: "" }); // Limpia el formulario
+      setIsPopupOpen(false);
+    }
+  };
+
   const handleBlur = () => {
     if (!isDebugMode) {
       setTimeout(() => setIsDropdownVisible(false), 200); // Solo cierra si no está en modo depuración
@@ -138,21 +307,28 @@ function Header() {
 
   return (
     <>
-    
-    <div className={styles.Header}>
-    {isDropdownVisible && (
+      <div className={styles.Header}>
+        {isDropdownVisible && (
           <>
             <div
               className={styles["dropdown-overlay"]}
               onClick={() => setIsDropdownVisible(false)}
             ></div>
-            <div className={styles["dropdown-container"]} onClick={(e) => e.stopPropagation()} ref={dropdownRef}>
+            <div
+              className={styles["dropdown-container"]}
+              onClick={(e) => e.stopPropagation()}
+              ref={dropdownRef}
+            >
               <div className={styles["dropdown-container-in"]}>
                 {isMobile ? (
                   <>
                     {suggestions.length > 0 ? (
                       suggestions.map((product) => (
-                        <ProductCardHZ key={product.id} product={product} onClick={(e) => e.stopPropagation()} />
+                        <ProductCardHZ
+                          key={product.id}
+                          product={product}
+                          onClick={(e) => e.stopPropagation()}
+                        />
                       ))
                     ) : (
                       <div className={styles["dropdown-no-results"]}>
@@ -164,7 +340,11 @@ function Header() {
                   <>
                     {suggestions.length > 0 ? (
                       suggestions.map((product) => (
-                        <ProductCardSQ key={product.id} product={product} onClick={(e) => e.stopPropagation()} />
+                        <ProductCardSQ
+                          key={product.id}
+                          product={product}
+                          onClick={(e) => e.stopPropagation()}
+                        />
                       ))
                     ) : (
                       <div className={styles["dropdown-no-results"]}>
@@ -177,13 +357,13 @@ function Header() {
             </div>
           </>
         )}
-      <div className={styles["header-container"]}>
-        <div className={styles.content}>
-          <div className={styles.firstContent}>
-            <FiMenu onClick={toggleNavbar} />
-            {/* Botón para alternar el modo de depuración */}
-            <div style={{ position: "fixed", top: "10px", right: "10px" }}>
-              {/* <button
+        <div className={styles["header-container"]}>
+          <div className={styles.content}>
+            <div className={styles.firstContent}>
+              <FiMenu onClick={toggleNavbar} />
+              {/* Botón para alternar el modo de depuración */}
+              <div style={{ position: "fixed", top: "10px", right: "10px" }}>
+                {/* <button
                 onClick={toggleDebugMode}
                 style={{
                   padding: "8px",
@@ -195,255 +375,375 @@ function Header() {
               >
                 {isDebugMode ? "Salir de Depuración" : "Activar Depuración"}
               </button> */}
+              </div>
+              <div className={styles["logo-search-mobile"]}>
+                {!isMobile ? (
+                  <>
+                    <img onClick={() => navigate("/")} src={Logo} alt="Logo" />
+                    <div className={styles["box-search-header"]}>
+                      <input
+                        type="text"
+                        placeholder="Buscar en Loocal..."
+                        value={searchNavQuery}
+                        onChange={handleSearchChange}
+                        onFocus={() => {
+                          if (searchNavQuery.trim() !== "") {
+                            setIsDropdownVisible(true);
+                          }
+                        }}
+                        ref={inputRef}
+                        // onBlur={handleBlur}
+                      />
+                      <button
+                        className={styles["searchButtonHeader"]}
+                        onClick={handleSearchSubmit}
+                      >
+                        <FiSearch />
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <img
+                      onClick={() => navigate("/")}
+                      src={LogoIso}
+                      alt="Logo"
+                    />
+                    <div className={styles["box-search-header"]}>
+                      <input
+                        type="text"
+                        placeholder="Buscar en Loocal..."
+                        value={searchNavQuery}
+                        onChange={handleSearchChange}
+                        onFocus={() => {
+                          if (searchNavQuery.trim() !== "") {
+                            setIsDropdownVisible(true);
+                          }
+                        }}
+                        // onBlur={handleBlur}
+                      />
+                      <button
+                        className={styles["searchButtonHeader"]}
+                        onClick={handleSearchSubmit}
+                      >
+                        <FiSearch />
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
-            <div className={styles["logo-search-mobile"]}>
-              {!isMobile ? (
-                <>
-                  <img onClick={() => navigate("/")} src={Logo} alt="Logo" />
-                  <div className={styles["box-search-header"]}>
-                    <input
-                      type="text"
-                      placeholder="Buscar en Loocal..."
-                      value={searchNavQuery}
-                      onChange={handleSearchChange}
-                      onFocus={() => {
-                        if (searchNavQuery.trim() !== "") {
-                          setIsDropdownVisible(true);
-                        }
-                      }}
-                      ref={inputRef} 
-                      // onBlur={handleBlur}
+            {/* <div className={styles.secondContent}>
+            <span>Buscar...</span>
+          </div> */}
+            <div className={styles.thirdContent}>
+              {isAuthenticated ? (
+                <div
+                  onClick={toggleProfileMenu}
+                  className={styles["profile-card"]}
+                >
+                  {userData?.userprofile?.profile_picture ? (
+                    <img
+                      src={userData.userprofile.profile_picture}
+                      alt="Foto de perfil"
+                      className={styles["profile-picture"]}
                     />
-                    <button
-                      className={styles["searchButtonHeader"]}
-                      onClick={handleSearchSubmit}
-                    >
-                      <FiSearch />
-                    </button>
+                  ) : (
+                    <img
+                      src="/default-placeholder.png"
+                      alt="Sin foto de perfil"
+                      className={styles["profile-picture"]}
+                    />
+                  )}
+                  <div className={styles["username"]}>
+                    <span>{userData?.first_name}</span>
+                    {isProfileMenuOpen ? <IoIosArrowUp /> : <IoIosArrowDown />}
                   </div>
-                </>
+                  {/* Menú desplegable de perfil */}
+                  {isProfileMenuOpen && (
+                    <div className={styles["profile-menu"]}>
+                      <Link to="/perfil" state={{ section: "ProfileDetail" }}>
+                        <div className={styles["menu-item"]}>
+                          Ajustes de mi cuenta
+                        </div>
+                      </Link>
+
+                      <Link to="/perfil" state={{ section: "ProfileAddress" }}>
+                        <div className={styles["menu-item"]}>
+                          Mis direcciones
+                        </div>
+                      </Link>
+
+                      <Link to="/perfil" state={{ section: "ProfileOrders" }}>
+                        <div className={styles["menu-item"]}>Mis pedidos</div>
+                      </Link>
+
+                      <div
+                        className={styles["menu-item"]}
+                        onClick={handleLogout}
+                      >
+                        Cerrar sesión
+                      </div>
+                    </div>
+                  )}
+                </div>
               ) : (
-                <>
-                  <img onClick={() => navigate("/")} src={LogoIso} alt="Logo" />
-                  <div className={styles["box-search-header"]}>
-                    <input
-                      type="text"
-                      placeholder="Buscar en Loocal..."
-                      value={searchNavQuery}
-                      onChange={handleSearchChange}
-                      onFocus={() => {
-                        if (searchNavQuery.trim() !== "") {
-                          setIsDropdownVisible(true);
-                        }
-                      }}
-                      // onBlur={handleBlur}
-                    />
-                    <button
-                      className={styles["searchButtonHeader"]}
-                      onClick={handleSearchSubmit}
-                    >
-                      <FiSearch />
-                    </button>
-                  </div>
-                </>
+                <div>
+                  <button onClick={() => navigate("/login")}>Ingresar</button>
+                  <button onClick={() => navigate("/register")}>
+                    Crear cuenta
+                  </button>
+                </div>
               )}
             </div>
           </div>
-          {/* <div className={styles.secondContent}>
-            <span>Buscar...</span>
-          </div> */}
-          <div className={styles.thirdContent}>
-            {isAuthenticated ? (
-              <div
-                onClick={toggleProfileMenu}
-                className={styles["profile-card"]}
-              >
-                {userData?.userprofile?.profile_picture ? (
-                  <img
-                    src={userData.userprofile.profile_picture}
-                    alt="Foto de perfil"
-                    className={styles["profile-picture"]}
-                  />
-                ) : (
-                  <img
-                    src="/default-placeholder.png"
-                    alt="Sin foto de perfil"
-                    className={styles["profile-picture"]}
-                  />
-                )}
-                <div className={styles["username"]}>
-                  <span>{userData?.first_name}</span>
-                  {isProfileMenuOpen ? <IoIosArrowUp /> : <IoIosArrowDown />}
-                </div>
-                {/* Menú desplegable de perfil */}
-                {isProfileMenuOpen && (
-                  <div className={styles["profile-menu"]}>
-                    <Link to="/perfil" state={{ section: "ProfileDetail" }}>
-                      <div className={styles["menu-item"]}>
-                        Ajustes de mi cuenta
+
+          <div className={styles.SecondBar}>
+            <div className={styles.SecondBarLeft}>
+              {isAuthenticated ? (
+                <div className={styles["address-selector"]}>
+                  <FiMapPin />
+                  {selectedAddress ? (
+                    <span onClick={() => setIsDropdownOpen((prev) => !prev)}>
+                      {selectedAddress.street}, {selectedAddress.city}
+                      {isDropdownOpen ? <FiChevronUp /> : <FiChevronDown />}
+                    </span>
+                  ) : (
+                    <span onClick={() => handleOpenPopup()}>
+                      Añadir dirección
+                    </span>
+                  )}
+                  {isDropdownOpen && (
+                    <div
+                      className={styles["dropdown-menu"]}
+                      ref={dropdownMenuRef}
+                    >
+                      {addresses.map((address) => (
+                        <div
+                          key={address.id}
+                          className={styles["dropdown-item"]}
+                          onClick={() => handleAddressSelect(address)}
+                        >
+                          {address.street}, {address.city}
+                        </div>
+                      ))}
+                      <div
+                        className={styles["dropdown-item"]}
+                        onClick={handleOpenPopup}
+                      >
+                        Añadir nueva dirección
                       </div>
-                    </Link>
-
-                    <Link to="/perfil" state={{ section: "ProfileAddress" }}>
-                      <div className={styles["menu-item"]}>Mis direcciones</div>
-                    </Link>
-
-                    <Link to="/perfil" state={{ section: "ProfileOrders" }}>
-                      <div className={styles["menu-item"]}>Mis pedidos</div>
-                    </Link>
-
-                    <div className={styles["menu-item"]} onClick={handleLogout}>
-                      Cerrar sesión
                     </div>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              ) : (
+                <span onClick={() => setIsPopupOpen(true)}>
+                  {selectedAddress?.address && selectedAddress?.town
+                    ? `${selectedAddress.address}, ${selectedAddress.town}`
+                    : "Añadir dirección"}
+                </span>
+              )}
+            </div>
+
+            {isMobile ? (
+              <></>
             ) : (
-              <div>
-                <button onClick={() => navigate("/login")}>Ingresar</button>
-                <button onClick={() => navigate("/register")}>
-                  Crear cuenta
-                </button>
+              <div className={styles.SecondBarRight}>
+                <Link to="/tienda">
+                  <span>Ver todo</span>
+                </Link>
+                <Link to="/tienda/frutas">
+                  <span>Frutas</span>
+                </Link>
+                <Link to="/tienda/verduras">
+                  <span>Verduras y hortalizas</span>
+                </Link>
+                <Link to="/tienda/Granos%20y%20cereales">
+                  <span>Granos y cereales</span>
+                </Link>
+                <Link to="/tienda/productos%20organicos">
+                  <span>Productos orgánicos</span>
+                </Link>
+                <Link to="/tienda/productos%20artesanales">
+                  <span>Productos artesanales</span>
+                </Link>
               </div>
             )}
           </div>
         </div>
-        
-        <div className={styles.SecondBar}>
-          <div className={styles.SecondBarLeft}>
-            <span>Ingresa tu dirección y recibe tu pedido en casa</span>
-          </div>
-          {isMobile ? (
-            <></>
-          ) : (
-            <div className={styles.SecondBarRight}>
-              <Link to="/tienda">
-                <span>Ver todo</span>
-              </Link>
-              <Link to="/tienda/frutas">
-                <span>Frutas</span>
-              </Link>
-              <Link to="/tienda/verduras">
-                <span>Verduras y hortalizas</span>
-              </Link>
-              <Link to="/tienda/Granos%20y%20cereales">
-                <span>Granos y cereales</span>
-              </Link>
-              <Link to="/tienda/productos%20organicos">
-                <span>Productos orgánicos</span>
-              </Link>
-              <Link to="/tienda/productos%20artesanales">
-                <span>Productos artesanales</span>
-              </Link>
-            </div>
-          )}
-        </div>
-      </div>
-      {isNavbarOpen && (
-        <div className={styles.overlay} onClick={toggleNavbar}>
-          <div
-            className={`${styles.navbar} ${
-              isNavbarOpen ? styles.open : styles.closed
-            }`}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className={styles["navbarContent"]}>
-              <div className={styles["navbarTop"]}>
-                <div className={styles["navbarHead"]}>
-                  <Link to="/">
-                    <img onClick={handleNavSide} src={Logo} alt="Logo" />
-                  </Link>
-                  <MdClose onClick={toggleNavbar} />
-                </div>
-                <div className={styles["navbarMain"]}>
-                  <Link to="/tienda">
-                    <div
-                      onClick={handleNavSide}
-                      className={styles["navbar-option"]}
-                    >
-                      <TbBuildingStore /> Toda la tienda
-                    </div>
-                  </Link>
-                  <Link to="/tienda">
-                    <div className={styles["navbar-option"]}>
-                      <TbApple /> Frutas
-                    </div>
-                  </Link>
-                  <Link to="/tienda">
-                    <div className={styles["navbar-option"]}>
-                      <TbCarrot /> Verduras
-                    </div>
-                  </Link>
-                  <Link to="/tienda">
-                    <div className={styles["navbar-option"]}>
-                      <TbRosetteDiscount /> Ofertas
-                    </div>
-                  </Link>
-                </div>
-              </div>
-              <div className={styles["navbarBottom"]}>
-                {isAuthenticated ? (
-                  <div className={styles["navbarAccount"]}>
-                    <span>Mi cuenta</span>
+        {isNavbarOpen && (
+          <div className={styles.overlay} onClick={toggleNavbar}>
+            <div
+              className={`${styles.navbar} ${
+                isNavbarOpen ? styles.open : styles.closed
+              }`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className={styles["navbarContent"]}>
+                <div className={styles["navbarTop"]}>
+                  <div className={styles["navbarHead"]}>
                     <Link to="/">
-                      <div className={styles["navbar-option-bottom"]}>
-                        Datos de mi cuenta
+                      <img onClick={handleNavSide} src={Logo} alt="Logo" />
+                    </Link>
+                    <MdClose onClick={toggleNavbar} />
+                  </div>
+                  <div className={styles["navbarMain"]}>
+                    <Link to="/tienda">
+                      <div
+                        onClick={handleNavSide}
+                        className={styles["navbar-option"]}
+                      >
+                        <TbBuildingStore /> Toda la tienda
                       </div>
                     </Link>
-                    <Link to="/">
-                      <div className={styles["navbar-option-bottom"]}>
-                        Mis direcciones
+                    <Link to="/tienda">
+                      <div className={styles["navbar-option"]}>
+                        <TbApple /> Frutas
                       </div>
                     </Link>
-                    <Link to="/">
-                      <div className={styles["navbar-option-bottom"]}>
-                        Necesito ayuda
+                    <Link to="/tienda">
+                      <div className={styles["navbar-option"]}>
+                        <TbCarrot /> Verduras
+                      </div>
+                    </Link>
+                    <Link to="/tienda">
+                      <div className={styles["navbar-option"]}>
+                        <TbRosetteDiscount /> Ofertas
                       </div>
                     </Link>
                   </div>
-                ) : (
-                  <Link to="/login">
-                    <div className={styles["navbarAccountOff"]}>
-                      <div className={styles["navbarAccountOffLeft"]}>
-                        <TbUserCircle />
-                        <p>Ingresar</p>
-                      </div>
-                      <div className={styles["navbarAccountOffRight"]}>
-                        {" "}
-                        <TbChevronRight />
-                      </div>
+                </div>
+                <div className={styles["navbarBottom"]}>
+                  {isAuthenticated ? (
+                    <div className={styles["navbarAccount"]}>
+                      <span>Mi cuenta</span>
+                      <Link to="/">
+                        <div className={styles["navbar-option-bottom"]}>
+                          Datos de mi cuenta
+                        </div>
+                      </Link>
+                      <Link to="/">
+                        <div className={styles["navbar-option-bottom"]}>
+                          Mis direcciones
+                        </div>
+                      </Link>
+                      <Link to="/">
+                        <div className={styles["navbar-option-bottom"]}>
+                          Necesito ayuda
+                        </div>
+                      </Link>
                     </div>
-                  </Link>
-                )}
+                  ) : (
+                    <Link to="/login">
+                      <div className={styles["navbarAccountOff"]}>
+                        <div className={styles["navbarAccountOffLeft"]}>
+                          <TbUserCircle />
+                          <p>Ingresar</p>
+                        </div>
+                        <div className={styles["navbarAccountOffRight"]}>
+                          {" "}
+                          <TbChevronRight />
+                        </div>
+                      </div>
+                    </Link>
+                  )}
 
-                <div className={styles["navbarInfo"]}>
-                  <span>Información</span>
-                  <Link to="/">
-                    <div className={styles["navbar-option-bottom"]}>
-                      Sobre Loocal
-                    </div>
-                  </Link>
-                  <Link to="/">
-                    <div className={styles["navbar-option-bottom"]}>
-                      Soy productor
-                    </div>
-                  </Link>
-                  <Link to="/">
-                    <div className={styles["navbar-option-bottom"]}>Legal</div>
-                  </Link>
-                  <Link to="/">
-                    <div className={styles["navbar-option-bottom"]}>
-                      Trabaja con nosotros
-                    </div>
-                  </Link>
-                  <p>Versión 1.0</p>
+                  <div className={styles["navbarInfo"]}>
+                    <span>Información</span>
+                    <Link to="/">
+                      <div className={styles["navbar-option-bottom"]}>
+                        Sobre Loocal
+                      </div>
+                    </Link>
+                    <Link to="/">
+                      <div className={styles["navbar-option-bottom"]}>
+                        Soy productor
+                      </div>
+                    </Link>
+                    <Link to="/">
+                      <div className={styles["navbar-option-bottom"]}>
+                        Legal
+                      </div>
+                    </Link>
+                    <Link to="/">
+                      <div className={styles["navbar-option-bottom"]}>
+                        Trabaja con nosotros
+                      </div>
+                    </Link>
+                    <p>Versión 1.0</p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+        )}
+      </div>
+      {/* Popup para añadir dirección */}
+      {isPopupOpen && (
+        <div
+          className={styles["popup-overlay"]}
+          onClick={() => setIsPopupOpen(false)}
+        >
+          <div
+            className={styles["popup-content"]}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3>
+              {isAuthenticated ? "Añadir nueva dirección" : "Tu dirección"}
+            </h3>
+            <AddressForm
+              formData={tempAddress}
+              onDepartamentoChange={(e) =>
+                setTempAddress({
+                  ...tempAddress,
+                  departament: e.target.value,
+                  town: "",
+                })
+              }
+              onMunicipioChange={handleMunicipioChange}
+              onAddressChange={(e) => {
+                const value = e.target.value;
+
+                setTempAddress((prevAddress) => ({
+                  ...prevAddress,
+                  address: value,
+                }));
+
+                // Validación
+                if (value.length < 15) {
+                  console.error(
+                    "La dirección debe tener al menos 15 caracteres."
+                  );
+                }
+              }}
+            />
+
+            {!isCityValid && (
+              <div className="errorMessage">
+                Actualmente solo entregamos en: {AVAILABLE_CITIES.join(", ")}.
+              </div>
+            )}
+            {tempAddress.address.length < 15 && (
+              <div className="errorMessage2">
+                Asegúrate de incluir una dirección válida.
+              </div>
+            )}
+
+            <button
+              onClick={handleAddAddress}
+              disabled={
+                !tempAddress.address ||
+                tempAddress.address.length < 15 ||
+                !tempAddress.town ||
+                !tempAddress.departament ||
+                !isCityValid
+              }
+            >
+              Guardar
+            </button>
+          </div>
         </div>
       )}
-    </div>
     </>
   );
 }

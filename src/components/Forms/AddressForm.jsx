@@ -32,7 +32,7 @@ const AddressForm = ({ formData, onDepartamentoChange, onMunicipioChange, onAddr
           <label>Ciudad</label>
           <select
             value={formData.town}
-            onChange={onMunicipioChange}
+            onChange={(e) => {onMunicipioChange(e);}}
             disabled={!formData.departament}
           >
             <option value="">

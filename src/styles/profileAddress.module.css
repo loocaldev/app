@@ -126,6 +126,12 @@
   margin-top: 10px;
 }
 
+.address-map {
+  height: 300px; /* Ajusta el alto del mapa */
+  width: 100%;   /* Usa todo el ancho disponible */
+  margin-top: 1rem; /* Espaciado superior */
+}
+
 @media (max-width: 768px) {
   .address-item {
     flex-direction: column;
