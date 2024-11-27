@@ -33,6 +33,7 @@ function NewOrder() {
     getAddresses, etPrimaryAddress,
     addAddress,} = useAuth();
   const isMobile = useScreenSize();
+  const [errorMessage, setErrorMessage] = useState(""); 
 
   const [isNavbarOpen, setIsNavbarOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -190,7 +191,18 @@ function NewOrder() {
   };
 
   const handleConfirmOrder = () => {
-    // Redirigir al checkout con los datos del carrito y subtotal
+    const minOrderValue = 50000; // Valor mínimo de pedido en pesos colombianos
+
+    if (subtotal < minOrderValue) {
+      setErrorMessage(
+        `Para continuar tu pedido debe ser mínimo de ${formatPriceToCOP(
+          minOrderValue
+        )}.`
+      );
+      return; // No proceder si no cumple el mínimo
+    }
+
+    // Redirigir al checkout si cumple con el mínimo
     navigate("/checkout", { state: { cart, subtotal } });
   };
 
@@ -306,14 +318,25 @@ function NewOrder() {
                 <span>
                   {cart.length} {cart.length === 1 ? "producto" : "productos"}
                 </span>
+                {/* Mensaje de error si no se cumple el mínimo */}
               </div>
-              <div
+              {errorMessage ? (
+                <div className="errorMessage">
+                  <p>{errorMessage}</p>
+                  <Link to="/tienda" className={styles["link-to-store"]}>
+                    Ver más productos
+                  </Link>
+                </div>
+              ):(
+                <div
                 className={styles["order-subtotal-button"]}
                 onClick={handleConfirmOrder}
               >
                 <p>Confirmar pedido</p>
                 <FiChevronRight />
               </div>
+              )}
+              
             </div>
           </div>
         </div>

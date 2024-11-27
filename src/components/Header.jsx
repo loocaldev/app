@@ -55,6 +55,7 @@ function Header() {
   const [isDebugMode, setIsDebugMode] = useState(false); // Estado de depuración
 
   const [selectedAddress, setSelectedAddress] = useState(null);
+
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [products, setProducts] = useState([]);
@@ -63,6 +64,7 @@ function Header() {
     return savedTempAddress || { departament: "", town: "", address: "" };
   });
   const [isCityValid, setIsCityValid] = useState(true);
+  const [suggestions, setSuggestions] = useState([]);
   
 
   const validateCity = (city) => {
@@ -163,7 +165,7 @@ function Header() {
     fetchProducts();
   }, []);
   // En el useEffect de búsqueda avanzada
-  const suggestions = useAdvancedSearch(products, searchNavQuery);
+  const filteredSuggestions = useAdvancedSearch(products, searchNavQuery);
 useEffect(() => {
   const fetchSuggestions = async () => {
     if (searchNavQuery.trim() === "") {
@@ -676,18 +678,27 @@ useEffect(() => {
                         <TbBuildingStore /> Toda la tienda
                       </div>
                     </Link>
-                    <Link to="/tienda">
-                      <div className={styles["navbar-option"]}>
+                    <Link to="/tienda/frutas">
+                    <div
+                        onClick={handleNavSide}
+                        className={styles["navbar-option"]}
+                      >
                         <TbApple /> Frutas
                       </div>
                     </Link>
-                    <Link to="/tienda">
-                      <div className={styles["navbar-option"]}>
+                    <Link to="/tienda/verduras">
+                    <div
+                        onClick={handleNavSide}
+                        className={styles["navbar-option"]}
+                      >
                         <TbCarrot /> Verduras
                       </div>
                     </Link>
-                    <Link to="/tienda">
-                      <div className={styles["navbar-option"]}>
+                    <Link to="/tienda/promoción">
+                    <div
+                        onClick={handleNavSide}
+                        className={styles["navbar-option"]}
+                      >
                         <TbRosetteDiscount /> Ofertas
                       </div>
                     </Link>

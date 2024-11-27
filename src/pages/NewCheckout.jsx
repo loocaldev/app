@@ -30,7 +30,7 @@ import toast from "react-hot-toast";
 import { departamentosYMunicipios } from "../data/departamentosYMunicipios"; // Este archivo ya debe estar en tu estructura
 import { indicativos } from "../data/indicativos";
 import FooterLight from "../components/FooterLight.jsx";
-import { formatDateString, getAvailableHours } from "../utils/dateTime.js";
+import { getNextAvailableDates2, getAvailableHours2 } from "../utils/dateTime2.js";
 import useTransportCost from "../hooks/transportCost.js";
 
 const formatPriceToCOP = (price) => {
@@ -46,10 +46,12 @@ const formatPriceToCOP = (price) => {
 };
 
 function NewCheckout() {
+  const minOrderValue = 50000;
   const [isMessageHidden, setIsMessageHidden] = useState(false);
   const [isCityValid, setIsCityValid] = useState(true);
   const [errors, setErrors] = useState([]);
   const { cart, subtotal } = useCart();
+  const [availableHours, setAvailableHours] = useState([]);
   const navigate = useNavigate();
   const { token, isAuthenticated, logout, userData, addresses, getAddresses } =
     useAuth();
@@ -126,47 +128,15 @@ function NewCheckout() {
 
   const [userType, setUserType] = useState("persona"); // Default: Persona}
 
+  useEffect(() => {
+    setAvailableDates(getNextAvailableDates2());
+  }, []);
+
   // const [loadingTransportCost, setLoadingTransportCost] = useState(false);
   const [transportError, setTransportError] = useState(null);
   const { transportCost, loading: loadingTransportCost } = useTransportCost(
     formData.town
   );
-
-  // const fetchTransportCost = async (town) => {
-  //   if (!town) return;
-
-  //   setLoadingTransportCost(true);
-  //   setTransportError(null); // Resetear errores previos
-
-  //   try {
-  //     const response = await axios.get(
-  //       `https://loocal.co/api/orders/transport-cost?city=${encodeURIComponent(
-  //         town
-  //       )}`
-  //     );
-  //     // console.log(response.request.response)
-  //     console.log(
-  //       `/api/orders/transport-cost?city=${encodeURIComponent(town)}`
-  //     );
-  //     console.log(response);
-
-  //     const cost = response.data.cost;
-  //     setFormData((prev) => ({ ...prev, transportCost: cost }));
-  //     console.log(response.data.cost);
-  //   } catch (error) {
-  //     console.error("Error al obtener el costo de transporte:", error);
-  //     setTransportError(
-  //       "No se pudo calcular el costo de transporte. Por favor, revisa la dirección."
-  //     );
-  //     setFormData((prev) => ({ ...prev, transportCost: 0 })); // Reinicia el costo si falla
-  //   } finally {
-  //     setLoadingTransportCost(false);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   fetchTransportCost(formData.town);
-  // }, [formData.town]);
 
   useEffect(() => {
     setFormData((prev) => ({ ...prev, transportCost }));
@@ -193,13 +163,6 @@ function NewCheckout() {
       documentNumber: "", // Limpia el número de documento
     }));
   };
-
-  useEffect(() => {
-    console.log(
-      "Temp Address en localStorage:",
-      localStorage.getItem("tempAddress")
-    );
-  }, []);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -254,7 +217,6 @@ function NewCheckout() {
   useEffect(() => {
     if (isNavbarOpen) {
       document.body.style.overflow = "hidden";
-      console.log(finalTotal);
     } else {
       document.body.style.overflow = "";
     }
@@ -316,38 +278,20 @@ function NewCheckout() {
     }));
   };
 
-  const handleDateSelect = (dateString) => {
-    const formattedDate = new Date(dateString).toISOString().split("T")[0]; // Formato ISO
-    setSelectedDate(formattedDate);
+  const handleDateSelect = (date) => {
+    setSelectedDate(date);
+    setAvailableHours(getAvailableHours2(date));
     setFormData({
       ...formData,
-      delivery_date: formattedDate,
-    });
+      delivery_date: date,
+    });// Actualiza horas disponibles al cambiar la fecha
   };
 
   const handleTimeSelect = (hour) => {
     setSelectedHour(hour);
-    setFormData({ ...formData, delivery_time: hour });
+    setFormData((prev) => ({ ...prev, delivery_time: hour }));
   };
 
-  const getNextFiveDays = () => {
-    const days = [];
-    const today = new Date();
-
-    for (let i = 0; i < 8; i++) {
-      const nextDate = new Date(today);
-      nextDate.setDate(today.getDate() + i);
-
-      // Formato ISO YYYY-MM-DD
-      const formattedDate = nextDate.toISOString().split("T")[0];
-      // Solo agregar el día si tiene horas disponibles
-      if (getAvailableHours(formattedDate).length > 0) {
-        days.push(formattedDate);
-      }
-    }
-
-    return days;
-  };
 
   useEffect(() => {
     const loadWompiScript = () => {
@@ -364,10 +308,6 @@ function NewCheckout() {
       }
     };
     loadWompiScript();
-  }, []);
-
-  useEffect(() => {
-    setAvailableDates(getNextFiveDays());
   }, []);
 
   const handleDepartamentoChange = (e) => {
@@ -487,6 +427,7 @@ function NewCheckout() {
     }
 
     const fullPhoneNumber = `${formData.phoneCode} ${formData.phone}`;
+    const formattedSubtotal = parseFloat(subtotal.toFixed(0));
     const newOrderData = {
       custom_order_id: `ORD${Date.now()}`,
       items: cart.map((item) => ({
@@ -494,7 +435,7 @@ function NewCheckout() {
         product_variation_id: item.variationId || null,
         quantity: item.quantity,
       })),
-      subtotal: subtotal,
+      subtotal: formattedSubtotal,
       discount_code: formData.discountCode,
       delivery_date: formData.delivery_date,
       delivery_time: formData.delivery_time,
@@ -563,7 +504,6 @@ function NewCheckout() {
           },
         }
       );
-      console.log("Hash de integridad generado:", response.data.hash); // Validación en consola
       return response.data.hash;
     } catch (error) {
       console.error(
@@ -596,7 +536,6 @@ function NewCheckout() {
       const transaction = result.transaction;
       if (transaction && transaction.status === "APPROVED") {
         const transactionId = transaction.id; // Asignar `transactionId` devuelto por Wompi
-        console.log("Transacción aprobada:", transactionId);
         navigate(`/order-status?id=${transactionId}`);
       } else if (transaction) {
         toast.error("Transacción no aprobada. Intenta de nuevo.");
@@ -693,6 +632,14 @@ function NewCheckout() {
       return;
     }
     setAttemptedSubmit(true);
+    if (subtotal < minOrderValue) {
+      toast.error(
+        `El subtotal debe ser al menos ${formatPriceToCOP(
+          minOrderValue
+        )} para completar tu compra.`
+      );
+      return;
+    }
     if (validateForm()) {
       try {
         // 1. Crea la orden solo si no existe una previamente creada
@@ -736,64 +683,90 @@ function NewCheckout() {
     errors,
     attemptedSubmit,
     requiredFields,
-  }) => (
-    <div className={styles["box-resume"]}>
-      {/* Detalle de descuentos */}
-      <div className={styles["box-resume-discount"]}>
-        {totalDiscount > 0 && (
-          <>
-            <div className={styles["discount-message"]}>
-              <span>¡Descuentos aplicados!</span>
-              <span>-{formatPriceToCOP(totalDiscount)}</span>
-            </div>
-            <div className={styles["discount-detail"]}>
-              {/* Descuento por pago online */}
-              {paymentDiscount > 0 && (
-                <div className={styles["discount-detail-item"]}>
-                  <span>Descuento por pago online</span>
-                  <span>{formatPriceToCOP(paymentDiscount)}</span>
-                </div>
-              )}
-              {/* Descuento aplicado por código */}
-              {discountInfo && discountInfo.discount_value > 0 && (
-                <div className={styles["discount-detail-item"]}>
-                  <span>Descuento en subtotal</span>
-                  <span>{formatPriceToCOP(discountInfo.discount_value)}</span>
-                </div>
-              )}
-              {/* Descuento en transporte */}
-              {transportDiscount > 0 && (
-                <div className={styles["discount-detail-item"]}>
-                  <span>Descuento en transporte</span>
-                  <span>-{formatPriceToCOP(transportDiscount)}</span>
-                </div>
-              )}
-            </div>
-          </>
-        )}
-      </div>
-
-      {/* Subtotal y total */}
-      <div className={styles["box-resume-info"]}>
-        {/* Mostrar mensaje si la ciudad no es válida */}
-        <div className={styles["box-resume-info-value"]}>
-          <span>Total:</span>
-          <h4>{formatPriceToCOP(finalTotal)}</h4>
+    minOrderValue, // Nuevo prop para el valor mínimo
+  }) => {
+    const isBelowMinOrderValue = subtotal < minOrderValue; // Condición del subtotal mínimo
+  
+    return (
+      <div
+        className={styles["box-resume"]}
+      >
+        <div className={styles["box-resume-discount"]}>
+          {totalDiscount > 0 && (
+            <>
+              <div className={styles["discount-message"]}>
+                <span>¡Descuentos aplicados!</span>
+                <span>-{formatPriceToCOP(totalDiscount)}</span>
+              </div>
+              <div className={styles["discount-detail"]}>
+                {paymentDiscount > 0 && (
+                  <div className={styles["discount-detail-item"]}>
+                    <span>Descuento por pago online</span>
+                    <span>{formatPriceToCOP(paymentDiscount)}</span>
+                  </div>
+                )}
+                {discountInfo && discountInfo.discount_value > 0 && (
+                  <div className={styles["discount-detail-item"]}>
+                    <span>Descuento en subtotal</span>
+                    <span>{formatPriceToCOP(discountInfo.discount_value)}</span>
+                  </div>
+                )}
+                {transportDiscount > 0 && (
+                  <div className={styles["discount-detail-item"]}>
+                    <span>Descuento en transporte</span>
+                    <span>-{formatPriceToCOP(transportDiscount)}</span>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
         </div>
-        <button
-          onClick={handleConfirmOrder}
-          className={`${styles["button"]} ${
-            errors.length > 0 && attemptedSubmit
-              ? styles["button-disabled"]
-              : ""
-          }`}
-        >
-          Confirmar compra
-        </button>
-      </div>
+  
+        <div className={styles["box-resume-info"]}>
+        <div className={styles["box-resume-info-value"]}>
+          {totalDiscount > 0 && ( // Mostrar subtotal inicial si hay descuentos
+          <div className={styles["subtotal-cond"]}>
+          <smal className={styles["subtotal-label"]}>Antes: </smal>
+            <small className={styles["subtotal-initial"]}>
+             {formatPriceToCOP(subtotal+transportCost)}<br/>
+            </small>
+            </div>
+          )}
+          <h4>Total: {formatPriceToCOP(finalTotal)}</h4>
+        </div>
 
-      {/* Mensaje de errores */}
-      {attemptedSubmit && errors.length > 0 && (
+  
+          {/* Mensaje de error si no se cumple el mínimo */}
+          {isBelowMinOrderValue ? (
+            <div className="errorMessage">
+              <p>
+                El subtotal debe ser al menos{" "}
+                {formatPriceToCOP(minOrderValue)} para completar tu compra.
+              </p>
+              <Link to="/tienda" className={styles["link-to-store"]}>
+                Ver más productos
+              </Link>
+            </div>
+          ):(
+            <button
+            onClick={handleConfirmOrder}
+            className={`${styles["button"]} ${
+              (isBelowMinOrderValue ||
+                (errors.length > 0 && attemptedSubmit)) &&
+              styles["button-disabled"]
+            }`}
+            disabled={isBelowMinOrderValue}
+          >
+            Confirmar compra
+          </button>
+          )}
+
+
+  
+          {/* Botón de confirmación desactivado si no se cumple el mínimo */}
+          
+        </div>
+        {attemptedSubmit && errors.length > 0 && (
         <div className="errorMessage">
           <p>Por favor completa los siguientes campos:</p>
           <ul>
@@ -809,8 +782,9 @@ function NewCheckout() {
           </ul>
         </div>
       )}
-    </div>
-  );
+      </div>
+    );
+  };
 
   return (
     <>
@@ -863,7 +837,7 @@ function NewCheckout() {
           <div className={styles["canvas-content"]}>
             <div className={styles["content-multirow"]}>
               <div className={styles["row-one"]}>
-                <div className={styles["box"]}>
+                <div className={styles["box"]}> {/*En este box se esta mostrando el subtotal de pedido. Si aplica la condicion o error de pedido minimo, se debe habilitar el border rojo como con los otros box. */}
                   <div className={styles["box-header"]}>
                     <div className={styles["box-header-info"]}>
                       <div className={styles["box-header-icon"]}>
@@ -906,9 +880,6 @@ function NewCheckout() {
                       <ProfileSelect
                         userData={userData}
                         onSelect={(value) => {
-                          console.log(
-                            `[NewCheckout] Selección del perfil: ${value}`
-                          );
                           if (value === "profile") {
                             setUseProfileData(true);
                             setUserType("persona");
@@ -936,9 +907,6 @@ function NewCheckout() {
                           }
                         }}
                         onUserTypeChange={(value) => {
-                          console.log(
-                            `[NewCheckout] userType actualizado a: ${value}`
-                          );
                           setUserType(value);
                           setFormData((prevData) => ({
                             ...prevData,
@@ -1229,7 +1197,7 @@ function NewCheckout() {
                       {/*Este es el selector de fecha y hora pare recibir el pedido. Te pido que por favor tanto la selección de fecha como de hora, sea en una sola linea cada uno, por lo tanto debe haber scroll horizontal e idealmente unas flechas (angleLeft y angleRight) para navegar en ese scroll en PC's y Mobile. Tambien el scroll puede ser touch. Ten en cuenta también mostrar el estilo de selección para la fecha y hora seleccionada. */}
                       <label>Selecciona el día</label>
                       <DatePicker
-                        dates={getNextFiveDays()}
+                        dates={getNextAvailableDates2()} // Solo fechas con horas disponibles
                         onDateSelect={handleDateSelect}
                         selectedDate={selectedDate} // Pasa la fecha seleccionada aquí en formato YYYY-MM-DD
                       />
@@ -1397,6 +1365,7 @@ function NewCheckout() {
                       errors={errors}
                       attemptedSubmit={attemptedSubmit}
                       requiredFields={requiredFields}
+                      minOrderValue={minOrderValue}
                     />
                   )}
                 </div>
@@ -1417,6 +1386,7 @@ function NewCheckout() {
                     errors={errors}
                     attemptedSubmit={attemptedSubmit}
                     requiredFields={requiredFields}
+                    minOrderValue={minOrderValue}
                   />
                 </div>
               )}

@@ -1,57 +1,58 @@
-import React, { useRef } from 'react';
-import styles from '../styles/NewCheckout.module.css';
-import { formatDateString, getAvailableHours } from '../utils/dateTime.js';
+import React, { useRef } from "react";
+import styles from "../styles/NewCheckout.module.css";
+import { formatDateString, getNextAvailableDates } from "../utils/dateTime.js";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
-
-// Función para verificar si un valor es una fecha válida
-const formatISODate = (date) => {
-  const parsedDate = new Date(date);
-  return !isNaN(parsedDate) ? parsedDate.toISOString().split('T')[0] : null; // Retorna null si la fecha no es válida
-};
+import { DateTime } from "luxon";
+import { getAvailableHours2, getNextAvailableDates2, isTodayAvailable } from "../utils/dateTime2.js";
 
 const DatePicker = ({ dates, onDateSelect, selectedDate }) => {
   const datePickerRef = useRef(null);
+  const selectedFormatDate = DateTime.fromISO(selectedDate)  
 
   const scrollLeft = () => {
-    datePickerRef.current.scrollBy({ left: -100, behavior: 'smooth' });
+    datePickerRef.current.scrollBy({ left: -100, behavior: "smooth" });
   };
 
   const scrollRight = () => {
-    datePickerRef.current.scrollBy({ left: 100, behavior: 'smooth' });
+    datePickerRef.current.scrollBy({ left: 100, behavior: "smooth" });
   };
 
+  const availableDates2 = getNextAvailableDates2();
+
+
   return (
+    <>
     <div className={styles["date-picker-container"]}>
       <FiChevronLeft onClick={scrollLeft} className={styles["scroll-button"]} />
       <div className={styles["date-picker"]} ref={datePickerRef}>
-        {dates.map((date, index) => {
-          const formattedDate = formatISODate(date); // Asegura el formato
-          const availableHours = getAvailableHours(date);
+      {availableDates2.map((date, index) => {
+          const dateObj = DateTime.fromISO(date).setLocale("es");
+          const dayName = dateObj.toFormat("cccc"); // Nombre completo del día (Lunes, Martes, etc.)
+          const formattedDate = dateObj.toFormat("LLL dd"); // Mes y día (Nov 26, Nov 27, etc.)
 
-          // Solo muestra el día si hay horas disponibles
-          if (availableHours.length === 0) {
-            return null;
-          }
-          const { dayOfWeek, month, dayOfMonth } = formatDateString(date);
-          
           return (
             <div
-              key={index}
-              className={`${styles["date-option"]} ${formattedDate === selectedDate ? styles["selected"] : ""}`}
-              onClick={() => onDateSelect(formattedDate)}
-            >
-              <span className={styles["date-option-day"]}>{dayOfWeek}</span>
-              <br />
-              <span className={styles["date-option-date"]}>
-                {month} {dayOfMonth}
-              </span>
+                key={`${date}-${index}`}
+                className={`${styles["date-option"]} ${
+                  DateTime.fromISO(date).toISODate() === selectedFormatDate.toISODate() ? styles["selected"] : ""
+                }`}
+                onClick={() => onDateSelect(date)}
+              >
+              <h4>
+                {dayName}
+              </h4>
+              <span>{formattedDate}</span>
             </div>
           );
         })}
       </div>
-      <FiChevronRight onClick={scrollRight} className={styles["scroll-button"]} />
+      <FiChevronRight
+        onClick={scrollRight}
+        className={styles["scroll-button"]}
+      />
     </div>
+    </>
   );
 };
 
-export default DatePicker; 
+export default DatePicker;

@@ -1,4 +1,7 @@
 // utils/dateTimeUtils.js
+import { DateTime } from "luxon";
+
+
 
 // Formato de una hora en formato 24h a AM/PM
 export const formatHour = (hour) => {
@@ -20,76 +23,130 @@ export const formatHour = (hour) => {
   return { hour: formattedHour, minute: minutePart, period };
 };
 
-// Formato de fecha: dd/mm/yyyy -> nombres de mes/día
-// export const formatDateString = (dateString) => {
-//   const [day, month, year] = dateString.split("/");
-//   const dateObj = new Date(year, month - 1, day);
-//   const today = new Date();
-//   const daysOfWeek = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
-//   const months = [
-//     "Ene",
-//     "Feb",
-//     "Mar",
-//     "Abr",
-//     "May",
-//     "Jun",
-//     "Jul",
-//     "Ago",
-//     "Sep",
-//     "Oct",
-//     "Nov",
-//     "Dic",
-//   ];
+// Obtener hora actual en Bogotá como objeto Date
+export const getCurrentTimeInBogota = () => {
+  const now = DateTime.now().setZone("America/Bogota");
+  return new Date(now.toISO());
+};
 
-//   if (
-//     dateObj.getDate() === today.getDate() &&
-//     dateObj.getMonth() === today.getMonth() &&
-//     dateObj.getFullYear() === today.getFullYear()
-//   ) {
-//     return {
-//       dayOfWeek: daysOfWeek[dateObj.getDay()],
-//       dayOfMonth: "",
-//       month: "Hoy",
-//     };
-//   } else {
-//     return {
-//       dayOfWeek: daysOfWeek[dateObj.getDay()],
-//       dayOfMonth: dateObj.getDate(),
-//       month: months[dateObj.getMonth()],
-//     };
-//   }
-// };
+// Validar si dos fechas son el mismo día
+const isToday = (currentDate, selectedDate) => {
+  return (
+    currentDate.getFullYear() === selectedDate.getFullYear() &&
+    currentDate.getMonth() === selectedDate.getMonth() &&
+    currentDate.getDate() === selectedDate.getDate()
+  );
+};
+
+// Obtener las horas disponibles en una fecha seleccionada
+export const getAvailableHours = (selectedDate, additionalHours = 2) => {
+  const now = getCurrentTimeInBogota();
+  const selectedDateObj = new Date(selectedDate);
+
+  const firstAvailableHour = 9; // 9:00 AM
+  const lastAvailableHour = 17.5; // 5:30 PM
+
+  // Si la fecha seleccionada es pasada (excepto hoy), devolver vacío
+  if (selectedDateObj < now && !isToday(now, selectedDateObj)) {
+    return [];
+  }
+
+  let startHour = firstAvailableHour;
+
+  // Si es hoy, calcular las horas basadas en la hora actual + `additionalHours`
+  if (isToday(now, selectedDateObj)) {
+    const currentHourWithMinutes =
+      now.getHours() + now.getMinutes() / 60 + additionalHours;
+
+    // Ajustar al siguiente intervalo de 30 minutos
+    startHour = Math.ceil(currentHourWithMinutes * 2) / 2;
+
+    // Validar si el `startHour` está fuera del rango permitido
+    if (startHour > lastAvailableHour) {
+      return []; // No hay más horas disponibles hoy
+    }
+
+    // Ajustar para no permitir horas antes de `firstAvailableHour`
+    startHour = Math.max(startHour, firstAvailableHour);
+  }
+
+  // Generar las horas disponibles
+  const hours = [];
+  for (let hour = startHour; hour <= lastAvailableHour; hour += 0.5) {
+    const hourString = `${Math.floor(hour)}:${hour % 1 === 0 ? "00" : "30"}`;
+    hours.push(hourString);
+  }
+
+  // console.log(`Horas disponibles para ${selectedDate}:`, hours);
+  return hours;
+};
+
+
+
+export const getNextAvailableDates = (additionalHours = 2) => {
+  const now = getCurrentTimeInBogota();
+  const dates = [];
+  let daysChecked = 0;
+
+  while (dates.length < 7) {
+    const nextDate = new Date(now);
+    nextDate.setDate(now.getDate() + daysChecked);
+
+    const availableHours = getAvailableHours(nextDate, additionalHours);
+
+    // Solo incluir fechas con horas disponibles
+    if (availableHours.length > 0) {
+      dates.push({
+        date: nextDate.toISOString().split("T")[0],
+        hours: availableHours,
+      });
+    }
+
+    daysChecked++;
+  }
+
+  // console.log("Fechas disponibles calculadas:", dates);
+  return dates;
+};
+
+
+// Obtener los próximos 5 días con horarios disponibles
+export const getNextFiveDays = () => {
+  const now = getCurrentTimeInBogota();
+
+  const days = [];
+  for (let i = 0; i < 5; i++) {
+    const nextDate = new Date(now);
+    nextDate.setDate(now.getDate() + i);
+
+    const availableHours = getAvailableHours(nextDate);
+    if (availableHours.length > 0) {
+      days.push({ date: nextDate.toISOString().split("T")[0], hours: availableHours });
+    }
+  }
+
+  return days;
+};
 
 
 export const formatDateString = (date) => {
-  // Convertir a objeto Date si date es un string
-  const parsedDate = typeof date === 'string' ? new Date(date) : date;
+  if (typeof date === "object" && date.date) {
+    date = date.date; // Extraer la propiedad `date` si es un objeto con esta clave
+  }
 
-  // Verificar si el objeto Date es válido
-  if (isNaN(parsedDate.getTime())) {
+  // Convertir a un objeto DateTime de luxon, asegurando la zona horaria
+  const parsedDate = DateTime.fromISO(date, { zone: "America/Bogota" });
+
+  // Validar si el objeto DateTime es válido
+  if (!parsedDate.isValid) {
     console.error("Fecha inválida en formatDateString:", date);
     return { dayOfWeek: "", month: "", dayOfMonth: "Fecha inválida" };
   }
 
-  const dayOfWeek = parsedDate.toLocaleDateString("es-CO", { weekday: "short" });
-  const month = parsedDate.toLocaleDateString("es-CO", { month: "short" });
-  const dayOfMonth = parsedDate.getDate();
+  // Formatear la fecha
+  const dayOfWeek = parsedDate.toFormat("ccc"); // Ejemplo: "mar"
+  const month = parsedDate.toFormat("LLL"); // Ejemplo: "nov"
+  const dayOfMonth = parsedDate.toFormat("d"); // Ejemplo: "26"
 
   return { dayOfWeek, month, dayOfMonth };
-};
-
-// Horas disponibles basadas en la fecha seleccionada
-export const getAvailableHours = (selectedDate) => {
-  const hours = [];
-  const now = new Date();
-  const isToday = selectedDate === now.toISOString().split("T")[0];
-
-  let startHour = isToday ? now.getHours() + 4 : 9; // Comienza desde 4 horas después si es hoy, o desde las 9 AM si es otro día
-
-  for (let hour = startHour; hour < 18; hour++) { // Hasta las 6 PM
-    hours.push(`${hour}:00`); // Agrega solo la hora redondeada para simplificar
-    hours.push(`${hour}:30`); // Agrega también la media hora
-  }
-
-  return hours;
 };

@@ -198,6 +198,24 @@
   cursor: not-allowed;
 }
 
+.subtotal-cond {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  align-items: center;
+}
+
+.subtotal-label {
+  font-size: 14px;
+  color: var(--gray-3);
+  font-weight: 400;
+}
+
+.subtotal-initial {
+  text-decoration: line-through;
+  color: var(--gray-3)
+}
+
 .error-messages {
   margin-top: 8px;
   background-color: #fbeaea;

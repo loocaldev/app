@@ -10,10 +10,12 @@ export const useAdvancedSearch = (data, searchQuery, options = {}) => {
 
   useEffect(() => {
     if (!searchQuery.trim()) {
-      setResults(data);
+      if (results !== data) {
+        setResults(data); // Solo establece resultados si es necesario
+      }
       return;
     }
-
+  
     const fuse = new Fuse(data, {
       keys: ["name"],
       threshold: 0.3,
@@ -22,44 +24,47 @@ export const useAdvancedSearch = (data, searchQuery, options = {}) => {
       ignoreLocation: true,
       ...options,
     });
-
+  
     const fuseResults = fuse.search(normalizeText(searchQuery));
     const highlightedResults = fuseResults.map(({ item, matches }) => {
       let highlightedName = item.name;
-
+  
       if (matches) {
         matches.forEach((match) => {
           if (match.key === "name") {
             const originalName = item.name;
             const normalizedOriginal = normalizeText(originalName);
-
+  
             const highlightedParts = [];
             let lastIndex = 0;
-
+  
             match.indices.forEach(([start, end]) => {
               const originalStart = normalizedOriginal.slice(0, start).length;
               const originalEnd = normalizedOriginal.slice(0, end + 1).length;
-
+  
               highlightedParts.push(originalName.slice(lastIndex, originalStart));
               highlightedParts.push(
                 `<mark>${originalName.slice(originalStart, originalEnd)}</mark>`
               );
               lastIndex = originalEnd;
             });
-
+  
             highlightedParts.push(originalName.slice(lastIndex));
             highlightedName = highlightedParts.join("");
           }
         });
       }
-
+  
       return {
         ...item,
         highlightedName,
       };
     });
-
-    setResults(highlightedResults);
+  
+    // Solo actualiza el estado si cambia el resultado
+    if (JSON.stringify(results) !== JSON.stringify(highlightedResults)) {
+      setResults(highlightedResults);
+    }
   }, [data, searchQuery, options]);
 
   return results;

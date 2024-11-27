@@ -13,14 +13,10 @@ const UserDataForm = ({
   const [userType, setUserType] = useState(defaultUserType);
 
   useEffect(() => {
-    console.log(
-      `[UserDataForm] defaultUserType actualizado: ${defaultUserType}`
-    );
     setUserType(defaultUserType);
   }, [defaultUserType]);
 
   const handleUserTypeChange = (type) => {
-    console.log(`[UserDataForm] userType cambiado a: ${type}`);
     setUserType(type);
     onChange({ target: { name: "userType", value: type } });
   };

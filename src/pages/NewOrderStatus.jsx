@@ -4,6 +4,10 @@ import axios from "axios";
 import { useCart } from '../hooks/useCart';
 import formatPriceToCOP from "../utils/formatPrice";
 import styles from "../styles/NewOrderStatus.module.css";
+import jsPDF from "jspdf";
+import autoTable from 'jspdf-autotable'
+import html2canvas from "html2canvas";
+
 
 import LogoGray from "../assets/logo-gray3.svg";
 import { IoMdCheckmark, IoMdClose, IoMdTime } from "react-icons/io";
@@ -113,6 +117,7 @@ function NewOrderStatus() {
       setErrorMessage("Error al obtener los detalles de la orden.");
     }
   };
+  
 
   const formatAttributeData = (attributeData) => {
     if (!attributeData || typeof attributeData !== 'object') {
@@ -127,6 +132,54 @@ function NewOrderStatus() {
         return `${attributeName}: ${values}`;
       })
       .join("; ");
+  };
+  console.log(orderDetails)
+
+  const generatePDF = async () => {
+    const receiptElement = document.querySelector(`.${styles["box-receipt"]}`);
+    if (!receiptElement) {
+      console.error("No se encontró el elemento del recibo.");
+      return;
+    }
+  
+    try {
+      // Capturar el HTML del recibo como imagen
+      const canvas = await html2canvas(receiptElement, { scale: 2 }); // Escalado para mayor calidad
+      const imgData = canvas.toDataURL("image/png");
+  
+      // Tamaño carta y márgenes
+      const pdfWidth = 612; // Ancho de tamaño carta en puntos
+      const pdfHeight = 792; // Alto de tamaño carta en puntos
+      const margin = 36; // Márgenes de 0.5 pulgadas (36 puntos)
+      const contentWidth = pdfWidth - margin * 2; // Ancho disponible para el contenido
+      const contentHeight = pdfHeight - margin * 2; // Alto disponible para el contenido
+  
+      // Dimensiones de la imagen capturada
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+  
+      // Calcular escala para ajustar al contenido dentro del área disponible
+      const ratio = Math.min(contentWidth / imgWidth, contentHeight / imgHeight);
+      const scaledWidth = imgWidth * ratio;
+      const scaledHeight = imgHeight * ratio;
+  
+      // Posicionar el contenido dentro de los márgenes, más cerca de la parte superior
+      const xOffset = margin;
+      const yOffset = margin; // Posiciona en la parte superior según el margen
+  
+      // Crear el PDF
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "pt", // Unidades en puntos
+        format: "letter", // Tamaño carta
+      });
+  
+      // Agregar la imagen al PDF
+      pdf.addImage(imgData, "PNG", xOffset, yOffset, scaledWidth, scaledHeight);
+      pdf.save(`Recibo_${orderDetails.custom_order_id}.pdf`);
+    } catch (error) {
+      console.error("Error al generar el PDF:", error);
+    }
   };
 
   return (
@@ -212,7 +265,6 @@ function NewOrderStatus() {
                       <div className={styles["item-detail"]}>
                         <span>{item.productDetails?.name} {formatAttributeData(item.product_variation?.attribute_data)}</span>
                         <span>x{item.quantity}</span>
-                        <span>({item.displayQuantity})</span>
                       </div>
                       <div className={styles["item-price"]}>
                         <span>{formatPriceToCOP(item.unit_price)}</span>
@@ -225,6 +277,11 @@ function NewOrderStatus() {
           </>
         )}
       </div>
+      <div className={styles["receipt-download"]}>
+  <button onClick={generatePDF} className={styles["button-download"]}>
+    Descargar PDF
+  </button>
+</div>
     </div>
   );
 }

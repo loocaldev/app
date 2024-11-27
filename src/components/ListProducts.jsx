@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { getAllProducts } from "../api/products.api";
 import ProductCardHZ from "./ProductCardHZ";
-import CharecterLoocal from "../assets/character_loocal.svg"
+import CharecterLoocal from "../assets/character_loocal.svg";
 import styles from "../styles/ListProducts.module.css";
 import { useAdvancedSearch } from "../hooks/useAdvancedSearch";
 import SkeletonLoader from "./SkeletonLoader";
@@ -13,16 +13,34 @@ function ListProducts({ searchQuery }) {
 
   const filteredProducts = useAdvancedSearch(products, searchQuery);
 
+  // Función para mezclar productos una sola vez
+  const shuffleArray = (array) => {
+    return array.sort(() => Math.random() - 0.5);
+  };
+
+  // Cargar productos desde la API y mezclarlos solo una vez
   useEffect(() => {
+    let isMounted = true; // Evitar actualizaciones en componentes desmontados
     async function fetchProducts() {
       setLoading(true);
-      const res = await getAllProducts();
-      setProducts(res.data);
-      setLoading(false); // Finalizar carga
+      try {
+        const res = await getAllProducts();
+        if (isMounted) {
+          setProducts(shuffleArray(res.data)); // Mezclar productos
+        }
+      } catch (error) {
+        console.error("Error al cargar productos:", error);
+      } finally {
+        if (isMounted) setLoading(false); // Finalizar carga
+      }
     }
     fetchProducts();
-  }, []);
+    return () => {
+      isMounted = false; // Limpiar efecto
+    };
+  }, []); // Ejecutar solo una vez al montar el componente
 
+  // Ajustar número de productos mostrados según el tamaño de pantalla
   useEffect(() => {
     function handleResize() {
       if (window.innerWidth < 768) {
@@ -31,7 +49,7 @@ function ListProducts({ searchQuery }) {
         setNumOfProducts(3);
       }
     }
-    handleResize();
+    handleResize(); // Configurar al cargar
     window.addEventListener("resize", handleResize);
     return () => {
       window.removeEventListener("resize", handleResize);
@@ -55,7 +73,7 @@ function ListProducts({ searchQuery }) {
         ))
       ) : (
         <div className={styles["product-not-found"]}>
-          <img src={CharecterLoocal}/>
+          <img src={CharecterLoocal} alt="No encontrado" />
           <span>
             Patroncit@
             <br />

@@ -120,6 +120,18 @@ select:disabled {
   border-radius: 16px;
   padding: 12px;
   font-size: 14px;
+  display: flex;
+}
+
+.errorMessage p {
+  font-size: 14px;
+}
+
+.errorMessage a {
+  background-color: #FEF2EC;
+  color: var(--secondary-organge-color);
+  border-radius: 16px;
+  padding: 2px 6px;
 }
 
 .errorMessage2 {
