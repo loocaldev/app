@@ -46,7 +46,7 @@ function Header() {
   } = useAuth();
   const [searchResults, setSearchResults] = useState([]);
   
-  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+  
   const navigate = useNavigate();
   const isMobile = useScreenSize();
 
@@ -55,7 +55,7 @@ function Header() {
   const [isDebugMode, setIsDebugMode] = useState(false); // Estado de depuración
 
   const [selectedAddress, setSelectedAddress] = useState(null);
-
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [products, setProducts] = useState([]);

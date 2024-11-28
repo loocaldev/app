@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import styles from "../styles/NewOrder.module.css";
 import Logo from "../assets/logo.svg";
 import ProductCardSQRead from "../components/ProductCardSQRead";
-import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { FiChevronLeft, FiChevronRight, FiMapPin, FiChevronDown, FiChevronUp } from "react-icons/fi";
 import { IoIosArrowDown } from "react-icons/io";
 import { useCart } from "../hooks/useCart";
 import { useNavigate, Link } from "react-router-dom";
@@ -43,6 +43,8 @@ function NewOrder() {
     address: "",
   });
   const [isCityValid, setIsCityValid] = useState(true);
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const validateCity = (city) => {
     const isValid = AVAILABLE_CITIES.includes(city.toUpperCase());
@@ -80,6 +82,7 @@ function NewOrder() {
       getAddresses();
     }
   }, [isAuthenticated]);
+  
   useEffect(() => {
     if (!isAuthenticated) {
       const savedAddress = localStorage.getItem("tempAddress");

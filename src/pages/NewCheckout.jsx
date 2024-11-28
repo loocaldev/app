@@ -454,8 +454,9 @@ function NewCheckout() {
         phone: fullPhoneNumber,
         email: formData.email,
       },
-      payment_method: formData.paymentPreference,
-      status: "pending",
+      order_status: 'pending',
+      payment_method: formData.paymentPreference === "online" ? "online" : "in_person",
+      status: formData.paymentPreference === "inPerson" ? "in_progress" : "pending",
     };
 
     console.log(
@@ -479,8 +480,20 @@ function NewCheckout() {
         throw new Error("Error al crear la orden. " + response.data?.error);
       }
     } catch (error) {
-      console.error("Error al crear la orden:", error);
-      throw error;
+      if (error.response) {
+        // Respuesta del servidor con status diferente de 2xx
+        console.error("Error al crear la orden - Response Data:", error.response.data);
+        console.error("Error al crear la orden - Response Status:", error.response.status);
+        console.error("Error al crear la orden - Response Headers:", error.response.headers);
+      } else if (error.request) {
+        // No hubo respuesta del servidor
+        console.error("Error al crear la orden - No Response:", error.request);
+      } else {
+        // Error en la configuración de la solicitud
+        console.error("Error al crear la orden - Request Setup:", error.message);
+      }
+      console.error("Error completo:", error);
+      throw error; // Lanza nuevamente el error para que lo maneje el bloque `catch` de `handleConfirmOrder`
     }
   };
 

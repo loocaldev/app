@@ -33,6 +33,7 @@ import ForgotPassword from "./pages/ForgotPassword.jsx";
 import ResetPassword from "./pages/ResetPassword.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import Register from "./pages/Register.jsx";
+import ProcessingOrder from "./pages/ProcessingOrder.jsx";
 
 const router = createBrowserRouter([
   {
@@ -50,6 +51,7 @@ const router = createBrowserRouter([
       { path: "/order-statu", element: <OrderStatus /> },
       { path: "/order-status", element: <NewOrderStatus /> },
       { path: "/crear-cuenta", element: <CreateAccount /> },
+      { path: "/processing-order", element: <ProcessingOrder /> },
       {
         path: "/create-profile",
         element: <AuthenticatedRoute component={CreateProfile} />,
